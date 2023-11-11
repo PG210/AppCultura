@@ -1,0 +1,98 @@
+{% extends 'layoutsinicio/app.html' %}
+
+{% block content %}
+
+<div class="container mt-5 mb-5">
+    <!--alertar-->
+    {% if error %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <strong>{{error}}</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <!--end alertar-->
+    <div class="row">
+       <div class="col-3 d-none d-sm-block"></div>
+       <div class="col-12 col-lg-6 ">
+         <!--formulario-->
+         <form action="{% url 'reguser' %}" method="post">
+          {% csrf_token %}
+         <div class="container shadow-lg border border-dark" style="background-color:white; border-radius: 10px;">
+            <br>
+        <div class="mb-3 row">
+            <label for="nombre" class="col-sm-3 col-form-label"> Nombre</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="nombre" name="nombre">
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="ape" class="col-sm-3 col-form-label"> Apellido</label>
+            <div class="col-sm-9">
+                <input type="text" class="form-control" id="ape" name="ape">
+            </div>
+        </div>
+        <div class="mb-3 row">
+            <label for="ced" class="col-sm-3 col-form-label"> Cedula</label>
+            <div class="col-sm-9">
+                <input type="number" class="form-control" id="ced" name="ced">
+            </div>
+        </div>
+        
+        <!--select-->
+          <div class="input-group mb-3">
+            <select class="form-select" id="rol" name="rol">
+              {% for rols in rol %}
+                <option value="{{rols.id}}">{{ rols.descrip }}</option>
+              {% endfor %}
+            </select>
+            <label class="input-group-text" for="inputGroupSelect02">Rol</label>
+          </div>
+        <!--end select-->
+         <div class="mb-3 row">
+            <label for="email" class="col-sm-3 col-form-label"> Usuario</label>
+            <div class="col-sm-9">
+              <input type="email" class="form-control" id="email" name="email" value="email@example.com">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="pass1" class="col-sm-3 col-form-label"> Contraseña</label>
+            <div class="col-sm-9">
+              <input type="password" class="form-control" id="pass1" name="pass1">
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="pass2" class="col-sm-3 col-form-label">Confirmar Contraseña</label>
+            <div class="col-sm-9">
+              <input type="password" class="form-control" id="pass2" name="pass2">
+            </div>
+          </div>
+          <div class="container">
+           <!--recordar contraseña--> 
+           <div class="mb-3 row">
+                <div class="col-6 form-check mt-2">
+                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">Recordar</label>
+                </div>
+                <div class="col-6 text-end">
+                    <a href="#" class="form-control-plaintext">Ya tengo cuenta</a>
+                </div>
+            </div>
+            <input type="number" class="form-control" id="cargo" name="cargo" value="1" hidden>
+            <input type="number" class="form-control" id="empresa" name="empresa" value="1" hidden>
+           <!--end contraseña-->
+            <div class="mb-3 row">
+            <button class="btn btn-info">Registrar</button>
+           </div>
+          </div>
+          <br>
+         </div>
+          <!--end formulario -->
+          </form>
+          <br>
+       </div>
+       <div class="col-3 d-none d-sm-block"></div>
+    </div>
+    <br><br>
+</div>
+
+{% endblock %} 

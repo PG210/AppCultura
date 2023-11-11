@@ -1,0 +1,138 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Cursos</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Listado</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Listado de cursos</h5>
+               <!-- Table with stripped rows -->
+               <div class="table-responsive">
+               <table class="table" id="tablareactiva">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Objetivos</th>
+                    <th>Sesiones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for curso in cursos %}
+                  <tr>
+                    <td>{{ curso.nombre }}</td>
+                    <td>{{ curso.descrip }}</td>
+                    <td>{{ curso.precio }}</td>
+                    <td>
+                       <!--aqui modal-->
+                        <!-- Modal Dialog Scrollable -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaObjetivo{{curso.id}}">
+                         Objetivos
+                        </button>
+                        <div class="modal fade" id="modalListaObjetivo{{curso.id}}" tabindex="-1">
+                          <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title">Listado de objetivos</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <table>
+                                    <thead>
+                                      <tr>
+                                        <th>Descripción</th>
+                                        <th>Competencias</th>
+                                      </tr>
+                                    </thead>
+                                  <tbody>
+                                  {% for objetivo in objetivos %}
+                                    {% if objetivo.idcurso == curso %}
+                                    <tr>
+                                      <td>{{ objetivo.descrip }}</td>
+                                      <td>{{ objetivo.competencias }}</td>
+                                    </tr>
+                                    {% endif %}
+                                  {% endfor %}
+                                    </tbody>
+                                </table>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div><!-- End Modal Dialog Scrollable-->
+                      <!--end modal-->
+                    </td>
+                    <td>
+                      <!--aqui modal-->
+                         <!-- Modal Dialog Scrollable -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaCurso{{curso.id}}">
+                          Sesiones
+                        </button>
+                        <div class="modal fade" id="modalListaCurso{{curso.id}}" tabindex="-1">
+                          <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title">Listado de sesiones</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <table>
+                                    <thead>
+                                      <tr>
+                                        <th>Fecha inicio</th>
+                                        <th>Fecha final</th>
+                                        <th>Lugar</th>
+                                      </tr>
+                                    </thead>
+                                  <tbody>
+                                  {% for sesion in sesiones %}
+                                    {% if sesion.idcurso == curso %}
+                                    <tr>
+                                      <td>{{ sesion.fechainicio }}</td>
+                                      <td>{{ sesion.fechafin }}</td>
+                                      <td>{{ sesion.lugar }}</td>
+                                    </tr>
+                                    {% endif %}
+                                  {% endfor %}
+                                    </tbody>
+                                </table>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div><!-- End Modal Dialog Scrollable-->
+                      <!--end modal-->
+                    </td>
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+            </div>
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+  </main><!-- End #main -->
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  {% endblock %} 

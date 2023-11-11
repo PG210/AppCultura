@@ -1,0 +1,53 @@
+{% extends 'layoutsinicio/app.html' %}
+
+{% block content %}
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+       <div class="col-3 d-none d-sm-block"></div>
+       <div class="col-12 col-lg-6 ">
+         <!--formulario-->
+         <form action="{% url 'loginuser' %}" method="POST"> 
+         {% csrf_token %}
+         <div class="container shadow-lg border border-dark" style="background-color:white; border-radius: 10px;">
+            <br>
+         <div class="mb-3 row">
+            <label for="username" class="col-sm-3 col-form-label"><i class="fas fa-user"></i>&nbsp; Usuario</label>
+            <div class="col-sm-9">
+              <input type="email" class="form-control" id="username" name="username" required>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label for="password" class="col-sm-3 col-form-label"><i class="fas fa-lock"></i>&nbsp; Contraseña</label>
+            <div class="col-sm-9">
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+          </div>
+          <div class="container">
+           <!--recordar contraseña--> 
+           <div class="mb-3 row">
+                <div class="col-6 form-check mt-2">
+                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                    <label class="form-check-label" for="exampleCheck1">Recordar</label>
+                </div>
+                <div class="col-6 text-end">
+                    <a href="#" class="form-control-plaintext">Olvidó su contraseña</a>
+                </div>
+            </div>
+           <!--end contraseña-->
+            <div class="mb-3 row">
+            <button class="btn btn-info">Iniciar sesión</button>
+           </div>
+          </div>
+          <br>
+         </div>
+          <!--end formulario -->
+          </form>
+          <br>
+       </div>
+       <div class="col-3 d-none d-sm-block"></div>
+    </div>
+    <br><br>
+</div>
+
+{% endblock %} 
