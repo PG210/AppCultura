@@ -1,0 +1,156 @@
+{% extends 'admin/inicio.html' %}
+{% block content%}
+{% load static%}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Empresas</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+          <li class="breadcrumb-item active">Registro</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+      
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              Registrar Empresa
+            </h5>
+              <!--alertar-->
+              {% if msj %}
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>{{msj}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endif %}
+              <!--end alertar-->
+            <!-- Horizontal Form -->
+            <form action="{% url 'registroEmpresa' %}" method="post">
+              {% csrf_token %}
+              <div class="form-control">
+              <div class="row mb-3">
+                <label for="nombre" class="col-sm-2 col-form-label">Nombre de la Empresa</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="nombre" name="nameEmp" required>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">NIT</label>
+                <div class="col-sm-10">
+                    <input type="number" class="form-control" id="nombre" name="nit" required>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Dirección Sede Principal</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="nombre" name="direccion" required>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Correo</label>
+                <div class="col-sm-10">
+                    <input type="email" class="form-control" id="nombre" name="correo" required>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Télefono</label>
+                <div class="col-sm-10">
+                    <input type="tel" class="form-control" id="nombre" name="telefono" required>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Grupo Empresarial</label>
+                <div class="col-sm-10">
+                  <select class="form-select" aria-label="Default select example"  name="groupEmp">
+                    {% for emp in grp %}
+                      <option value="{{emp.id}}">{{emp.nombre}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Sector</label>
+                <div class="col-sm-10">
+                  <select class="form-select" aria-label="Default select example" name="sector">
+                    {% for sc in secEmp %}
+                      <option value="{{sc.id}}">{{sc.nombre}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Tamaño de la empresa</label>
+                <div class="col-sm-10">
+                    <select class="form-select" aria-label="Default select example" name="tamanioEmp">
+                      {% for tam in tamempresa %}
+                        <option value="{{tam.id}}">{{tam.descrip}}</option>
+                      {% endfor %}
+                    </select>
+                </div>
+              </div>
+              </div>
+            </div>
+              <!-- Creacion de sucursales 
+            
+            <div class="accordion" id="accordionExample">
+              <div class="accordion-item">
+                <p class="accordion-header" id="headingThree">
+                  <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacordion3" aria-expanded="false" aria-controls="idacordion3">
+                    Registrar Sucursales
+                  </a>
+                </p>
+                <div id="idacordion3" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    
+                    <div id="contenedor-sucursal" class="row mb-3 mt-3">
+                    </div>
+                    
+                     <a class="btn btn-primary" onclick="agregarSucursal()">Agregar Sucursal</a>
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+              
+            <div class="form-control">
+              <div class="row mb-3 mt-3" >
+                <label for="mostrarCampos" class="col-sm-2 col-form-label">Tiene sesiones:</label>
+                <div class="col-sm-10">
+                <input type="checkbox"  id="mostrarCampos" onclick="mostrarOcultarCampos()">
+                </div>
+              </div>
+              
+               <div id="formulario-container" class="row mb-3 mt-3">
+              </div>
+              
+              <div id="camposDiv" style="display: none;">
+                 <a class="btn btn-primary" onclick="agregarCampo()">Nueva sesión</a>
+              </div>
+             </div>
+            -->
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
+                <a type="button" class="btn btn-success" href="{% url 'listarempresa' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
+                <button type="reset" class="btn btn-secondary">Cancelar</button>
+              </div>
+            </form>
+           
+          </div>
+        </div>
+
+      </div>
+       
+      </div>
+    </section>
+  </main> 
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  <script src="{% static 'admin/assets/js/script.js' %} "></script> 
+{% endblock content%}

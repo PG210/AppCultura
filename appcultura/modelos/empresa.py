@@ -9,9 +9,9 @@ class Empresa(models.Model):
     direccion = models.CharField(max_length=255, null=True, blank=True)
     correo = models.CharField(max_length=255, null=True, blank=True)
     telefono = models.CharField(max_length=255, null=True, blank=True)
-    idtam = models.OneToOneField(TamEmpresa, on_delete=models.CASCADE)
-    idsector = models.OneToOneField(SectorEmpresa, on_delete=models.CASCADE)
-    idgrupoem = models.OneToOneField(GrupoEmpresa, on_delete=models.CASCADE, null=True)
+    idtam = models.ForeignKey(TamEmpresa, on_delete=models.CASCADE)
+    idsector = models.ForeignKey(SectorEmpresa, on_delete=models.CASCADE)
+    idgrupoem = models.ForeignKey(GrupoEmpresa, on_delete=models.CASCADE, null=True)
     
 
 

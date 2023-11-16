@@ -4,7 +4,7 @@ from .area import Area
 from .departamento import Departamento
 
 class EmpresaAreas(models.Model):
-      idempresa = models.OneToOneField(Empresa, on_delete=models.CASCADE)
-      idarea = models.OneToOneField(Area, on_delete=models.CASCADE)
-      idepar = models.OneToOneField(Departamento, on_delete=models.CASCADE, null=True)
+      idempresa = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+      idarea = models.ForeignKey(Area, on_delete=models.CASCADE)
+      idepar = models.ForeignKey(Departamento, on_delete=models.CASCADE, null=True)
       
