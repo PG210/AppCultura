@@ -1,5 +1,6 @@
    var contadorCampos = 1;
    var contaobjetivos =1;
+   var contakpiobj = 1;
 
    function mostrarOcultarCampos() {
             var checkbox = document.getElementById("mostrarCampos");
@@ -11,7 +12,7 @@
             } else {
                 camposDiv.style.display = "none";
             }
-        }
+   }
         //================================================0
     function agregarCampo() {
       var formularioContainer = document.getElementById('formulario-container');
@@ -122,3 +123,70 @@
  
       contaobjetivos++;
     }
+    //===============================================
+    //================funcion para agregar obj kpi ===========0
+    function funcionkpi() {
+        var kpiContainer = document.getElementById('contenedor-obj-kpi');
+    
+        // Crear un nuevo grupo de inputs
+        var kpiGrupo = document.createElement('div');
+        kpiGrupo.classList.add('mt-3', 'form-control'); // Agregar la clase al grupo
+        // Crear tres inputs y agregarlos al grupo
+
+        // Etiqueta y campo para la fecha de inicio
+        var etiquetakpi = document.createElement('label');
+        etiquetakpi.innerHTML = 'objetivo:';
+        etiquetakpi.classList.add('col-sm-2', 'col-form-label');
+        kpiGrupo.appendChild(etiquetakpi);
+
+        var objkpi = document.createElement('textarea');
+        objkpi.type = 'text';
+        objkpi.name = 'objetivos[]';
+        objkpi.classList.add('col-sm-10');
+        objkpi.setAttribute('rows', '1');
+        objkpi.setAttribute('required', 'required');
+        kpiGrupo.appendChild(objkpi);
+
+        // Etiqueta y campo para meta
+        var etiqueCom = document.createElement('label');
+        etiqueCom.innerHTML = 'Meta:';
+        etiqueCom.classList.add('col-sm-2', 'col-form-label');
+        kpiGrupo.appendChild(etiqueCom);
+  
+        var inputCom = document.createElement('textarea');
+        inputCom.type = 'text';
+        inputCom.name = 'metas[]';
+        inputCom.classList.add('col-sm-10');
+        inputCom.setAttribute('rows', '2');
+        inputCom.setAttribute('required', 'required');
+        kpiGrupo.appendChild(inputCom);
+  
+        // Etiqueta y campo para meta
+        var etiqueCom = document.createElement('label');
+        etiqueCom.innerHTML = 'Indicadores de éxito:';
+        etiqueCom.classList.add('col-sm-2', 'col-form-label');
+        kpiGrupo.appendChild(etiqueCom);
+  
+        var inputCom = document.createElement('textarea');
+        inputCom.type = 'text';
+        inputCom.name = 'indicadores[]';
+        inputCom.classList.add('col-sm-10');
+        inputCom.setAttribute('rows', '2');
+        inputCom.setAttribute('required', 'required');
+        kpiGrupo.appendChild(inputCom);   
+
+      // Botón para eliminar el campo
+      var btnDelete = document.createElement('button');
+      btnDelete.innerHTML = 'X';
+      btnDelete.classList.add('col-sm-1', 'btn', 'btn-danger', 'mt-2', 'float-end');
+      btnDelete.onclick = function() {
+      kpiContainer.removeChild(kpiGrupo);
+    };
+    
+    kpiGrupo.appendChild(btnDelete);
+    // Agregar el nuevo grupo al contenedor
+    kpiContainer.appendChild(kpiGrupo);
+
+  contakpiobj++;
+}
+    //=======================================

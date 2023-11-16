@@ -12,6 +12,5 @@ class Empresa(models.Model):
     idtam = models.OneToOneField(TamEmpresa, on_delete=models.CASCADE)
     idsector = models.OneToOneField(SectorEmpresa, on_delete=models.CASCADE)
     idgrupoem = models.OneToOneField(GrupoEmpresa, on_delete=models.CASCADE, null=True)
-    
 
 
