@@ -1,0 +1,146 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+{% load static %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>KPIs Empresa</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Registro</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+      
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              Registro KPI por areas y departamentos
+            </h5>
+              <!--alertar-->
+              {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+               {% endif %}
+              <!--end alertar-->
+            <!-- Horizontal Form -->
+            <form action="{% url 'kpiarea' %}" method="post">
+              {% csrf_token %}
+              <div class="form-control">
+              <div class="row mb-3">
+                <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" id="nombre" name="nombre" required>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
+                <div class="col-sm-10">
+                  <textarea type="text" class="form-control" id="descrip" name="descrip" rows="3" required></textarea>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="precio" class="col-sm-2 col-form-label">Fecha inicial</label>
+                <div class="col-sm-4">
+                  <input type="date" class="form-control" id="fechaini" name="fechaini" required>
+                </div>
+                <!--fecha final-->
+                <label for="precio" class="col-sm-2 col-form-label">Fecha Final</label>
+                <div class="col-sm-4">
+                  <input type="date" class="form-control" id="fechafin" name="fechafin" required>
+                </div>
+              </div>
+              <!--elegir empresa-->
+              <div class="row mb-3">
+                <label for="valor" class="col-sm-2 col-form-label">Valor</label>
+                <div class="col-sm-4">
+                  <input type="number" class="form-control" id="valor" name="valor" required>
+                </div>
+                <label for="descrip" class="col-sm-2 col-form-label">Empresa</label>
+                <div class="col-sm-4">
+                  <input type="text" class="form-control" id="emp" name="emp" value="Evolución" readonly>
+                </div>
+              </div>
+              <!--elegir empresa-->
+              <div class="row mb-3">
+                <label for="area" class="col-sm-2 col-form-label">Area</label>
+                <div class="col-sm-4">
+                    <select id="area" name="area" class="form-select" required>
+                        {% for ar in area %}
+                        <option value="{{ar.id}}">{{ar.nombre}}</option>
+                        {% endfor %}
+                      </select>
+                </div>
+                <label for="depar" class="col-sm-2 col-form-label">
+                  Departamento&nbsp; 
+                  <a type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Al seleccionar 'Sin departamentos' el KPI se registra solamnete para el area.">
+                    <i class="bi bi-info-circle"></i>
+                  </a> 
+                </label>
+                <div class="col-sm-4">
+                  <select id="depar" name="depar" class="form-select">
+                    <option value="none" selected>Sin departamentos</option>
+                    {% for dep in depart %}
+                      <option value="{{dep.id}}">{{dep.nombre}}</option>
+                     {% endfor %}
+                    </select>
+              </div>
+              </div>
+            </div>
+              <!--objetivos del curso-->
+            <!-- Default Accordion -->
+            <div class="accordion" id="accordionExample">
+              <div class="accordion-item">
+                <p class="accordion-header" id="headingThree">
+                  <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacordion3" aria-expanded="false" aria-controls="idacordion3">
+                    Registrar objetivos
+                  </a>
+                </p>
+                <div id="idacordion3" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <!-- Contenedor para los campos del formulario -->
+                    <div id="contenedor-obj-kpi" class="row mb-3 mt-2">
+                    </div>
+                    <!--crear objetivos-->
+                     <a class="btn btn-primary" onclick="funcionkpi()">Agregar objetivo</a>
+                    <!--end objetivos-->
+                  </div>
+                </div>
+              </div>
+            </div><!-- End Default Accordion Example -->
+              <!--end check-->
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
+                <a type="button" class="btn btn-success" href="{% url 'listarkpiarea' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
+                <button type="reset" class="btn btn-secondary">Cancelar</button>
+              </div>
+            </form><!-- End Horizontal Form -->
+           
+          </div>
+        </div>
+
+      </div>
+       <!--end forms -->
+      </div>
+    </section>
+</main><!-- End #main -->
+
+<!-- Aqui se encuentran las instrucciones para formularios -->
+<script src="/static/admin/assets/js/script.js"></script>
+<script>
+  funcionkpi();
+</script>
+
+{% endblock %} 

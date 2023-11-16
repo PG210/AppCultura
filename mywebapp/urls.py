@@ -26,6 +26,7 @@ urlpatterns = [
     path('reg/user/', views.reguser, name='reguser'),  #registrar user
     path('administracion/', views.administracion, name='administracion'),  #panel de administrador
     path('administracion/curso/', viewadmin.registroCursos, name='registroCursos'),  #registro cursos
+
     path('administracion/curso/list/', viewadmin.listarcursos, name='listarcursos'),  #registro cursos
     path('administracion/curso/delete/<int:idcurso>/', viewadmin.eliminarcurso, name='eliminarcurso'),  # eliminar cursos
     path('administracion/curso/editar/<int:idcurso>/', viewadmin.editarcurso, name='editarcurso'),  # editar curso
@@ -33,5 +34,10 @@ urlpatterns = [
     path('administracion/kpis/list/', viewadmin.listarkpiarea, name='listarkpiarea'),  # Crear KPI para area y departamento
     path('administracion/kpis/editar/<int:idkpi>/', viewadmin.editarkpi, name='editarkpi'),  # editar curso
     path('administracion/kpis/delete/<int:idkpi>/', viewadmin.eliminarkpi, name='eliminarkpi'),  # eliminar cursos
-    
+    path('administracion/empresa/', viewadmin.registroEmpresa, name='registroEmpresa'), #Rergistro de empresa
+    path('administracion/empresa/list', viewadmin.listarempresa, name='listarempresa'), #Listar Empresas
+    path('administracion/empresa/delete/<int:idempresa>/', viewadmin.eliminarempresa, name='eliminarempresa'),  # eliminar cursos
+    path('administracion/empresa/update/<int:idempresa>/', viewadmin.modificarempresa, name='modificarempresa'), #Modificar empresa
+
 ]   
+   

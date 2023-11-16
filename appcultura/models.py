@@ -13,5 +13,7 @@ from .modelos.perfiluser import UserPerfil
 from .modelos.cursos import Curso #cursos
 from .modelos.sesioncurso import  Sesioncurso #sesiones de cursos
 from .modelos.objetivoscurso import ObjetivosCurso
+from .modelos.kpiarea import Kpiarea
+from .modelos.kpiobjetivos import Kpiobjetivos
 
 # Create your models here.

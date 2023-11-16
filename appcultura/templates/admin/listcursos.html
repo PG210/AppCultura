@@ -20,6 +20,16 @@
         <div class="card">
             <div class="card-body">
               <h5 class="card-title">Listado de cursos</h5>
+               <!--alertar-->
+               {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+               {% endif %}
+               <!--end alertar-->
                <!-- Table with stripped rows -->
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
@@ -30,6 +40,7 @@
                     <th>Precio</th>
                     <th>Objetivos</th>
                     <th>Sesiones</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -72,7 +83,7 @@
                                 </table>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                               </div>
                             </div>
                           </div>
@@ -115,24 +126,50 @@
                                 </table>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Salir</button>
+                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                               </div>
                             </div>
                           </div>
                         </div><!-- End Modal Dialog Scrollable-->
                       <!--end modal-->
                     </td>
+                    <!--botones de acciones-->
+                    <td>
+                      <div class="modal-footer">
+                        <!--modal de validación-->
+                          <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
+                          <div class="modal fade" id="confirmarDelete{{curso.id}}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">Confirmar</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  ¿Estás seguro de que deseas eliminar este curso?
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                                  <a class="btn btn-primary" href="{% url 'eliminarcurso' idcurso=curso.id %}">Si</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <!--end validacion-->
+                        <a type="button" class="btn btn-info  mr-2" style="display: inline-block;" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
+                      </div>
+                    </td>                  
                   </tr>
                   {% endfor %} 
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->
-            </div>
+               </div>
             </div>
           </div>
        </div>
       </div>
     </section>
-  </main><!-- End #main -->
+</main><!-- End #main -->
   <!-- Aqui se encuentran las instrucciones para formularios -->
   {% endblock %} 

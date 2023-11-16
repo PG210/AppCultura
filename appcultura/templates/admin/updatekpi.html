@@ -1,0 +1,162 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+<!-- detalle_curso.html -->
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Cursos</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+          <li class="breadcrumb-item active">Actualizar</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+      
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              Actualizar KPI
+            </h5>
+              <!--alertar-->
+              {% if msj %}
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>{{msj}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endif %}
+              <!--end alertar-->
+            <!-- Horizontal Form -->
+            <form action="#" method="post">
+              {% csrf_token %}
+              <div class="form-control">
+              <div class="row mb-3">
+                <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
+                <div class="col-sm-10">
+                  <textarea type="text" class="form-control" id="nombre" name="nombre" rows="2"  required>{{ infokpis.nombre }}</textarea>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Descripción</label> 
+                <div class="col-sm-10">
+                  <textarea type="text" class="form-control" id="descrip" name="descrip" rows="3" required>{{ infokpis.descrip }}</textarea>
+                </div>
+              </div>
+              <!--fechas-->
+              <div class="row mb-3">
+                <label for="fecini" class="col-sm-2 col-form-label">Fecha inicial</label>
+                <div class="col-sm-4">
+                  <input type="date" class="form-control" id="fecini" name="fecini" rows="5" value="{{ infokpis.fechaini |date:"Y-m-d" }}" required>
+                </div>
+                <label for="fecfin" class="col-sm-2 col-form-label">Fecha inicial</label>
+                <div class="col-sm-4">
+                  <input type="date" class="form-control" id="fecfin" name="fecfin" rows="5" value="{{ infokpis.fechafin |date:"Y-m-d" }}" required>
+                </div>
+              </div>
+              <!--end fechas-->
+              <div class="row mb-3">
+                <label for="valor" class="col-sm-2 col-form-label">Valor</label>
+                <div class="col-sm-4">
+                  <input type="number" class="form-control" id="valor" name="valor" value="{{ infokpis.valor }}" required>
+                </div>
+                <label for="estado" class="col-sm-2 col-form-label">Estado</label>
+                <div class="col-sm-4">
+                <select id="estado" name="estado" class="form-select" required>
+                  {% if infokpis.estado %}
+                    <option value="{{infokpis.estado}}" selected>Activo</option>
+                    <option value="False">Inactivo</option>
+                  {% else %}
+                    <option value="{{infokpis.estado}}" selected>Inactivo</option>
+                    <option value="True">Activo</option>
+                  {% endif %}
+                 </select>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label for="area" class="col-sm-2 col-form-label">Area</label>
+                <div class="col-sm-4">
+                    <select id="area" name="area" class="form-select" required>
+                    <option value=" {{infokpis.idemparea.idarea.id}}" selected> {{infokpis.idemparea.idarea.nombre}}</option>
+                    {% for ar in area %}
+                        {% if  infokpis.idemparea.idarea.id != ar.id  %}
+                         <option value="{{ar.id}}">{{ar.nombre}}</option>
+                        {% endif %}
+                    {% endfor %}
+                      </select>
+                </div>
+                <label for="depar" class="col-sm-2 col-form-label">Departamento</label>
+                <div class="col-sm-4">
+                    <select id="depar" name="depar" class="form-select" required>
+                    <option value=" {{infokpis.idemparea.idepar.id}}" selected> {{infokpis.idemparea.idepar.nombre}}</option>
+                     {% for dep in depart %}
+                        {% if  infokpis.idemparea.idepar.id != dep.id  %}
+                        <option value="{{dep.id}}">{{dep.nombre}}</option>
+                        {% endif %}
+                     {% endfor %}
+                      </select>
+                </div>
+              </div>
+            </div>
+              <!--objetivos del curso-->
+            <!-- Default Accordion -->
+            <div class="accordion" id="accordionExample">
+              <div class="accordion-item">
+                <p class="accordion-header" id="headingThree">
+                  <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacorUpdate" aria-expanded="false" aria-controls="idacorUpdate">
+                    Objetivos
+                  </a>
+                </p>
+                <div id="idacorUpdate" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <!-- Contenedor para los campos del formulario -->
+                    <!-- detalle_curso.html -->
+                    {% for objetivo in obkpis %}
+                    <div class="alert alert-primary" role="alert">
+                        <h6 >Objetivo Número: {{ forloop.counter }}</h6>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="descripobj" class="col-sm-2 col-form-label">Descripción</label>
+                        <div class="col-sm-10">
+                          <textarea type="text" class="form-control" id="descripobj" name="descripobj_{{ objetivo.id }}"  rows="3"  required>{{ objetivo.objtivo }} </textarea>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="meta" class="col-sm-2 col-form-label">Meta</label>
+                        <div class="col-sm-10">
+                          <textarea type="text" class="form-control" id="meta" name="meta_{{ objetivo.id }}" rows="3"  required>{{ objetivo.meta }} </textarea>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="indicador" class="col-sm-2 col-form-label">Indicadores de éxito</label>
+                        <div class="col-sm-10">
+                          <textarea type="text" class="form-control" id="indicador" name="indicador_{{ objetivo.id }}" rows="3"  required>{{ objetivo.indicador }} </textarea>
+                        </div>
+                      </div>
+                     {% endfor %}
+                    <!--end contendor campos-->
+                  </div>
+                </div>
+              </div>
+            </div><!-- End Default Accordion Example -->
+              <!--end check-->
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
+                <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
+                <a type="button" class="btn btn-warning" href="{% url 'listarcursos' %}">Cancelar</a>
+              </div>
+            </form><!-- End Horizontal Form -->
+           
+          </div>
+        </div>
+
+      </div>
+       <!--end forms -->
+      </div>
+    </section>
+</main><!-- End #main -->
+{% endblock %} 

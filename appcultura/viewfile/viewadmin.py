@@ -2,9 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse #sirve para hacer las peticiones
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required # proteger las rutas de accesos
+from django.contrib import messages #mensajes para la vista
 from django.db import IntegrityError #errores de la base de datos
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
+from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa
 
 
 @login_required #proteger la ruta
@@ -49,7 +51,43 @@ def registroCursos(request):
       return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje})
   else:
       return render(request, 'admin/addcurso.html', {'usu':perfil_usuario})
-  
+
+#Rergistro de Empresas
+@login_required
+def registroEmpresa(request):
+    grupem = Empresa.objects.all()
+    sec = SectorEmpresa.objects.all()
+    varible = TamEmpresa.objects.all()
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    if request.method == 'POST':
+        #=== Get data lists =======
+        nombre = request.POST['nameEmp']
+        nit = request.POST['nit']
+        direction = request.POST['direccion']
+        email = request.POST['correo']
+        phone = request.POST['telefono']
+        #groupEmp = request.POST['groupEmp']
+        sector = request.POST['sector']
+        tamanio = request.POST['tamanioEmp']
+        #grpEmp = GrupoEmpresa.objects.get(pk=groupEmp)
+        tmp = TamEmpresa.objects.get(pk=tamanio)
+        sc = SectorEmpresa.objects.get(pk=sector)
+        
+        if not any(nombre) or not any(nit) or not any(direction) or not any(email) or not any(phone):
+            mensaje = "Los campos no pueden quedar vacios"
+            return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
+        
+        if Empresa.objects.filter(nit=nit).exists():
+            mensaje = "La empresa ya se encuentra registrada"
+            return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
+        
+        regEmpresa = Empresa(nombre=nombre, nit=nit, direccion=direction, correo=email, telefono=phone, idtam=tmp, idsector=sc)
+        regEmpresa.save()
+        mensaje = "Datos guardados exitosamente"
+        return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
+    else:
+        return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem})
+
 #Vista para listar cursos
 @login_required #proteger la ruta
 def listarcursos(request):
@@ -223,3 +261,43 @@ def eliminarkpi(request, idkpi):
     except Kpiarea.DoesNotExist:
         messages.error(request, 'El Kpi no existe.')
     return redirect('listarkpiarea')
+   
+#Vista para listar Empresas
+@login_required
+def listarempresa(request):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    emp = Empresa.objects.all()
+    return render(request, 'admin/listempresas.html', {'usu':perfil_usuario,'emp':emp})
+
+@login_required
+def eliminarempresa(request, idempresa):
+    try:
+        emp = Empresa.objects.get(id=idempresa)
+        emp.delete()
+        messages.success(request, 'Empresa eliminada exitosamente.')
+    except Empresa.DoesNotExist:
+        messages.error(request, 'La empresa no Existe')
+    return redirect('listarempresa')
+
+@login_required #proteger la ruta
+def modificarempresa(request, idempresa):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    empresa = Empresa.objects.get(id=idempresa)
+    grpEmp = GrupoEmpresa.objects.all()
+    sector = SectorEmpresa.objects.all()
+    tamint = TamEmpresa.objects.all()
+    if request.method == 'POST':
+        empresa.nombre = request.POST.get('nameEmp')
+        empresa.nit = request.POST.get('nit')
+        empresa.direccion = request.POST.get('direccion')
+        empresa.correo = request.POST.get('correo')
+        empresa.telefono = request.POST.get('telefono')
+        empresa.idgrupoem_id = request.POST.get('groupEmp')
+        empresa.idsector_id = request.POST.get('sector')
+        empresa.idtam_id = request.POST.get('tamanioEmp')
+        empresa.save()
+        messages.success(request, 'Empresa actualizada exitosamente.')
+        return redirect('listarempresa')
+    else:
+        return render(request, 'admin/updateempresa.html', {'usu':perfil_usuario, 'empresa':empresa, 'sector':sector, 'grpEmp':grpEmp, 'tamint':tamint})
+

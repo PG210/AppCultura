@@ -3,7 +3,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="index.html">
+        <a class="nav-link " href="/index.html">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -30,6 +30,13 @@
           <li>
             <a href="{% url 'kpiarea' %}">
               <i class="bi bi-circle"></i><span>KPi Area/Departamento</span>
+           </a>
+          <li>
+            <a href="{% url 'registroEmpresa' %}">
+              <i class="bi bi-circle"></i><span>Registrar</span>
+            </a>
+            <a href="{% url 'listarempresa' %}">
+              <i class="bi bi-circle"></i><span>Listar</span>
             </a>
           </li>
         </ul>

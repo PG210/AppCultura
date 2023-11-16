@@ -1,0 +1,148 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+<!-- detalle_curso.html -->
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>KPIs Empresa</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+          <li class="breadcrumb-item active">Listado</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+              <!--alertar-->
+            {% if messages %}
+            <br>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                  <strong>{{ message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {% endfor %}
+              </div>
+             {% endif %}
+              <!--end alertar-->
+              <!----=======================================-->
+              <div class="table-responsive mt-3">
+                <table class="table" id="tablareactiva">
+                 <thead>
+                   <tr>
+                     <th>Nombre</th>
+                     <th>Fecha inicial</th>
+                     <th>Fecha final</th>
+                     <th>Valor</th>
+                     <th>Estado</th>
+                     <th>Descripción</th>
+                     <th>Acciones</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                  {% for kparea in kpareas %}
+                   <tr>
+                     <td>{{ kparea.nombre }}</td>
+                     <td>{{ kparea.fechaini |date:"Y-m-d" }}</td>
+                     <td>{{ kparea.fechafin |date:"Y-m-d" }}</td>
+                     <td>{{ kparea.valor }}</td>
+                     <td>
+                     {% if kparea.estado %}
+                        Activo 
+                     {% else %}
+                        Inactivo 
+                     {% endif %} 
+                     </td>  
+                      <!--================== Descripción ===============-->
+                      <td>
+                           <!-- Modal Dialog Scrollable -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaKPI{{kparea.id}}">
+                          Ver
+                         </button>
+                         <div class="modal fade" id="modalListaKPI{{kparea.id}}" tabindex="-1">
+                           <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                             <div class="modal-content">
+                               <div class="modal-header">
+                                 <h5 class="modal-title">Descripción de KPI</h5>
+                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                               </div>
+                               <div class="modal-body">
+                                 <div class="container">
+                                   {{ kparea.descrip }}
+                                 </div>
+                                 <br>
+                                 <table>
+                                     <thead>
+                                       <tr>
+                                         <th>Objetivo</th>
+                                         <th>Meta</th>
+                                         <th>Indicadores</th>
+                                       </tr>
+                                     </thead>
+                                   <tbody>
+                                    {% for kpobj in kpobjs %}
+                                      {% if kpobj.idkpi == kparea %}
+                                     <tr>
+                                       <td>{{ kpobj.objtivo }}</td>
+                                       <td>{{ kpobj.meta }}</td>
+                                       <td>{{ kpobj.indicador }}</td>
+                                     </tr>
+                                     {% endif %}
+                                   {% endfor %}
+                                     </tbody>
+                                 </table>
+                               </div>
+                               <div class="modal-footer">
+                                 <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                               </div>
+                             </div>
+                           </div>
+                         </div><!-- End Modal Dialog Scrollable-->
+                      </td>
+                      <!--===================== end descripcion ===========-->
+                     <td>
+                      <!---botones-->
+                      <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#borrarKPI{{kparea.id}}"><i class="bi bi-trash3-fill"></i></a>
+                      <div class="modal fade" id="borrarKPI{{kparea.id}}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Confirmar</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              ¿Estás seguro de que deseas eliminar este KPI?
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                              <a class="btn btn-primary" href="{% url 'eliminarkpi' idkpi=kparea.id %}">Si</a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <!--end validacion-->
+                      <a type="button" class="btn btn-info" style="display: inline-block;"  href="{% url 'editarkpi' idkpi=kparea.id %}"><i class="bi bi-pencil-square"></i></a>
+                      <!--end botones-->
+                     </td>          
+                   </tr>
+                   {% endfor %} 
+                 </tbody>
+               </table>
+               <!-- End Table with stripped rows -->
+                </div>
+             
+              <!--======================================-->
+          </div>
+        </div>
+
+      </div>
+       <!--end forms -->
+      </div>
+    </section>
+</main><!-- End #main -->
+{% endblock %} 
