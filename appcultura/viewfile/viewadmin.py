@@ -7,6 +7,11 @@ from django.db import IntegrityError #errores de la base de datos
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
 from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa
+#Codigo Jhon
+from django.http import JsonResponse
+from django.views import View
+#Fin Codigo Jhon
+
 
 
 @login_required #proteger la ruta
@@ -61,18 +66,13 @@ def registroEmpresa(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     if request.method == 'POST':
         #=== Get data lists =======
+        #Guardar empresa principal
         nombre = request.POST['nameEmp']
         nit = request.POST['nit']
         direction = request.POST['direccion']
         email = request.POST['correo']
         phone = request.POST['telefono']
-        #groupEmp = request.POST['groupEmp']
-        sector = request.POST['sector']
-        tamanio = request.POST['tamanioEmp']
-        #grpEmp = GrupoEmpresa.objects.get(pk=groupEmp)
-        tmp = TamEmpresa.objects.get(pk=tamanio)
-        sc = SectorEmpresa.objects.get(pk=sector)
-        
+
         if not any(nombre) or not any(nit) or not any(direction) or not any(email) or not any(phone):
             mensaje = "Los campos no pueden quedar vacios"
             return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
@@ -81,12 +81,49 @@ def registroEmpresa(request):
             mensaje = "La empresa ya se encuentra registrada"
             return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
         
-        regEmpresa = Empresa(nombre=nombre, nit=nit, direccion=direction, correo=email, telefono=phone, idtam=tmp, idsector=sc)
+        regEmpresa = GrupoEmpresa(nombre=nombre, nit=nit, direccion=direction, correo=email, telefono=phone)
         regEmpresa.save()
-        mensaje = "Datos guardados exitosamente"
+        mensaje = "Empresa Registrada exitosamente"
+        #Fin guardar empresa principal
+
+        #Guardar Empresa Sucursal
+
+        nameSuc = request.POST.getlist('nameSucursal[]')
+        nitSuc = request.POST.getlist('nameNit[]')
+        dirSuc = request.POST.getlist('nameDireccion[]')
+        correoSuc = request.POST.getlist('nameCorreo[]')
+        telSuc = request.POST.getlist('nameTelefono[]')
+        secSuc = request.POST.getlist('nameSector[]')
+        tamSuc = request.POST.getlist('nameTamanio[]')
+        tmint = list(map(int, tamSuc))
+        scint = list(map(int,secSuc))
+        tmp = TamEmpresa.objects.filter(pk__in=tmint)
+        sc = SectorEmpresa.objects.filter(pk__in=scint)
+
+        
+
+        if any(nameSuc) or any(nitSuc) or any(dirSuc) or any(correoSuc) or any(telSuc) or any(secSuc) or any(tamSuc):
+            empresas_sucursales = []
+            idempresa = GrupoEmpresa.objects.get(id=regEmpresa.id)
+            for i in range(len(nameSuc)):
+                empresa_sucursal = Empresa(
+                    nombre=nameSuc[i],
+                    nit=nitSuc[i],
+                    direccion=dirSuc[i],
+                    correo=correoSuc[i],
+                    telefono=telSuc[i],
+                    idsector=sc[i],
+                    idtam=tmp[i],
+                    idgrupoem=idempresa
+                )
+                empresas_sucursales.append(empresa_sucursal)
+            Empresa.objects.bulk_create(empresas_sucursales)
+    
         return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
     else:
         return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem})
+
+        #Fin Guardar Empresa Sucursal
 
 #Vista para listar cursos
 @login_required #proteger la ruta
@@ -301,3 +338,11 @@ def modificarempresa(request, idempresa):
     else:
         return render(request, 'admin/updateempresa.html', {'usu':perfil_usuario, 'empresa':empresa, 'sector':sector, 'grpEmp':grpEmp, 'tamint':tamint})
 
+#Codigo Jhon
+
+class empresagetsector(View):
+    def get(self, request, *args, **kwargs):
+        data=list(SectorEmpresa.objects.values())
+        return JsonResponse(data, safe=False)
+
+#Fin codigo Jhon

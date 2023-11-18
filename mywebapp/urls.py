@@ -38,6 +38,9 @@ urlpatterns = [
     path('administracion/empresa/list', viewadmin.listarempresa, name='listarempresa'), #Listar Empresas
     path('administracion/empresa/delete/<int:idempresa>/', viewadmin.eliminarempresa, name='eliminarempresa'),  # eliminar cursos
     path('administracion/empresa/update/<int:idempresa>/', viewadmin.modificarempresa, name='modificarempresa'), #Modificar empresa
+    #codigo Jhon
+    path('administracion/empresa/api', viewadmin.empresagetsector.as_view(), name='empresagetsector')
+    #fin codigo Jhon
 
 ]   
    
