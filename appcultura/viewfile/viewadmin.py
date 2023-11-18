@@ -1,3 +1,6 @@
+import os
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse #sirve para hacer las peticiones
 from django.contrib.auth.models import User
@@ -6,7 +9,7 @@ from django.contrib import messages #mensajes para la vista
 from django.db import IntegrityError #errores de la base de datos
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
-from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa
+from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, TemasSesion
 
 
 @login_required #proteger la ruta
@@ -14,6 +17,7 @@ def registroCursos(request):
   perfil_usuario = UserPerfil.objects.get(user=request.user)
   if request.method == 'POST':
       #=== Get data lists =======
+      print(request.POST)
       fechas_inicio = request.POST.getlist('fecha_inicio[]')
       fechas_final = request.POST.getlist('fecha_final[]')
       lugares = request.POST.getlist('lugar[]')
@@ -42,10 +46,27 @@ def registroCursos(request):
             regobject.save()
 
       #==================here save the session of course =================
+      contador=1
       for fecha_inicio, fecha_final, lugar in zip(fechas_inicio, fechas_final, lugares):
+            #obtener las variables
+            tema = request.POST.get(f'tematicaInput_{contador}')
+            destema = request.POST.get(f'desInput_{contador}')
+            recur = request.POST.get(f'recur_{contador}')
+            archivo = request.FILES.get(f'archivo_{contador}')
+            print(archivo)
+            #guardar la sesion
             regsesion = Sesioncurso(fechainicio=fecha_inicio, fechafin=fecha_final, lugar=lugar, estado=1, idcurso=idcurso)
             regsesion.save()
-
+            #=========guarda el archivo
+            if archivo:
+                fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos'))
+                nombre_archivo = fs.save(archivo.name, archivo)
+                ruta_destino = fs.url(nombre_archivo)
+            else:
+                ruta_destino = None
+            #========guarda los temas
+            regtema = TemasSesion(descrip=tema, competencias=destema, recursos=recur, ruta=ruta_destino, idsesion=regsesion)
+            regtema.save()
       #========= send messaje and return the view of courses =================
       mensaje = "Curso registrado exitosamente"
       return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje})
@@ -96,7 +117,8 @@ def listarcursos(request):
        cursos = Curso.objects.all()
        sesiones = Sesioncurso.objects.all()
        objetivos = ObjetivosCurso.objects.all()
-       return render(request, 'admin/listcursos.html', {'usu':perfil_usuario, 'cursos':cursos, 'sesiones':sesiones, 'objetivos':objetivos})
+       tematicas = TemasSesion.objects.all()
+       return render(request, 'admin/listcursos.html', {'usu':perfil_usuario, 'cursos':cursos, 'sesiones':sesiones, 'objetivos':objetivos, 'tematicas':tematicas})
   
 #eliminar curso
 @login_required #proteger la ruta
@@ -143,6 +165,7 @@ def editarcurso(request, idcurso):
             sesion.fechafin = nueva_fecha_fin
             sesion.lugar = nuevo_lugar
             sesion.save()
+              
         messages.success(request, 'Curso actualizado exitosamente.')
         return redirect('listarcursos')
      else:

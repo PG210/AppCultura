@@ -33,7 +33,7 @@
               {% endif %}
               <!--end alertar-->
             <!-- Horizontal Form -->
-            <form action="{% url 'registroCursos' %}" method="post">
+            <form action="{% url 'registroCursos' %}" method="post" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="form-control">
               <div class="row mb-3">
@@ -51,7 +51,7 @@
               <div class="row mb-3">
                 <label for="precio" class="col-sm-2 col-form-label">Precio</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" id="precio" name="precio" required>
+                  <input type="number" class="form-control" id="precio" name="precio" required>
                 </div>
               </div>
               <div class="row mb-3">
@@ -73,7 +73,7 @@
                     Registrar objetivos
                   </a>
                 </p>
-                <div id="idacordion3" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                <div id="idacordion3" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                   <div class="accordion-body">
                     <!-- Contenedor para los campos del formulario -->
                     <div id="contenedor-objetivos" class="row mb-3 mt-3">
@@ -87,19 +87,11 @@
             </div><!-- End Default Accordion Example -->
               <!--end objetivos del curso-->
             <div class="form-control">
-              <div class="row mb-3 mt-3" >
-                <label for="mostrarCampos" class="col-sm-2 col-form-label">Tiene sesiones:</label>
-                <div class="col-sm-10">
-                <input type="checkbox"  id="mostrarCampos" onclick="mostrarOcultarCampos()">
-                </div>
-              </div>
               <!-- Contenedor para los campos del formulario -->
                <div id="formulario-container" class="row mb-3 mt-3">
               </div>
               <!--si marca check-->
-              <div id="camposDiv" style="display: none;">
                  <a class="btn btn-primary" onclick="agregarCampo()">Nueva sesión</a>
-              </div>
              </div>
               <!--end check-->
               <div class="text-center">
@@ -119,4 +111,8 @@
   </main><!-- End #main -->
   <!-- Aqui se encuentran las instrucciones para formularios -->
   <script src="{% static 'admin/assets/js/script.js' %} "></script>
+  <script>
+    agregarObjetivo();
+    agregarCampo()
+  </script>
 {% endblock %} 

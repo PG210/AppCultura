@@ -97,7 +97,7 @@
                           Sesiones
                         </button>
                         <div class="modal fade" id="modalListaCurso{{curso.id}}" tabindex="-1">
-                          <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                          <div class="modal-dialog modal-dialog-scrollable modal-xl ">
                             <div class="modal-content">
                               <div class="modal-header">
                                 <h5 class="modal-title">Listado de sesiones</h5>
@@ -110,6 +110,10 @@
                                         <th>Fecha inicio</th>
                                         <th>Fecha final</th>
                                         <th>Lugar</th>
+                                        <th>Temáticas</th>
+                                        <th>Descripción</th>
+                                        <th>Recursos</th>
+                                        <th>Archivos</th>
                                       </tr>
                                     </thead>
                                   <tbody>
@@ -119,9 +123,18 @@
                                       <td>{{ sesion.fechainicio }}</td>
                                       <td>{{ sesion.fechafin }}</td>
                                       <td>{{ sesion.lugar }}</td>
+                                    {% for tematica in tematicas %}
+                                      {% if tematica.idsesion == sesion %}
+                                      <td>{{ tematica.descrip }}</td>
+                                      <td>{{ tematica.competencias }}</td>
+                                      <td>{{ tematica.recursos }}</td>
+                                      <td><a type="button" class="btn-info" href="/media/mantenimiento_impresora.docx " download>{{tematica.ruta }}<i class="bi bi-cloud-arrow-down-fill"></i></a></td>
+                                      {% endif %}
+                                    {% endfor %}
                                     </tr>
                                     {% endif %}
                                   {% endfor %}
+                                 
                                     </tbody>
                                 </table>
                               </div>
@@ -137,7 +150,7 @@
                     <td>
                       <div class="modal-footer">
                         <!--modal de validación-->
-                          <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
+                          <a type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
                           <div class="modal fade" id="confirmarDelete{{curso.id}}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                               <div class="modal-content">
