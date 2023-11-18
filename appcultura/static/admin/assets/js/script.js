@@ -69,6 +69,7 @@
         btnEliminarCampo.onclick = function() {
           formularioContainer.removeChild(nuevoGrupo);
         };
+
         nuevoGrupo.appendChild(btnEliminarCampo);
         // agregar nuevos campos para tematicas
         // Botón para agregar temáticas
@@ -156,6 +157,41 @@
 }
     //======================= here function objective =================
 function agregarObjetivo() {
+        var objetivosContainer = document.getElementById('contenedor-objetivos');
+    
+        // Crear un nuevo grupo de inputs
+        var objetivosGrupo = document.createElement('div');
+        objetivosGrupo.classList.add('mt-3', 'form-control'); // Agregar la clase al grupo
+        // Crear tres inputs y agregarlos al grupo
+
+        // Etiqueta y campo para la fecha de inicio
+        var etiquetaDes = document.createElement('label');
+        etiquetaDes.innerHTML = 'Descripción:';
+        etiquetaDes.classList.add('col-sm-2', 'col-form-label');
+        objetivosGrupo.appendChild(etiquetaDes);
+
+        var desObjectivo = document.createElement('textarea');
+        desObjectivo.type = 'text';
+        desObjectivo.name = 'desobj[]';
+        desObjectivo.classList.add('col-sm-10');
+        desObjectivo.setAttribute('rows', '3');
+        desObjectivo.setAttribute('required', 'required');
+        objetivosGrupo.appendChild(desObjectivo);
+
+        // Etiqueta y campo para lugar
+        var etiqueCom = document.createElement('label');
+        etiqueCom.innerHTML = 'Competencias:';
+        etiqueCom.classList.add('col-sm-2', 'col-form-label');
+        objetivosGrupo.appendChild(etiqueCom);
+       
+        nuevoGrupo.appendChild(btnEliminarCampo);
+        // Agregar el nuevo grupo al contenedor
+      formularioContainer.appendChild(nuevoGrupo);
+ 
+      contadorCampos++;
+    }
+    //======================= here function objective =================
+    function agregarObjetivo() {
         var objetivosContainer = document.getElementById('contenedor-objetivos');
     
         // Crear un nuevo grupo de inputs
