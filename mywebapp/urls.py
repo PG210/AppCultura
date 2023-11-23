@@ -39,7 +39,11 @@ urlpatterns = [
     path('administracion/empresa/delete/<int:idempresa>/', viewadmin.eliminarempresa, name='eliminarempresa'),  # eliminar cursos
     path('administracion/empresa/update/<int:idempresa>/', viewadmin.modificarempresa, name='modificarempresa'), #Modificar empresa
     #codigo Jhon
-    path('administracion/empresa/api', viewadmin.empresagetsector.as_view(), name='empresagetsector')
+    #path('administracion/empresa/api', viewadmin.empresagetsector.as_view(), name='empresagetsector'),
+    path('administracion/empresa/vincular', viewadmin.vincularareadepto, name='vincularareadepto'), #Vincular area y departamento
+    path('administracion/empresa/vincular/list', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
+    path('administracion/empresa/vincular/delete/<int:idarea>/', viewadmin.eliminavinculo, name='eliminarvinculo'),
+    path('administracion/validarasistencia/', viewadmin.validarasistencia, name='validarasistencia')
     #fin codigo Jhon
 
 ]   

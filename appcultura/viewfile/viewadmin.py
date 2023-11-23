@@ -1,4 +1,6 @@
 import os
+import select
+from urllib import request
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect, get_object_or_404
@@ -329,7 +331,10 @@ def eliminarkpi(request, idkpi):
 def listarempresa(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     emp = Empresa.objects.all()
-    return render(request, 'admin/listempresas.html', {'usu':perfil_usuario,'emp':emp})
+    sec = SectorEmpresa.objects.all()
+    grpemp = GrupoEmpresa.objects.all()
+    tam = TamEmpresa.objects.all()
+    return render(request, 'admin/listempresas.html', {'usu':perfil_usuario,'emp':emp, 'grpemp':grpemp, 'sec':sec, 'tam':tam})
 
 @login_required
 def eliminarempresa(request, idempresa):
@@ -354,9 +359,13 @@ def modificarempresa(request, idempresa):
         empresa.direccion = request.POST.get('direccion')
         empresa.correo = request.POST.get('correo')
         empresa.telefono = request.POST.get('telefono')
-        empresa.idgrupoem_id = request.POST.get('groupEmp')
-        empresa.idsector_id = request.POST.get('sector')
-        empresa.idtam_id = request.POST.get('tamanioEmp')
+        gropemp = request.POST.get('groupEmp')
+        sec = request.POST.get('sector')
+        tam = request.POST.get('tamanioEmp')
+
+        empresa.idgrupoem = GrupoEmpresa.objects.get(id=gropemp)
+        empresa.idsector = SectorEmpresa.objects.get(id=sec)
+        empresa.idtam = TamEmpresa.objects.get(id=tam)
         empresa.save()
         messages.success(request, 'Empresa actualizada exitosamente.')
         return redirect('listarempresa')
@@ -370,4 +379,86 @@ class empresagetsector(View):
         data=list(SectorEmpresa.objects.values())
         return JsonResponse(data, safe=False)
 
+
+@login_required
+def vincularareadepto(request):
+    empresa = Empresa.objects.all()
+    areas = Area.objects.all()
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    if request.method == 'POST':
+        selectemp = request.POST.get('selectEmp')
+        namearea = request.POST.get('namearea')
+        descarea = request.POST.get('descripcionarea')
+        namedepto = request.POST.getlist('nomdepto[]')
+        desdepto = request.POST.getlist('desdepto[]')
+        Departamentos = []
+        vinculos = []
+
+        #Guardar data de areas
+        area = Area(nombre=namearea, descrip=descarea)
+        area.save()
+
+        #Guardar data de Departamentos
+        if any(namedepto) or any(desdepto):
+            for i in range(len(namedepto)):
+                deptolist = Departamento(
+                    nombre = namedepto[i],
+                    descrip = desdepto[i]
+                )
+                Departamentos.append(deptolist)
+            Departamento.objects.bulk_create(Departamentos)
+
+        #Vincular data de Areas y Departamentos a Empresa
+        depto = Departamento.objects.filter(nombre__in=namedepto)
+        emp = Empresa.objects.get(id=selectemp)
+        id_area = Area.objects.get(nombre=namearea)
+        print("variable", emp)
+        if any(namedepto) or any(desdepto):
+            for i in range (len(namedepto)):
+                vinculolist = EmpresaAreas(
+                    idempresa = emp,
+                    idarea = id_area,
+                    idepar = depto[i]
+                )
+                vinculos.append(vinculolist)
+            EmpresaAreas.objects.bulk_create(vinculos)
+            mensaje = "Areas y departamentos vinculados satisfactoriamente"
+            return render(request, 'admin/vincularareadepartamento.html', {'usu':perfil_usuario, 'empresa':empresa, 'mensaje':mensaje, 'areas':areas})
+        else:
+            vincular = EmpresaAreas(idempresa=emp, idarea=id_area)
+            vincular.save()
+            mensaje = "Areas vinculadas satisfactoriamente"
+        return render(request, 'admin/vincularareadepartamento.html', {'usu':perfil_usuario, 'empresa':empresa, 'mensaje':mensaje, 'areas':areas})
+    else:
+        return render(request, 'admin/vincularareadepartamento.html', {'usu':perfil_usuario, 'empresa':empresa, 'areas':areas})
+
+@login_required
+def visualizarAreaDepto(request):
+    print(request.POST)
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    empresa = Empresa.objects.all()
+    if request.method == 'POST':
+        selecarea = request.POST.get('selectEmp')
+        areas = EmpresaAreas.objects.filter(idempresa=selecarea)
+        print(areas)
+        return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa, 'areas':areas})
+    else:
+        return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa})
+
+@login_required
+def eliminavinculo(request, idarea):
+    try:
+        emp = EmpresaAreas.objects.get(id=idarea)
+        emp.delete()
+        messages.success(request, 'Vinculacion eliminada exitosamente.')
+    except Empresa.DoesNotExist:
+        messages.error(request, 'La Vinculacion no Existe')
+    return redirect('visualizarAreaDepto')
+
+def validarasistencia(request):
+    return render(request, 'admin/validarasistencia.html')
+
+def generarqr(request, idsesion):
+    
+    return "Este es texto "
 #Fin codigo Jhon
