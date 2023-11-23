@@ -39,12 +39,9 @@
                     <tr>
                       <th>Nombre</th>
                       <th>NIT</th>
-                      <th>Dirección</th>
                       <th>Correo</th>
-                      <th>Telefono</th>
                       <th>Grupo Empresarial</th>
-                      <th>Sector</th>
-                      <th>Tamaño Empresa</th>
+                      <th>Ver Mas</th>
                       <th>Opciones</th>
                     </tr>
                   </thead>
@@ -53,12 +50,38 @@
                       <tr>
                         <td>{{ inter.nombre }}</td>
                         <td>{{ inter.nit }}</td>
-                        <td>{{ inter.direccion }}</td>
                         <td>{{ inter.correo }}</td>
-                        <td>{{ inter.telefono }}</td>
-                        <td>{{ inter.idgrupoem_id }}</td>
-                        <td>{{ inter.idsector_id }}</td>
-                        <td>{{ inter.idtam_id }}</td>
+                        <td>{{ inter.idgrupoem.nombre }}</td>
+                        <td>
+                          <!--Modal de ver mas-->
+                          <!-- Button trigger modal -->
+                          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalvermas{{inter.id}}">
+                            Ver mas
+                          </button>
+
+                          <!-- Modal -->
+                          <div class="modal fade" id="modalvermas{{inter.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Mas información</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  Dirección: {{inter.direccion}} <br>
+                                  Telefono: {{inter.telefono}}<br>
+                                  Sector: {{inter.idsector.nombre}}<br>
+                                  Tamaño de Empresa: {{inter.idtam.descrip}}
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!--Fin de Modal ver mas-->
+                        </td>
                         <td>
                           <!-- modal de validación -->
                           <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEmpresa{{ inter.id }}"><i class="bi bi-trash3-fill"></i></a>

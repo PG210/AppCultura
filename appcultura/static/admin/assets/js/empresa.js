@@ -1,4 +1,6 @@
 let contarsucursal=1;
+let contaarea=1;
+let contadepto=1;
 
 function agregarSucursal() {
   let sucursalContainer = document.getElementById('contenedor-sucursals');
@@ -100,8 +102,7 @@ function agregarSucursal() {
 
   //Input Sector de la sucursal
   let selectSector = document.createElement('select');
-  selectSector.classList.add('form-select');
-  selectSector.classList.add('col-sm-8');
+  selectSector.classList.add('col-sm-10');
   selectSector.name = 'nameSector[]';
   selectSector.setAttribute('required', 'required');
   //options
@@ -131,8 +132,7 @@ function agregarSucursal() {
 
   //Input Tamaño de la sucursal
   let selectTamanio = document.createElement('select');
-  selectTamanio.classList.add('form-select');
-  selectTamanio.classList.add('col-sm-8');
+  selectTamanio.classList.add('col-sm-10');
   selectTamanio.name = 'nameTamanio[]';
   selectTamanio.setAttribute('required', 'required');
   //options
@@ -167,8 +167,80 @@ function agregarSucursal() {
 
   contarsucursal++;
 }
-/*
-Funcion para hacer una apiFetch a la base de datos
+
+// Funcion agregar Dpartamentos
+function agregardepto() {
+  
+  const deptoContainer = document.getElementById('contenedor-deptos');
+
+  // Crear un nuevo grupo de inputs
+  let deptoGrupo = document.createElement('div');
+  deptoGrupo.classList.add('mt-3', 'form-control'); // Agregar la clase al grupo
+  // Crear tres inputs y agregarlos al grupo
+
+  // Etiqueta y campo para la fecha de inicio
+  let labelnombre = document.createElement('label');
+  labelnombre.innerHTML = 'Nombre de Departamento:';
+  labelnombre.classList.add('col-sm-2', 'col-form-label');
+  deptoGrupo.appendChild(labelnombre);
+
+  let desarea = document.createElement('input');
+  desarea.type = 'text';
+  desarea.name = 'nomdepto[]';
+  desarea.classList.add('col-sm-10');
+  desarea.setAttribute('required', 'required');
+  deptoGrupo.appendChild(desarea);
+
+  // Etiqueta y campo para lugar
+  let labeldescrip = document.createElement('label');
+  labeldescrip.innerHTML = 'Descripción:';
+  labeldescrip.classList.add('col-sm-2', 'col-form-label');
+  deptoGrupo.appendChild(labeldescrip);
+
+  let inputDes = document.createElement('textarea');
+  inputDes.type = 'text';
+  inputDes.name = 'desdepto[]';
+  inputDes.classList.add('col-sm-10');
+  inputDes.setAttribute('rows', '3');
+  inputDes.setAttribute('required', 'required');
+  deptoGrupo.appendChild(inputDes);
+
+   // Botón para eliminar el campo
+   let btnDelete = document.createElement('button');
+   btnDelete.innerHTML = 'X';
+   btnDelete.classList.add('col-sm-1', 'btn', 'btn-danger', 'mt-2', 'float-end');
+   btnDelete.onclick = function() {
+    deptoContainer.removeChild(deptoGrupo);
+  };
+  deptoGrupo.appendChild(btnDelete);
+  // Agregar el nuevo grupo al contenedor
+  deptoContainer.appendChild(deptoGrupo);
+
+contadepto++;
+}
+
+//Funcion agregar areas
+function guardararea(){
+  const name = document.getElementById('inputnombre');
+  const description = document.getElementById('inputdes');
+  const selectarea = document.getElementById("selectarea");
+
+  let optionarea = document.createElement('option');
+  optionarea.selected = true;
+  optionarea.text=name.value;
+  selectarea.add(optionarea);
+}
+
+function MostrarOcultarform() {
+  const checkbox = document.getElementById("checkdepto");
+  const containerdepto = document.getElementById("accordionExample");
+
+  containerdepto.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+
+
+//Funcion para hacer una apiFetch a la base de datos
 
 function llamaroptions(){
 	fetch('administracion/empresa/api')
@@ -180,5 +252,26 @@ function llamaroptions(){
 		});
 	})
 	//.catch(error => console.error('No se pudo acceder a los datos', error));
+}
+/*
+function mostrarAreas(){
+  document.getElementById('formulario-empresa').addEventListener('submit', function (event){
+    event.preventDefault();
+
+    let empresaId = document.getElementById('selectEmp');
+
+    fetch(`administracion/empresa/obtener-areas/${empresaId}/`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      data.forEach(area => {
+        console.log(area.id);
+        console.log(area.nombre)
+    });
+  })
+  .catch(error => {
+    console.error('Error en la solicitud fetch', error);
+  });
+  });
 }
 */
