@@ -1,0 +1,395 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+<!-- detalle_curso.html -->
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Grupos de formación</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/grupos/list/">Listado</a></li>
+          <li class="breadcrumb-item active">Registro</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body mt-3">
+              <!--alertar-->
+            {% if messages %}
+            <br>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                  <strong>{{ message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {% endfor %}
+              </div>
+             {% endif %}
+              <!--end alertar-->
+               <!-- Modal -->
+               <div class="modal fade" id="registrarGrupo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                 <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Grupo</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                 </div>
+                <form id="formulariogrupo">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                    <!--registro de grupos-->
+                    <div class="container mt-4">
+                        <div class="form-control">
+                            <div class="row mb-3">
+                            <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="nombreg" name="nombreg" required>
+                            </div>
+                            </div>
+                             <div class="row mb-3">
+                               <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
+                               <div class="col-sm-10">
+                                <textarea type="text" class="form-control" id="descripg" name="descripg" rows="3" required></textarea>
+                              </div>
+                             </div>
+                            </div>
+                        </div>
+                    <!--end formulario-->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                        <a type="button" class="btn btn-primary" id="enviarDatos">Guardar</a>
+                    </div>
+                </form>
+                </div>
+                </div>
+             </div>
+              <!---=============== end modal -->
+            <!----=======================================-->
+             <!-- Modal Dialog Scrollable -->
+            <div class="modal fade" id="visualizarGrupo" tabindex="-1">
+              <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Listado de Grupos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                     <!--registro de grupos-->
+                     <div class="table-responsive">
+                      <form method="post" id="formularioTabla">
+                        {% csrf_token %}
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Id</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Descripción</th>
+                            <th scope="col">Acción</th>
+                          </tr>
+                        </thead>
+                        <tbody>  
+                          {% for nb in ngrupos %}
+                              <tr>
+                                  <th scope="row">{{ nb.id }}</th>
+                                  <td>
+                                      <span class="editable" data-field="nombre" data-id="{{ nb.id }}">{{ nb.nombre }}</span>
+                                  </td>
+                                  <td>
+                                      <span class="editable" data-field="descrip" data-id="{{ nb.id }}">{{ nb.descrip }}</span>
+                                  </td>
+                                  <td>
+                                      <a type="button" class="btn btn-danger" href="{% url 'eliminargrupo' idgrupo=nb.id %}">Eliminar</a>
+                                      <a type="button" class="btn btn-primary btn-edit" data-id="{{ nb.id }}">Editar</a>
+                                      <a type="button" class="btn btn-success btn-save" data-id="{{ nb.id }}" style="display: none;">Guardar</a>
+                                  </td>
+                              </tr> 
+                          {% endfor %}
+            
+                        </tbody>
+                      </table>
+                      </form> 
+                    </div>
+                    <!--end formulario-->
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                  </div>
+                </div>
+              </div>
+            </div><!-- End Modal Dialog Scrollable-->
+          <form action="{% url 'creargrupo' %}" method="POST">
+              {% csrf_token %}
+              <div class="container mt-4">
+                <div class="form-control">
+                    <!--======== elegir grupo ===========-->
+                    <div class="row mb-3">
+                        <label for="ngrupo" class="col-sm-2 col-form-label">Seleccionar Grupo</label>
+                        <div class="col-sm-7">
+                            <select id="ngrupo" name="ngrupo" class="form-select" required>
+                                {% for ng in ngrupos %}
+                                <option value="{{ng.id}}">{{ng.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                        <!--================modal =================-->
+                        <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registrarGrupo">
+                            Registro
+                        </a>
+                        <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#visualizarGrupo">
+                           Listado
+                         </a>
+                        </div>
+                      </div>
+                    <!--============End elegir ==========-->
+                  </div>
+                  <!--============acordion elegir cursos =============-->
+                  <div class="accordion" id="accordioncursos">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#acordion1" aria-expanded="true" aria-controls="acordion1">
+                          Seleccionar cursos
+                        </button>
+                      </h2>
+                      <div id="acordion1" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordioncursos">
+                        <div class="accordion-body">
+                          <!--tabla responsiva-->
+                          <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Curso</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Seleccionar</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for curso in cursos %}
+                                    <tr>
+                                        <td>{{ curso.id }}</td>
+                                        <td>{{ curso.nombre }}</td>
+                                        <td>{{ curso.descrip }}</td>
+                                        <td><input type="checkbox" name="cursosselec" value="{{ curso.id }}"></td>
+                                    </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                        <!--end tabla-->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--=============end acordion 01============-->
+                   <!--============acordion elegir cursos =============-->
+                   <div class="accordion" id="accordionusu">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#acordion1" aria-expanded="true" aria-controls="acordion2">
+                          Seleccionar usuarios
+                        </button>
+                      </h2>
+                      <div id="acordion2" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionusu">
+                        <div class="accordion-body">
+                          <!--tabla responsiva-->
+                          <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Descripción</th>
+                                <th scope="col">Seleccionar</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                {% for us in usuarios %}
+                                    <tr>
+                                        <td>{{ us.id }}</td>
+                                        <td>{{ us.nombre }}</td>
+                                        <td>{{ us.apellido }}</td>
+                                        <td><input type="checkbox" name="ususelect" value="{{ us.id }}"></td>
+                                    </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                        <!--end tabla-->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--=============end acordion 01============-->
+                  <div class="text-center mt-2">
+                    <button type="submit" class="btn btn-primary"> Agregar </button>
+                    <a type="button" class="btn btn-success" href="{% url 'listGrupos' %}"> Visualizar </a>
+                  </div>
+              </div>
+               </form>
+               <br>
+              <!--======================================-->
+          </div>
+        </div>
+      </div>
+       <!--end forms -->
+      </div>
+    </section>
+</main><!-- End #main -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+    $(document).ready(function () {
+        // Manejar clic en el botón
+        $("#enviarDatos").click(function () {
+            // Obtener el valor del campo de entrada
+            var nombreg = $("#nombreg").val();
+            var descripg = $("#descripg").val();
+            var csrf_token = $('[name="csrfmiddlewaretoken"]').val();
+            // Enviar datos al backend usando AJAX
+            $.ajax({
+                url: "/administracion/grupos/nuevo/",  // Reemplaza con la URL de tu vista en Django
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': csrf_token
+                },
+                data: {
+                    nombreg: nombreg,
+                    descripg: descripg
+                },
+                success: function (response) {
+                    // Manejar la respuesta del backend
+                    $("#formulariogrupo")[0].reset();
+                    
+                    var opres = response.opciones; //retorna la data desde el backend
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Guardado exitoso',
+                        text: 'Los datos se han guardado correctamente.',
+                    });
+
+                    //funcionalidad de escribir en el select
+                    // Limpiar el select existente
+                    $("#ngrupo").empty();
+
+                    for (var i = 0; i < opres.length; i++) {
+                        // Acceder a los campos específicos del objeto
+                        var id = opres[i].id;
+                        var nombre = opres[i].nombre;
+                        $("#ngrupo").append('<option value="' + id + '">' + nombre + '</option>');
+                    }
+                   
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    // Manejar errores
+                    var jsonResponse = xhr.responseJSON;
+                    if (xhr.status === 400) {
+                        // Mostrar mensaje de error personalizado con SweetAlert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: jsonResponse.mensaje,
+                        });
+                    } else {
+                        // Mostrar mensaje de error genérico con SweetAlert
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: jsonResponse.mensaje,
+                        });
+                    }
+                    //=============================
+                }
+            });
+        });
+    });
+</script>
+<script>
+  $(document).ready(function () {
+      $('.btn-edit').on('click', function () {
+          var rowId = $(this).data('id');
+          // Oculta el botón de editar y muestra el botón de guardar
+          $('.btn-edit[data-id=' + rowId + ']').hide();
+          $('.btn-save[data-id=' + rowId + ']').show();
+
+          // Hace las celdas editables
+          $('.editable[data-id=' + rowId + ']').each(function () {
+              var field = $(this).data('field');
+              var value = $(this).text();
+              $(this).html('<input type="text" name="' + field + '" value="' + value + '">');
+          });
+      });
+
+      $('.btn-save').on('click', function () {
+          var rowId = $(this).data('id');
+          var data = {};
+
+          // Recopila los datos editados
+          $('.editable[data-id=' + rowId + ']').each(function () {
+              var field = $(this).data('field');
+              var value = $(this).find('input').val();
+              data[field] = value;
+          });
+          
+          // Agrega el id al objeto de datos
+          data['id'] = rowId;
+          // Obtiene el token CSRF del formulario
+          var csrfToken = $('#formularioTabla [name="csrfmiddlewaretoken"]').val();
+          data['csrfmiddlewaretoken'] = csrfToken;
+          // Envía los datos al servidor mediante AJAX
+          $.ajax({
+              url: '/administracion/grupos/editar/',  // Reemplaza con la URL de tu endpoint
+              type: 'POST',
+              data: data,
+              success: function(response) {
+                  // Manejar la respuesta exitosa si es necesario
+                  var msj = response.message;
+                  var opres = response.opciones; //retorna la data desde el backend
+                  Swal.fire({
+                        icon: 'success',
+                        title: 'Guardado exitoso',
+                        text: msj,
+                    });
+                  
+                    $("#ngrupo").empty();
+
+                    for (var i = 0; i < opres.length; i++) {
+                        // Acceder a los campos específicos del objeto
+                        var id = opres[i].id;
+                        var nombre = opres[i].nombre;
+                        $("#ngrupo").append('<option value="' + id + '">' + nombre + '</option>');
+                    }
+                  
+              },
+              error: function(xhr, status, error) {
+                  // Manejar el error si es necesario
+                  var jsonResponse = xhr.responseJSON;
+                  Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: jsonResponse.mensaje,
+                        });
+              },
+              complete: function() {
+                  // Oculta el botón de guardar y muestra el botón de editar
+                  $('.btn-edit[data-id=' + rowId + ']').show();
+                  $('.btn-save[data-id=' + rowId + ']').hide();
+
+                  // Actualiza las celdas con los nuevos valores
+                  $('.editable[data-id=' + rowId + ']').each(function () {
+                      var value = $(this).find('input').val();
+                      $(this).html(value);
+                  });
+              }
+          });
+      });
+  });
+</script>
+
+
+{% endblock %} 

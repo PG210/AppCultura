@@ -32,7 +32,7 @@
               {% endif %}
               <!--end alertar-->
             <!-- Horizontal Form -->
-            <form action="{% url 'editarcurso' idcurso=curso.id %}" method="post">
+            <form action="{% url 'editarcurso' idcurso=curso.id %}" method="post" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="form-control">
               <div class="row mb-3">
@@ -129,9 +129,38 @@
                         <div class="row mb-3">
                             <label for="lugar" class="col-sm-2 col-form-label">Lugar</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="lugar" name="lugar_{{ sesion.id }}" value="{{ sesion.lugar}}" required>
+                                <input type="text" class="form-control" id="lugar" name="lugar_{{ sesion.id }}" value="{{ sesion.lugar}}"  required>
                             </div>
                         </div>
+                        {% for tematica in temas %}
+                              {% if tematica.idsesion == sesion %}
+                              <div class="row mb-3">
+                                  <label for="tema" class="col-sm-2 col-form-label">Tema: </label>
+                                  <div class="col-sm-10">
+                                      <input type="text" class="form-control" id="tema" name="tema_{{ sesion.id }}" value="{{ tematica.descrip}}"  required>
+                                  </div>
+                              </div>
+                              <div class="row mb-3">
+                                  <label for="temades" class="col-sm-2 col-form-label">Descripción: </label>
+                                  <div class="col-sm-10">
+                                      <textarea class="form-control" rows="3" id="temades" name="temades_{{ sesion.id }}" value="{{ tematica.competencias }}"  required>{{ tematica.competencias }}</textarea>
+                                  </div>
+                              </div>
+                              <div class="row mb-3">
+                                  <label for="recursos" class="col-sm-2 col-form-label">Recursos: </label>
+                                  <div class="col-sm-10">
+                                      <textarea class="form-control" rows="3" id="recursos" name="recursos_{{ sesion.id }}" required>{{ tematica.recursos }}</textarea>
+                                  </div>
+                              </div>
+                              <div class="row mb-3">
+                                  <label for="temarec" class="col-sm-2 col-form-label">Archivo: </label>
+                                  <div class="col-sm-10">
+                                      <input type="file" class="form-control" id="temarec" name="temarec_{{ sesion.id }}">
+                                  </div>
+                              </div>
+                              <input type="number" id="idtema" name="idtema_{{ sesion.id }}" value="{{tematica.id}}" hidden>
+                              {% endif %}
+                            {% endfor %}
                         {% endfor %}
                         <!--end contendor campos-->
                     </div>

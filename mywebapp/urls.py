@@ -30,6 +30,9 @@ urlpatterns = [
     path('administracion/curso/list/', viewadmin.listarcursos, name='listarcursos'),  #registro cursos
     path('administracion/curso/delete/<int:idcurso>/', viewadmin.eliminarcurso, name='eliminarcurso'),  # eliminar cursos
     path('administracion/curso/editar/<int:idcurso>/', viewadmin.editarcurso, name='editarcurso'),  # editar curso
+    #==============descargar archvios ===========
+    path('administracion/curso/descarga/<path:ruta>/', viewadmin.download, name='download'), 
+    #==============================
     path('administracion/kpis/', viewadmin.kpiarea, name='kpiarea'),  # Crear KPI para area y departamento
     path('administracion/kpis/list/', viewadmin.listarkpiarea, name='listarkpiarea'),  # Crear KPI para area y departamento
     path('administracion/kpis/editar/<int:idkpi>/', viewadmin.editarkpi, name='editarkpi'),  # editar curso
@@ -38,6 +41,15 @@ urlpatterns = [
     path('administracion/empresa/list', viewadmin.listarempresa, name='listarempresa'), #Listar Empresas
     path('administracion/empresa/delete/<int:idempresa>/', viewadmin.eliminarempresa, name='eliminarempresa'),  # eliminar cursos
     path('administracion/empresa/update/<int:idempresa>/', viewadmin.modificarempresa, name='modificarempresa'), #Modificar empresa
+    #====================== registro de grupos de fromación =================
+    path('administracion/grupos/list/', viewadmin.listGrupos, name='listGrupos'), #ruta para registrar o dirigir a cursos
+    path('administracion/grupos/crear/', viewadmin.creargrupo, name='creargrupo'),
+    path('administracion/grupos/nuevo/', viewadmin.addgrupo, name='addgrupo'),
+    path('administracion/grupos/delete/<int:idgrupo>', viewadmin.eliminargrupo, name='eliminargrupo'),
+    path('administracion/grupos/editar/', viewadmin.editargrupo, name='editargrupo'),
+    path('administracion/grupos/list/user/<int:idgrupo>/', viewadmin.usersgrupo, name='usersgrupo'), #lista los usuarios pertenecientes a un grupo
+    
+    #====================== end registro de grupos =================
     #codigo Jhon
     path('administracion/empresa/api', viewadmin.empresagetsector.as_view(), name='empresagetsector')
     #fin codigo Jhon

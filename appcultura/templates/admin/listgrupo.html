@@ -1,0 +1,121 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+<!-- detalle_curso.html -->
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Grupos de formación</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+          <li class="breadcrumb-item active">Listado</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body mt-3">
+              <!--alertar-->
+            {% if messages %}
+            <br>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                  <strong>{{ message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {% endfor %}
+              </div>
+             {% endif %}
+              <!--end alertar-->
+              <!----=======================================-->
+              <div>
+                <a type="button" class="btn btn-primary" href="/administracion/grupos/crear/"> Agregar </a>
+              </div>
+              <div class="table-responsive mt-4">
+                <table class="table" id="tablareactiva">
+                    <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>No. Usuarios</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                  <tbody>
+                  {% if grupos_des %}   
+                  {% for grupo, cursos_info in grupos_con_cursos.items %}
+                    {% for gr in grupos_des %}
+                    {% if grupo == gr.nombre %}  
+                    <tr>
+                      <td> {{ forloop.counter }} </td>
+                       <td> {{ gr.nombre }}  </td>
+                       <td> {{ gr.descrip }}  </td>
+                       <td> {{ gr.total }} </td>
+                         <td>
+                           <!-- Button trigger modal -->
+                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalcursos{{ forloop.counter }}">
+                               Cursos
+                             </button>
+                             <a class="btn btn-success" href="{% url 'usersgrupo' idgrupo=gr.id %}">Usuarios</a>
+                             <!-- Modal -->
+                             <div class="modal fade" id="modalcursos{{ forloop.counter }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                               <div class="modal-dialog">
+                                 <div class="modal-content">
+                                   <div class="modal-header">
+                                     <h1 class="modal-title fs-5" id="exampleModalLabel">Cursos vinculados</h1>
+                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                   </div>
+                                   <div class="modal-body">
+                                     <div class="table-responsive">
+                                        <!--table datos-->
+                                        <table class="table" id="tablareactiva">
+                                           <thead>
+                                           <tr>
+                                               <th>Curso</th>
+                                               <th>Descripción</th>
+                                               <th>Acciones</th>
+                                           </tr>
+                                           </thead>
+                                           <tbody> 
+                                             {% for id_grupo_curso, nombre_curso, descrip_curso in cursos_info %}
+                                              <tr>
+                                                <td>{{ nombre_curso }}</td>
+                                                <td>{{ descrip_curso }}</td>
+                                                <td>{{ id_grupo_curso }}</td>
+                                              </tr>
+                                             {% endfor %}
+                                           </tbody>
+                                        </table>
+                                        <!--end table-->
+                                     </div>
+                                   </div>
+                                   <div class="modal-footer">
+                                     <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                                   </div>
+                                 </div>
+                               </div>
+                             </div>
+                         </td>
+                     </tr>
+                     {% endif %}
+                     {% endfor %}
+                 {% endfor %}
+                 {% endif %}
+                  </tbody>
+                </table>
+               </div>
+               <br>
+              <!--======================================-->
+          </div>
+        </div>
+
+      </div>
+       <!--end forms -->
+      </div>
+    </section>
+</main><!-- End #main -->
+{% endblock %} 

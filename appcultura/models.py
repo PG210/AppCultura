@@ -16,5 +16,8 @@ from .modelos.objetivoscurso import ObjetivosCurso
 from .modelos.kpiarea import Kpiarea
 from .modelos.kpiobjetivos import Kpiobjetivos
 from .modelos.temassesion import TemasSesion
+from .modelos.grupos import Grupos
+from .modelos.gruposcursos import GruposCursos
+from .modelos.grupouser import GruposUser
 
 # Create your models here.
