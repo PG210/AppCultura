@@ -1,4 +1,4 @@
-{% extends 'layoutsinicio/app.html' %}
+{% extends 'layoutsinicio/app2.html' %}
 
 {% block content %}
 
@@ -10,12 +10,22 @@
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endif %}
+    <!--alertar-->
+    {% if mensaje %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <strong>{{mensaje}}</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <!--end alertar-->
     <!--end alertar-->
     <div class="row">
        <div class="col-3 d-none d-sm-block"></div>
        <div class="col-12 col-lg-6 ">
+         <h1 style="text-align: center;">Validar Asistencia</h1>
+         <br>
          <!--formulario-->
-         <form action="{% url 'validarasistencia' %}" method="post">
+         <form action="{% url 'validarasistencia' idsesion=idsesion %}" method="post">
             {% csrf_token %}
          <div class="container shadow-lg border border-dark" style="background-color:white; border-radius: 10px;">
             <br>

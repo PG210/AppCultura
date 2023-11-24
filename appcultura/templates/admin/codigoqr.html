@@ -1,0 +1,35 @@
+{% extends 'layoutsinicio/app2.html' %}
+
+{% block content %}
+{% load static %}
+<div class="container mt-5 mb-5">
+    <!--alertar-->
+    {% if error %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <strong>{{error}}</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    <!--end alertar-->
+    
+    <div class="row">
+       <div class="col-3 d-none d-sm-block"></div>
+       <div class="col-12 col-lg-6 ">
+         <div class="container text-center">
+            <h1 style="text-align: center">AppCultura</h1>
+            <br>
+            <img src="{% static '' %}{{qr_code_url}}">
+            <br>
+            <button type="button" class="btn btn-warning" onclick="copiarlink('http://localhost:8000/administracion/validarasistencia/{{idsesion}}')" id="btnlink">Copiar Enlace</button>
+         </div>
+         
+       </div>
+       <div class="col-3 d-none d-sm-block"></div>
+    </div>
+    <br><br>
+    
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script type="text/javascript" src="{% static 'admin/assets/js/empresa.js' %}"></script>
+
+{% endblock %} 

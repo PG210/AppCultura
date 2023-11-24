@@ -56,7 +56,8 @@ urlpatterns = [
     path('administracion/empresa/vincular', viewadmin.vincularareadepto, name='vincularareadepto'), #Vincular area y departamento
     path('administracion/empresa/vincular/list', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
     path('administracion/empresa/vincular/delete/<int:idarea>/', viewadmin.eliminavinculo, name='eliminarvinculo'),
-    path('administracion/validarasistencia/', viewadmin.validarasistencia, name='validarasistencia')
+    path('administracion/validarasistencia/<int:idsesion>', viewadmin.validarasistencia, name='validarasistencia'),
+    path('administracion/generarqr/<int:idsesion>', viewadmin.generarqr, name='generarqr')
     #fin codigo Jhon
 ]   
    

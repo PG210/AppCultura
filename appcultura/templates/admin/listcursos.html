@@ -117,6 +117,7 @@
                                         <th>Descripción</th>
                                         <th>Recursos</th>
                                         <th>Archivos</th>
+                                        <th>Asistentes</th>
                                       </tr>
                                     </thead>
                                   <tbody>
@@ -132,6 +133,7 @@
                                       <td>{{ tematica.competencias }}</td>
                                       <td>{{ tematica.recursos }}</td>
                                       <td><a  class="btn-info" href="{% url 'download' ruta=tematica.ruta %}" download><i class="bi bi-cloud-arrow-down-fill" style="font-size:24px;"></i></a></td>
+                                      <td><a class="btn-info" href="{% url 'generarqr' idsesion=sesion.id %}" target="_blank"><i class="bi bi-share-fill"></i></a></td>
                                       {% endif %}
                                     {% endfor %}
                                     </tr>
