@@ -4,7 +4,7 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>KPIs Empresa</h1>
+      <h1>Listado de KPIs</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
@@ -20,6 +20,9 @@
         <div class="card">
           <div class="card-body">
               <!--alertar-->
+            <div class="mt-3">
+                <a type="button" class="btn btn-primary" href="{% url 'kpiarea' %}"> Agregar </a>
+            </div>
             {% if messages %}
             <br>
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -41,7 +44,8 @@
                      <th>Valor</th>
                      <th>Estado</th>
                      <th>Descripción</th>
-                     <th>Acciones</th>
+                     <th>Eliminar</th>
+                     <th>Editar</th>
                    </tr>
                  </thead>
                  <tbody>
@@ -59,7 +63,7 @@
                      {% endif %} 
                      </td>  
                       <!--================== Descripción ===============-->
-                      <td>
+                      <td class="text-center">
                            <!-- Modal Dialog Scrollable -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaKPI{{kparea.id}}">
                           Ver
@@ -105,7 +109,7 @@
                          </div><!-- End Modal Dialog Scrollable-->
                       </td>
                       <!--===================== end descripcion ===========-->
-                     <td>
+                     <td class="text-end">
                       <!---botones-->
                       <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#borrarKPI{{kparea.id}}"><i class="bi bi-trash3-fill"></i></a>
                       <div class="modal fade" id="borrarKPI{{kparea.id}}" tabindex="-1">
@@ -125,10 +129,12 @@
                           </div>
                         </div>
                       </div>
+                    </td> 
+                    <td>
                     <!--end validacion-->
-                      <a type="button" class="btn btn-info" style="display: inline-block;"  href="{% url 'editarkpi' idkpi=kparea.id %}"><i class="bi bi-pencil-square"></i></a>
+                      <a type="button" class="btn btn-info"  href="{% url 'editarkpi' idkpi=kparea.id %}"><i class="bi bi-pencil-square"></i></a>
                       <!--end botones-->
-                     </td>          
+                    </td>      
                    </tr>
                    {% endfor %} 
                  </tbody>

@@ -38,7 +38,7 @@
                 <table class="table" id="tablareactiva">
                     <thead>
                     <tr>
-                        <th>No</th>
+                        <th>Id interno</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
                         <th>No. Usuarios</th>
@@ -51,60 +51,55 @@
                     {% for gr in grupos_des %}
                     {% if grupo == gr.nombre %}  
                     <tr>
-                      <td> {{ forloop.counter }} </td>
+                      <td> {{ gr.id }} </td>
                        <td> {{ gr.nombre }}  </td>
                        <td> {{ gr.descrip }}  </td>
                        <td> {{ gr.total }} </td>
                          <td>
                            <!-- Button trigger modal -->
-                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalcursos{{ forloop.counter }}">
-                               Cursos
-                             </button>
+                             <a type="button" class="btn btn-primary" href="{% url 'cursosgrupo' idgrupo=gr.id %}">Cursos</a>
                              <a class="btn btn-success" href="{% url 'usersgrupo' idgrupo=gr.id %}">Usuarios</a>
+                             <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#btnconfirmar{{gr.id}}"><i class="bi bi-trash3-fill" style="font-size: 20px;"></i></a>
+                             <!---modal de confirmación-->
                              <!-- Modal -->
-                             <div class="modal fade" id="modalcursos{{ forloop.counter }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                               <div class="modal-dialog">
-                                 <div class="modal-content">
-                                   <div class="modal-header">
-                                     <h1 class="modal-title fs-5" id="exampleModalLabel">Cursos vinculados</h1>
-                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                   </div>
-                                   <div class="modal-body">
-                                     <div class="table-responsive">
-                                        <!--table datos-->
-                                        <table class="table" id="tablareactiva">
-                                           <thead>
-                                           <tr>
-                                               <th>Curso</th>
-                                               <th>Descripción</th>
-                                               <th>Acciones</th>
-                                           </tr>
-                                           </thead>
-                                           <tbody> 
-                                             {% for id_grupo_curso, nombre_curso, descrip_curso in cursos_info %}
-                                              <tr>
-                                                <td>{{ nombre_curso }}</td>
-                                                <td>{{ descrip_curso }}</td>
-                                                <td>{{ id_grupo_curso }}</td>
-                                              </tr>
-                                             {% endfor %}
-                                           </tbody>
-                                        </table>
-                                        <!--end table-->
-                                     </div>
-                                   </div>
-                                   <div class="modal-footer">
-                                     <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
-                                   </div>
-                                 </div>
-                               </div>
-                             </div>
+                              <div class="modal fade" id="btnconfirmar{{gr.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <h5>¿Estás seguro de que deseas eliminar este grupo?</h5>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No</button>
+                                      <a type="button" class="btn btn-warning" href="{% url 'deletegrupos' idgrupo=gr.id %}">Si</a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                             <!--end modal confirmacion-->
                          </td>
                      </tr>
                      {% endif %}
                      {% endfor %}
                  {% endfor %}
                  {% endif %}
+                 <!---imprimir los grupos presentes en la tabla curso-->
+                 {% for datos in datos_faltantes %}
+                    <tr>
+                      <td> {{ datos.id }} </td>
+                      <td> {{ datos.nombre }}  </td>
+                      <td> {{ datos.descrip }}  </td>
+                      <td> {{ datos.total }} </td>
+                        <td>
+                          <!-- Button trigger modal -->
+                            <a type="button" class="btn btn-primary" href="{% url 'cursosgrupo' idgrupo=datos.id %}">Cursos</a>
+                            <a class="btn btn-success" href="{% url 'usersgrupo' idgrupo=datos.id %}">Usuarios</a>
+                        </td>
+                    </tr>
+                    </tr>
+                 {% endfor %}
                   </tbody>
                 </table>
                </div>

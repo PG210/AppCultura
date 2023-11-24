@@ -14,7 +14,7 @@ from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Depar
 from django.contrib import messages #mensajes para la vista
 from ..models import TemasSesion, Grupos, GruposCursos, GruposUser
 from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa
-from django.db.models import Subquery, OuterRef
+from django.db.models import Subquery, OuterRef, Q
 #Codigo Jhon
 from django.http import JsonResponse
 from django.views import View
@@ -422,9 +422,12 @@ def download(request, ruta):
 def listGrupos(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     grupos_cursos = GruposCursos.objects.select_related('idgrupo', 'idcurso')
+    cursos_grup = Curso.objects.all()
+    grupousers = GruposUser.objects.select_related('idgrupo', 'iduser')
     #=========== contar los usuarios que pertenecen a este grupo =============
     grupos_con_cursos = {}
     grupos_des = []
+    grupouserold = []
     for grupo_curso in grupos_cursos:
         id_grupos_cursos = grupo_curso.id
         id_grupo = grupo_curso.idgrupo.id
@@ -442,14 +445,28 @@ def listGrupos(request):
             grupos_con_cursos[nombre_grupo] = []
                
         grupos_con_cursos[nombre_grupo].append((id_grupos_cursos, nombre_curso, descrip_curso))
-    
-    return render(request, 'admin/listgrupo.html', {'usu':perfil_usuario, 'grupos_con_cursos':grupos_con_cursos, 'grupos_des':grupos_des})
+     #================================= Aqui buscar los grupos que estan en la tabla gruposuser =================
+    for gusers in grupousers:
+        id_grupo = gusers.idgrupo.id
+        nombre_grupo = gusers.idgrupo.nombre
+        descrip_grupo = gusers.idgrupo.descrip
+        # contar el numero de usuarios por cada grupo 
+        num_usuarios = GruposUser.objects.filter(idgrupo=gusers.idgrupo).count()
+        # Verificar si el grupo ya ha sido agregado a la lista
+        if not any(grupo['id'] == gusers.idgrupo.id for grupo in grupouserold):
+            grupouserold.append({'id': id_grupo, 'nombre':nombre_grupo, 'descrip': descrip_grupo, 'total':num_usuarios}) 
+    #=========== obtener los datos faltantes =============
+    datos_faltantes = [dato for dato in grupouserold if dato not in grupos_des]
+    #=================================================================================================
+    return render(request, 'admin/listgrupo.html', {'usu':perfil_usuario, 'grupos_con_cursos':grupos_con_cursos, 'grupos_des':grupos_des, 'cursos_grup':cursos_grup, 'datos_faltantes':datos_faltantes})
 
 #=============== formulario de crear nuevo grupo con cursos y trabajadores =================
 @login_required #proteger la ruta
 def creargrupo(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     ngrupos = Grupos.objects.all()
+    addgrupouser = GruposUser.objects.all()
+    addgrupocurso = GruposCursos.objects.all()
     cursos = Curso.objects.all()
     usuarios = UserPerfil.objects.all()
     if request.method == 'POST':
@@ -457,30 +474,38 @@ def creargrupo(request):
         cursos_seleccionados = request.POST.getlist('cursosselec')
         usuarios_seleccionados = request.POST.getlist('ususelect')
         # Obtén los objetos de Curso y Grupo
-        cursos_objetos = Curso.objects.filter(id__in=cursos_seleccionados)
-        grupo_objeto = Grupos.objects.get(id=ngrupo)
-        user_objetos = UserPerfil.objects.filter(id__in=usuarios_seleccionados)
-        # Recorre los cursos seleccionados y guarda la relación en GruposCursos
-        for curso_objeto in cursos_objetos:
-            if GruposCursos.objects.filter(idgrupo=grupo_objeto, idcurso=curso_objeto).exists():
-                 messages.success(request, 'El grupo ya esta agregado.')
-                 return redirect('creargrupo')
-            #guarda los cursos seleccionados
-            grupo_curso = GruposCursos(idgrupo=grupo_objeto, idcurso=curso_objeto)
-            grupo_curso.save()
-        #aqui se debe guardar los estudiantes con el grupo
-        for user_objeto in user_objetos:
-            if GruposUser.objects.filter(idgrupo=grupo_objeto, iduser=user_objeto).exists():
-                messages.success(request, 'El usuario ya esta registrado en el mismo grupo.')
-                return redirect('creargrupo')
-            #guardar los estudiantes
-            grupo_usu = GruposUser(idgrupo=grupo_objeto, iduser=user_objeto)
-            grupo_usu.save()  
-        #print('datos', request.POST)
-        messages.success(request, 'Datos guardados exitosamente.')
+        if ngrupo and cursos_seleccionados and usuarios_seleccionados:
+            cursos_objetos = Curso.objects.filter(id__in=cursos_seleccionados)
+            grupo_objeto = Grupos.objects.get(id=ngrupo)
+            user_objetos = UserPerfil.objects.filter(id__in=usuarios_seleccionados)
+            # Recorre los cursos seleccionados y guarda la relación en GruposCursos
+            for curso_objeto in cursos_objetos:
+                if GruposCursos.objects.filter(idgrupo=grupo_objeto, idcurso=curso_objeto).exists():
+                    messages.success(request, 'El grupo ya esta agregado.')
+                    return redirect('creargrupo')
+                #guarda los cursos seleccionados
+                grupo_curso = GruposCursos(idgrupo=grupo_objeto, idcurso=curso_objeto)
+                grupo_curso.save()
+            #aqui se debe guardar los estudiantes con el grupo
+            for user_objeto in user_objetos:
+                if GruposUser.objects.filter(idgrupo=grupo_objeto, iduser=user_objeto).exists():
+                    messages.success(request, 'El usuario ya esta registrado en el mismo grupo.')
+                    return redirect('creargrupo')
+                #guardar los estudiantes
+                grupo_usu = GruposUser(idgrupo=grupo_objeto, iduser=user_objeto)
+                grupo_usu.save()  
+            #print('datos', request.POST)
+            messages.success(request, 'Datos guardados exitosamente.')
+        else:
+            messages.success(request, 'Por favor, completa todos los campos.')
         return redirect('creargrupo')
     else:
-      return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':ngrupos, 'cursos':cursos, 'usuarios':usuarios})
+      #============ solamente obtener los grupos que no tienen ningun curso o usuario vinculado =============
+      grupos_faltantes = ngrupos.exclude(
+            Q(gruposuser__in=addgrupouser) | Q(gruposcursos__in=addgrupocurso)
+        )
+      print(grupos_faltantes)
+      return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios})
 #======= listado de grupos ============
 #============= crear grupo ============
 @login_required #proteger la ruta
@@ -496,7 +521,14 @@ def addgrupo(request):
               info.save()
         else:
             return JsonResponse({'mensaje': 'Los campos no pueden estar vacios.'}, status=401) 
-        opciones = list(Grupos.objects.values())
+        #========== validar los grupos que deben salir =======
+        addgrupouser = GruposUser.objects.all()
+        addgrupocurso = GruposCursos.objects.all()
+        opciones = list(
+                        Grupos.objects.exclude(
+                            Q(gruposuser__in=addgrupouser) | Q(gruposcursos__in=addgrupocurso)
+                        ).values()
+                    )
         return JsonResponse({'opciones': opciones})
 #============= Elimanr grupo =========
 @login_required #proteger la ruta
@@ -509,7 +541,18 @@ def eliminargrupo(request, idgrupo):
         messages.error(request, 'El grupo no Existe')
     return redirect('creargrupo')
 
+#================Eliminar grupo de manera definitiva con la vinculacion de usuarios y cursos=============
+@login_required #proteger la ruta
+def deletegrupos(request, idgrupo):
+    try:
+        gr = Grupos.objects.get(id=idgrupo)
+        gr.delete()
+        messages.success(request, 'Grupo eliminada exitosamente.')
+    except Grupos.DoesNotExist:
+        messages.error(request, 'El grupo no Existe')
+    return redirect('listGrupos')
 #===============Editar grupo ===============
+
 @login_required #proteger la ruta
 def editargrupo(request):
     if request.method == 'POST':
@@ -525,7 +568,14 @@ def editargrupo(request):
                     datosGrupo.nombre = nom
                     datosGrupo.descrip = des
                     datosGrupo.save()
-                    opciones = list(Grupos.objects.values())
+                    #========== validar los grupos solamente aparecer los que estan sin vinculos=========
+                    addgrupouser = GruposUser.objects.all()
+                    addgrupocurso = GruposCursos.objects.all()
+                    opciones = list(
+                        Grupos.objects.exclude(
+                            Q(gruposuser__in=addgrupouser) | Q(gruposcursos__in=addgrupocurso)
+                        ).values()
+                    )
                     return JsonResponse({'message': 'Datos actualizados correctamente.', 'opciones':opciones})             
             else:
                 return JsonResponse({'mensaje': 'Los campos no pueden estar vacios'}, status=404) 
@@ -537,15 +587,63 @@ def editargrupo(request):
 def usersgrupo(request, idgrupo):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     regusu = GruposUser.objects.filter(idgrupo=idgrupo)
-   # usuarios = UserPerfil.objects.all()
+    gruponame = Grupos.objects.get(id=idgrupo)
     usuarios = UserPerfil.objects.exclude(
         id__in=Subquery(
             GruposUser.objects.filter(idgrupo=idgrupo).values('iduser')
         )
     )
-    print(usuarios)
-    return render(request, 'admin/listusergrupo.html', {'usu':perfil_usuario, 'regusu':regusu, 'usuarios':usuarios})
+    #========== si es metodo post ===============
+    if request.method == 'POST':
+        usuariosn = request.POST.getlist('userselect')
+        usunuevo = request.POST.getlist('nuevosselect')
+        regusun = GruposUser.objects.filter(idgrupo=idgrupo).values('id')
+        user_objetos = UserPerfil.objects.filter(id__in=usunuevo)
+        grupo_objeto = Grupos.objects.get(id=idgrupo)
+        # Obtener los ids presentes en la queryset
+        ids_en_queryset = {usuario['id'] for usuario in regusun}
+        # Encontrar el id que falta
+        ids_faltantes = [id for id in ids_en_queryset if str(id) not in usuariosn]
+        for id_faltante in ids_faltantes:
+            getid = get_object_or_404(GruposUser, id=id_faltante)
+            getid.delete()
+        #agregar nuevos usuarios al grupo
+        for user_objeto in user_objetos:
+            grupo_usu = GruposUser(idgrupo=grupo_objeto, iduser=user_objeto)
+            grupo_usu.save() 
+        messages.error(request, 'Datos actualizados correctamente')
+    return render(request, 'admin/listusergrupo.html', {'usu':perfil_usuario, 'regusu':regusu, 'usuarios':usuarios, 'idgrupo':idgrupo, 'gruponame':gruponame})
 
+# aqui se puede actualizar los cursos en cada grupo
+def cursosgrupo(request, idgrupo):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    regcurso = GruposCursos.objects.filter(idgrupo=idgrupo)
+    gruponame = Grupos.objects.get(id=idgrupo)
+    cursos = Curso.objects.exclude(
+        id__in=Subquery(
+            GruposCursos.objects.filter(idgrupo=idgrupo).values('idcurso')
+        )
+    )
+    if request.method == 'POST':
+        cursoold = request.POST.getlist('cursoselect')
+        cursonew = request.POST.getlist('cursonew')
+        curreg = GruposCursos.objects.filter(idgrupo=idgrupo).values('id')
+        cursos_objetos = Curso.objects.filter(id__in=cursonew)
+        grupo_objeto = Grupos.objects.get(id=idgrupo)
+        #convertir el query
+        ids_query = {curso['id'] for curso in curreg}
+        # Encontrar el id que falta
+        ids_faltantes = [id for id in ids_query if str(id) not in cursoold]
+        for id_faltante in ids_faltantes:
+            getid = get_object_or_404(GruposCursos, id=id_faltante)
+            getid.delete()
+        #agregar los nuevos cursos seleccionados
+        for curso_objeto in cursos_objetos:
+            grupo_cur = GruposCursos(idgrupo=grupo_objeto, idcurso=curso_objeto)
+            grupo_cur.save() 
+        messages.error(request, 'Datos actualizados correctamente')
+    return render(request, 'admin/listcursogrupo.html', {'usu':perfil_usuario, 'idgrupo':idgrupo, 'regcurso':regcurso, 'cursos':cursos, 'gruponame':gruponame })
+    
 @login_required
 def vincularareadepto(request):
     empresa = Empresa.objects.all()

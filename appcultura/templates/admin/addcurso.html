@@ -5,10 +5,11 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Cursos</h1>
+      <h1>Registrar nuevo curso</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+          <li class="breadcrumb-item active"><a href="/administracion/curso/list/">Listado</a></li>
           <li class="breadcrumb-item active">Registro</li>
         </ol>
       </nav>
@@ -97,7 +98,7 @@
               <div class="text-center">
                 <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
                 <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
-                <button type="reset" class="btn btn-secondary">Cancelar</button>
+                <a type="reset" class="btn btn-warning" href="/administracion/curso/list/">Cancelar</a>
               </div>
             </form><!-- End Horizontal Form -->
            

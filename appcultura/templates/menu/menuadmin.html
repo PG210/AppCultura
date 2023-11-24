@@ -15,8 +15,8 @@
         </a>
         <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'registroCursos' %}">
-              <i class="bi bi-circle"></i><span>Registrar</span>
+            <a href="{% url 'listarcursos' %}">
+              <i class="bi bi-circle"></i><span>Listado</span>
             </a>
             <a href="{% url 'listGrupos' %}">
               <i class="bi bi-circle"></i><span>Grupos</span>
@@ -31,8 +31,9 @@
         </a>
         <ul id="forms-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'kpiarea' %}">
+            <a href="/administracion/kpis/list/">
               <i class="bi bi-circle"></i><span>KPi Area/Departamento</span>
+
            </a>
           <li>
             <a href="{% url 'registroEmpresa' %}">

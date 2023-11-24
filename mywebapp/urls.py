@@ -48,7 +48,8 @@ urlpatterns = [
     path('administracion/grupos/delete/<int:idgrupo>', viewadmin.eliminargrupo, name='eliminargrupo'),
     path('administracion/grupos/editar/', viewadmin.editargrupo, name='editargrupo'),
     path('administracion/grupos/list/user/<int:idgrupo>/', viewadmin.usersgrupo, name='usersgrupo'), #lista los usuarios pertenecientes a un grupo
-    
+    path('administracion/grupos/list/cursos/<int:idgrupo>/', viewadmin.cursosgrupo, name='cursosgrupo'),
+    path('administracion/grupos/delete/total/<int:idgrupo>', viewadmin.deletegrupos, name='deletegrupos'),
     #====================== end registro de grupos =================
     #codigo Jhon
     #path('administracion/empresa/api', viewadmin.empresagetsector.as_view(), name='empresagetsector'),
