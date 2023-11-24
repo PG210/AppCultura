@@ -19,5 +19,6 @@ from .modelos.temassesion import TemasSesion
 from .modelos.grupos import Grupos
 from .modelos.gruposcursos import GruposCursos
 from .modelos.grupouser import GruposUser
+from .modelos.sesionasistencia import SesionAsistencia
 
 # Create your models here.

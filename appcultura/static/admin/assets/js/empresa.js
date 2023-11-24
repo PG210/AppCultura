@@ -275,3 +275,35 @@ function mostrarAreas(){
   });
 }
 */
+
+function copiarlink(texto){
+
+  
+  const btn = document.getElementById('btnlink');
+
+  console.log(texto);
+
+  let areaDeTexto = document.createElement("textarea");
+  areaDeTexto.value = texto;
+
+  // Agregar el área de texto al DOM
+  document.body.appendChild(areaDeTexto);
+
+  // Seleccionar y copiar el texto
+  areaDeTexto.select();
+  document.execCommand("copy");
+
+  // Eliminar el área de texto
+  document.body.removeChild(areaDeTexto);
+  
+  Swal.fire({
+    icon: 'success',
+    title: 'Copiado exitoso',
+    text:'Enlace copiado',
+  });
+
+
+  // Puedes agregar aquí lógica adicional, como mostrar un mensaje de éxito
+  //alert("Texto copiado al portapapeles: " + texto);
+
+}

@@ -1,5 +1,6 @@
 import os
 import mimetypes
+from pdb import post_mortem
 import select
 from urllib import request
 from django.conf import settings
@@ -13,11 +14,14 @@ from django.db import IntegrityError #errores de la base de datos
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
 from ..models import TemasSesion, Grupos, GruposCursos, GruposUser
-from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa
+from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, SesionAsistencia
 from django.db.models import Subquery, OuterRef
 #Codigo Jhon
 from django.http import JsonResponse
 from django.views import View
+import qrcode
+from io import BytesIO
+from django.core.files.storage import default_storage
 #Fin Codigo Jhon
 
 @login_required #proteger la ruta
@@ -621,10 +625,52 @@ def eliminavinculo(request, idarea):
         messages.error(request, 'La Vinculacion no Existe')
     return redirect('visualizarAreaDepto')
 
-def validarasistencia(request):
-    return render(request, 'admin/validarasistencia.html')
+def validarasistencia(request, idsesion):
+    if request.method == 'POST':
+        print(idsesion)
+        correo = request.POST.get('email')
+        usuario = User.objects.get(username=correo)
+        print(correo)
+        sesion = Sesioncurso.objects.get(id=idsesion)
+        user = UserPerfil.objects.get(user=usuario)
+        asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user)
+        asistencia.save()
+        mensaje="Asistencia verificada"
+        return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+    else:    
+        return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion})
 
 def generarqr(request, idsesion):
-    
-    return "Este es texto "
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+
+    # Agregar datos al código QR (puedes cambiar el texto según tus necesidades)
+    data = f'http://localhost:8000/administracion/validarasistencia/{idsesion}'
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    # Crear una imagen PIL (Pillow) desde el código QR
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Guardar la imagen en un buffer de BytesIO
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+
+    # Guardar la imagen en el sistema de archivos de Django
+    filename = f"appcultura/static/media/qrcodes/{idsesion}_qrcode.png"
+    #filename = f"static/qrcodes/{idsesion}_qrcode.png"
+    filepath = default_storage.save(filename, buffer)
+
+    # Obtener la URL de la imagen
+    qr_code_url = default_storage.url(filepath)
+    relative_path = qr_code_url.split("appcultura/static/")[1]
+    print(relative_path)
+    return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion})
+
+
 #Fin codigo Jhon
