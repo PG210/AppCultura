@@ -1,7 +1,7 @@
 <!---Vista principal-->
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="utf-8">
@@ -243,11 +243,11 @@
 
   <!-- ======= Sidebar ======= -->
  <!--menu administrador-->
-    {% if usu.idrol_id == 1 %}
+    {% if usu.idrol.descrip == 'admin' %}
      {% include "menu/menuadmin.html" %}
-    {% elif usu.idrol_id == 2 %}
+    {% elif usu.idrol.descrip == 'usuario' %}
      {% include "menu/menusuario.html" %}
-    {% elif usu.idrol_id == 3 %}
+    {% elif usu.idrol.descrip == 'jefe' %}
      {% include "menu/menujefe.html" %}
     {% else %}
      {% include "menu/menuformador.html" %}

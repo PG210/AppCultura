@@ -18,6 +18,7 @@ from django.urls import path
 from appcultura import views
 from appcultura.viewfile import viewadmin #utilizar una nueva vista 
 from appcultura.viewfile import viewformu #crear formularios
+from appcultura.viewfile import viewuser #Utilizar la vista de usuario
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -64,7 +65,15 @@ urlpatterns = [
     path('administracion/empresa/vincular/list', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
     path('administracion/empresa/vincular/delete/<int:idarea>/', viewadmin.eliminavinculo, name='eliminarvinculo'),
     path('administracion/validarasistencia/<int:idsesion>', viewadmin.validarasistencia, name='validarasistencia'),
-    path('administracion/generarqr/<int:idsesion>', viewadmin.generarqr, name='generarqr')
-    #fin codigo Jhon
+    path('administracion/generarqr/<int:idsesion>', viewadmin.generarqr, name='generarqr'),
+    #codigo Jhon
+    path('administracion/curso/asistentelist/<int:idsesion>', viewadmin.listarasistentes, name='listarasistentes'),
+    path('administracion/curso/deleteasistente/<int:idasis>', viewadmin.eliminarasistente, name='eliminarasistente'),
+    #Fin codigo Jhon
+
+
+    #================================= Rutas de Usuario =============================================================
+    path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario")
+    #============================ Fin de Rutas de usuario ===========================================================
 ]   
    

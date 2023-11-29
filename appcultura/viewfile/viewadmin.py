@@ -25,6 +25,7 @@ from django.views import View
 import qrcode
 from io import BytesIO
 from django.core.files.storage import default_storage
+from django.core.exceptions import ObjectDoesNotExist
 #Fin Codigo Jhon
 
 @login_required #proteger la ruta
@@ -728,18 +729,38 @@ def eliminavinculo(request, idarea):
 
 def validarasistencia(request, idsesion):
     if request.method == 'POST':
-        print(idsesion)
-        correo = request.POST.get('email')
-        usuario = User.objects.get(username=correo)
-        print(correo)
-        sesion = Sesioncurso.objects.get(id=idsesion)
-        user = UserPerfil.objects.get(user=usuario)
-        asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user)
-        asistencia.save()
-        mensaje="Asistencia verificada"
-        return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+        
+            correo = request.POST.get('email')
+            if User.objects.filter(username=correo).exists():
+                usuario = User.objects.get(username=correo)
+                user = UserPerfil.objects.get(user=usuario)
+            else:
+                mensaje = "El usuario no se encuentra registrado en el sistema"
+                return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+
+            if Sesioncurso.objects.filter(id=idsesion).exists():
+                sesion = Sesioncurso.objects.get(id=idsesion)
+                curso = GruposCursos.objects.get(idcurso=sesion.idcurso)
+                grupo = GruposUser.objects.get(iduser=user)
+
+                if SesionAsistencia.objects.filter(idsesioncurso=sesion, idusuario=user).exists():
+                    mensaje="El usuario ya se encuentra registrado a esta sesión"
+                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+                
+                if curso.idgrupo == grupo.idgrupo:
+                    asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user)
+                    asistencia.save()
+                    mensaje="Asistencia verificada"
+                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+                else:
+                    mensaje=f'El usuario {user} no esta asignado al curso {curso}'
+                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+            else:
+                mensaje = f'la sesion {idsesion} no existe'
+                return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje}) 
     else:    
         return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion})
+        
 
 def generarqr(request, idsesion):
 
@@ -773,5 +794,22 @@ def generarqr(request, idsesion):
     print(relative_path)
     return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion})
 
+@login_required
+def listarasistentes(request, idsesion):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    sesion = Sesioncurso.objects.get(id=idsesion)
+    usuarios = SesionAsistencia.objects.filter(idsesioncurso=sesion)
+    print(usuarios)
+    return render(request, 'admin/listasistentes.html', {'usuarios':usuarios, 'usu':perfil_usuario})
 
+@login_required #proteger la ruta
+def eliminarasistente(request, idasis):
+    try:
+        asistente = SesionAsistencia.objects.get(id=idasis)
+        sesion = asistente.idsesioncurso.id
+        asistente.delete()
+        messages.success(request, 'Asistente eliminado exitosamente.')
+    except SesionAsistencia.DoesNotExist:
+        messages.error(request, 'El Asistente no existe')
+    return redirect('listarasistentes', idsesion=sesion)
 #Fin codigo Jhon
