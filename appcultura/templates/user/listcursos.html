@@ -1,6 +1,7 @@
 {% extends 'admin/inicio.html' %}
 {% block content %}
 
+
 <main id="main" class="main">
 
     <div class="pagetitle">
@@ -19,9 +20,6 @@
        <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-              <div class="mt-3">
-                <a type="button" class="btn btn-primary" href="{% url 'registroCursos' %}"> Agregar </a>
-              </div>
               <br>
                <!--alertar-->
                {% if messages %}
@@ -38,68 +36,21 @@
                <table class="table" id="tablareactiva">
                 <thead>
                   <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
-                    <th>Objetivos</th>
+                    <th>Curso</th>
                     <th>Sesiones</th>
-                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for curso in cursos %}
                   <tr>
-                    <td>{{ curso.nombre }}</td>
-                    <td>{{ curso.descrip }}</td>
-                    <td>{{ curso.precio }}</td>
-                    <td>
-                       <!--aqui modal-->
-                        <!-- Modal Dialog Scrollable -->
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaObjetivo{{curso.id}}">
-                         Objetivos
-                        </button>
-                        <div class="modal fade" id="modalListaObjetivo{{curso.id}}" tabindex="-1">
-                          <div class="modal-dialog modal-dialog-scrollable modal-lg">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title">Listado de objetivos</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                <table>
-                                    <thead>
-                                      <tr>
-                                        <th>Descripción</th>
-                                        <th>Competencias</th>
-                                      </tr>
-                                    </thead>
-                                  <tbody>
-                                  {% for objetivo in objetivos %}
-                                    {% if objetivo.idcurso == curso %}
-                                    <tr>
-                                      <td>{{ objetivo.descrip }}</td>
-                                      <td>{{ objetivo.competencias }}</td>
-                                    </tr>
-                                    {% endif %}
-                                  {% endfor %}
-                                    </tbody>
-                                </table>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div><!-- End Modal Dialog Scrollable-->
-                      <!--end modal-->
-                    </td>
+                    <td>{{ curso.idcurso.nombre }}</td>
                     <td>
                       <!--aqui modal-->
                          <!-- Modal Dialog Scrollable -->
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaCurso{{curso.id}}">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
                           Sesiones
                         </button>
-                        <div class="modal fade" id="modalListaCurso{{curso.id}}" tabindex="-1">
+                        <div class="modal fade" id="modallistarsesiones{{curso.id}}" tabindex="-1">
                           <div class="modal-dialog modal-dialog-scrollable modal-xl ">
                             <div class="modal-content">
                               <div class="modal-header">

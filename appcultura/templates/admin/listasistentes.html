@@ -1,0 +1,93 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+  {% load static %}
+
+  <main id="main" class="main">
+    <div class="pagetitle">
+      <h1>Asistentes</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="#">Inicio</a>
+          </li>
+          <li class="breadcrumb-item active">Listado</li>
+        </ol>
+      </nav>
+    </div>
+    <!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+        <!-- registro de cursos forms -->
+        <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <br>
+              <!--<a class="btn btn-primary" href="{% url 'registroEmpresa' %}" role="button">Agregar Empresa</a>-->
+              <h5 class="card-title">Listado de Asistentes</h5>
+              <!-- Table with stripped rows -->
+              {% if messages %}
+                <br />
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="table-responsive">
+                <table class="table" id="tablareactiva">
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Apellido</th>
+                      <th>Cedula</th>
+                      <th>Telefono</th>
+                      <th>Correo</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for usu in usuarios %}
+                      <tr>
+                        <td>{{ usu.idusuario.nombre }}</td>
+                        <td>{{usu.idusuario.apellido}}</td>
+                        <td>{{usu.idusuario.cedula}}</td>
+                        <td>{{usu.idusuario.telefono}}</td>
+                        <td>{{usu.idusuario.user.username}}</td>
+                        <td>
+                          <!-- modal de validación -->
+                          <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAsistente{{ usu.id }}"><i class="bi bi-trash3-fill"></i></a>
+                          <div class="modal fade" id="deleteAsistente{{ usu.id }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">Confirmar</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">¿Estás seguro de que deseas eliminar este asistente?</div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                                  <a class="btn btn-primary" href="{% url 'eliminarasistente' idasis=usu.id%}">Si</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- end validacion -->
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+                <!-- End Table with stripped rows -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- End #main -->
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  <script src="{% static 'admin/assets/js/script.js' %} "></script>
+{% endblock %}

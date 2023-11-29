@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from appcultura import views
 from appcultura.viewfile import viewadmin #utilizar una nueva vista 
+from appcultura.viewfile import viewuser #Utilizar la vista de usuario
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -51,13 +52,20 @@ urlpatterns = [
     path('administracion/grupos/list/cursos/<int:idgrupo>/', viewadmin.cursosgrupo, name='cursosgrupo'),
     path('administracion/grupos/delete/total/<int:idgrupo>', viewadmin.deletegrupos, name='deletegrupos'),
     #====================== end registro de grupos =================
-    #codigo Jhon
-    #path('administracion/empresa/api', viewadmin.empresagetsector.as_view(), name='empresagetsector'),
+
     path('administracion/empresa/vincular', viewadmin.vincularareadepto, name='vincularareadepto'), #Vincular area y departamento
     path('administracion/empresa/vincular/list', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
     path('administracion/empresa/vincular/delete/<int:idarea>/', viewadmin.eliminavinculo, name='eliminarvinculo'),
     path('administracion/validarasistencia/<int:idsesion>', viewadmin.validarasistencia, name='validarasistencia'),
-    path('administracion/generarqr/<int:idsesion>', viewadmin.generarqr, name='generarqr')
-    #fin codigo Jhon
+    path('administracion/generarqr/<int:idsesion>', viewadmin.generarqr, name='generarqr'),
+    #codigo Jhon
+    path('administracion/curso/asistentelist/<int:idsesion>', viewadmin.listarasistentes, name='listarasistentes'),
+    path('administracion/curso/deleteasistente/<int:idasis>', viewadmin.eliminarasistente, name='eliminarasistente'),
+    #Fin codigo Jhon
+
+
+    #================================= Rutas de Usuario =============================================================
+    path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario")
+    #============================ Fin de Rutas de usuario ===========================================================
 ]   
    

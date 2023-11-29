@@ -69,6 +69,8 @@ def administracion(request):
   #usuario_logeado = request.user #obtener el usuario logeado
   perfil_usuario = UserPerfil.objects.get(user=request.user)
   nombre_cargo = perfil_usuario.idcargo.nombre
-  return render(request, 'admin/inicio.html', {'usu':perfil_usuario, 'cargo':nombre_cargo}) 
+  return render(request, 'admin/inicio.html', {'usu':perfil_usuario, 'cargo':nombre_cargo})
+
+
  
   
