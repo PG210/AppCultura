@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from appcultura import views
 from appcultura.viewfile import viewadmin #utilizar una nueva vista 
+from appcultura.viewfile import viewformu #crear formularios
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -51,6 +52,12 @@ urlpatterns = [
     path('administracion/grupos/list/cursos/<int:idgrupo>/', viewadmin.cursosgrupo, name='cursosgrupo'),
     path('administracion/grupos/delete/total/<int:idgrupo>', viewadmin.deletegrupos, name='deletegrupos'),
     #====================== end registro de grupos =================
+    #====================== Crear formularios ========================
+    path('administracion/formu/', viewformu.crearformu, name='crearformu'),
+    path('administracion/formu/listar/', viewformu.listarformu, name='listarformu'),
+ 
+
+    #============= end formularios ==================
     #codigo Jhon
     #path('administracion/empresa/api', viewadmin.empresagetsector.as_view(), name='empresagetsector'),
     path('administracion/empresa/vincular', viewadmin.vincularareadepto, name='vincularareadepto'), #Vincular area y departamento

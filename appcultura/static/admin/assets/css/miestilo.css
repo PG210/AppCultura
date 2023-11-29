@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans&display=swap');
+
+.form {
+    width: 100%;
+    height: 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.form input,
+.form textarea {
+    width: 100%;
+    height: 100%;
+    background: none;
+    color: #070707;
+    padding-top: 20px;
+    border: none;
+    outline: 0px;
+}
+
+.form .lbl-nombre {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    border-bottom: 1px solid #0a0a0a;
+}
+
+.form .lbl-nombre:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 100%;
+    border-bottom: 3px solid #0918e6;
+    transform: translateX(-100%);
+    transition: all 0.3s ease;
+}
+
+.text-nomb {
+    position: absolute;
+    bottom: 5px;
+    left: 0;
+    transition: all 0.3s ease;
+    color: #070707;
+}
+
+.form input:focus + .lbl-nombre .text-nomb,
+.form input:valid + .lbl-nombre .text-nomb,
+.form textarea:focus + .lbl-nombre .text-nomb,
+.form textarea:valid + .lbl-nombre .text-nomb {
+    transform: translateY(-150%);
+    font-size: 14px;
+    color: #012970;
+    font-weight: bold;
+}
+
+.form input:focus + .lbl-nombre:after,
+.form input:valid + .lbl-nombre:after,
+.form textarea:focus + .lbl-nombre:after,
+.form textarea:valid + .lbl-nombre:after {
+    transform: translateX(0%);
+}
+
+@media only screen and (min-width:320px) and (max-width:768px) {
+    .form {
+        width: 85%;
+    }
+}
