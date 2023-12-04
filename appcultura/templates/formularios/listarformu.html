@@ -40,18 +40,30 @@
                   <tr>
                     <th>Nombre</th>
                     <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {% for f in formu %}
                    <tr>
-                    <td>Formulario 01</td>
-                    <td>Este formulario es prueba</td>
+                    <td>{{f.nombre}}</td>
+                    <td>{{f.descrip}}</td>
                     <td>
-                        <a href="#" class="btn btn-danger">Eliminar</a>
-                        <a href="#" class="btn btn-info">Editar</a>
+                      {% if f.estado %}
+                         Activado
+                      {% else %}
+                         Inactivo
+                      {% endif %}
+                    </td>
+                    <td>{{f.fecha|date:"m/d/Y"}}</td>
+                    <td>
+                        <a class="btn btn-danger"><i class="bi bi-trash3-fill"></i></a>
+                        <a href="{% url 'editarform' idform=f.id %}"  class="btn btn-info"><i class="bi bi-eye-fill"></i></a>
                     </td>
                    </tr>
+                   {% endfor %}
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->

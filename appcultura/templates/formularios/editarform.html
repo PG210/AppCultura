@@ -1,0 +1,244 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+{% load static %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Editar formulario</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Editar</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body" style="border: 2px solid">
+              <br>
+              <div class="alert alert-secondary text-center" role="alert">
+                <h5 class="text-center"><b>Información del Formulario</b></h5>
+              </div>
+              {% if msj %}
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                 {{msj}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endif %}
+              <form action="{% url 'savePreguntas' idform=formu.id %}" method="post">
+                {% csrf_token %}
+               <div class="container form-control">
+                    <!-- Mostrar información del formulario -->
+                      <div class="row">
+                        <div class="input-group mb-3">
+                           <span class="input-group-text"><b>Nombre:</b> </span>
+                           <input type="text" id="nombre" name="nombre" class="form-control" aria-label="Sizing example input" value="{{ formu.nombre }}" required>
+                        </div>  
+                      </div>
+                      <div class="row mt-2">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><b>Descripción:</b> </span>
+                            <input type="text" id="descrip" name="descrip" class="form-control" aria-label="Sizing example input" value="{{ formu.descrip }}" required>
+                         </div>   
+                    </div>
+               </div>
+               <!-- Mostrar preguntas asociadas al formulario -->
+               <h5 class="text-center"><b>Preguntas</b></h5>
+               <div class="container form-control mt-2">
+               {% for pregunta in preguntas %}
+               <div id="seccion{{pregunta.id}}">
+                       <div class="row">
+                          <div class="col-5">
+                            <!--editar pregunta-->
+                            <div class="input-group">
+                                <span class="input-group-text"><b>Pregunta:</b> </span>
+                                <input type="text" id="pregunta{{pregunta.id}}" name="pregunta{{pregunta.id}}" class="form-control" aria-label="Sizing example input" value="{{ pregunta.descrip }}" required>
+                             </div>
+                            <!--end pregunta-->
+                            <!--editar puntos-->
+                            <div class="input-group mt-4">
+                                <span class="input-group-text"><b>Puntos:</b> </span>
+                                <input type="number" id="puntaje{{pregunta.id}}" name="puntaje{{pregunta.id}}" class="form-control" aria-label="Sizing example input" value="{{pregunta.valor}}" min="0" required>
+                             </div>
+                            <!--end puntos-->
+                         </div>
+                        <div class="col-6">
+                       <!-- Aquí puedes agregar más detalles según el tipo de pregunta -->
+                       {% if pregunta.tipo == '1' %}  {# Pregunta de respuesta corta #}
+                          <p><b>Respuesta Corta:</b></p>
+                            <input class="form-control" type="text" placeholder="Ingresar respuesta">
+                        {% elif pregunta.tipo == '2' %}
+                          <p><b>Respuesta Larga:</b></p>
+                          <textarea class="form-control" type="text"></textarea>
+                        {% elif pregunta.tipo == '3' %} {# Pregunta de opciones múltiples #}
+                        <p><b>Opciones: Selección múltiple</b></p> 
+                            {% for opcion in pregunta.opciones_set.all %}
+                               <div class="row">
+                                <div class="col-11">
+                                <div class="form-control">
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="opcionesmul{{opcion.id}}">
+                                    <label class="form-check-label" for="opcionesmul{{opcion.id}}">
+                                        {{ opcion.descrip }}    
+                                    </label>
+                                  </div> 
+                                </div> 
+                              </div>
+                               <!--fila-->
+                               <div class="col-1 text-end">
+                                 <a href="{% url 'eliminarRespuesta' idres=opcion.id idform=formu.id %}" class="btn btn-warning"><b>x</b></a>
+                               </div>
+                            </div>                             
+                            {% endfor %}
+                            <div id="{{pregunta.id}}"></div>
+                            <a type="button" class="btn btn-info" onclick="addCampovar('{{pregunta.id}}')"><i class="bi bi-plus-circle"></i></a>
+                        
+                       {% elif pregunta.tipo == '4' %} {# Pregunta de opciones múltiples con una verdadera #}
+                           <p><b>Opciones: Opciones múltiples con una verdadera</b></p> 
+                           {% for opcion in pregunta.opciones_set.all %}
+                            <div class="row">
+                                <div class="col-11">
+                                <div class="form-control">
+                                        <div class="form-check">
+                                            {% if opcion.correcta %}
+                                            <input class="form-check-input" type="radio" name="opcionradio" id="opcionradio" checked>
+                                            {% else %}
+                                            <input class="form-check-input" type="radio" name="opcionradio" id="opcionradio">
+                                            {% endif %}
+                                            <label class="form-check-label" for="opcionradio{{opcion.id}}">
+                                                {{ opcion.descrip }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--fila-->
+                                <div class="col-1 text-end">
+                                    <a href="{% url 'eliminarRespuesta' idres=opcion.id idform=formu.id %}" class="btn btn-warning"><b>x</b></a>
+                                </div>
+                            </div>   
+                           {% endfor %}
+                           <!--botones opcion cuatro-->
+                             <div id="{{pregunta.id}}"></div>
+                             <a type="button" class="btn btn-info" onclick="addOneOpcion('{{pregunta.id}}')"><i class="bi bi-plus-circle"></i></a>
+                           <!----end botones para la opcion cuatro-->
+                          
+                       {% elif pregunta.tipo == '5' %} {# Pregunta de opciones múltiples con varias verdaderas (Checkbox) #}
+                          <p><b>Opciones: Selección múltiple con varias respuestas</b></p>
+                           {% for opcion in pregunta.opciones_set.all %}
+                           <div class="row">
+                                    <div class="col-11">
+                                    <div class="form-control">
+                                        <div class="form-check">
+                                                {% if opcion.correcta %}
+                                                <input class="form-check-input" type="checkbox" value="" id="opcionesUnico{{opcion.id}}" checked>
+                                                {% else %}
+                                                <input class="form-check-input" type="checkbox" value="" id="opcionesUnico{{opcion.id}}">
+                                                {% endif %}
+                                                <label class="form-check-label" for="opcionesUnico{{opcion.id}}">
+                                                    {{ opcion.descrip }} 
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <!--fila-->
+                                <div class="col-1 text-end">
+                                    <a href="{% url 'eliminarRespuesta' idres=opcion.id idform=formu.id %}" class="btn btn-warning"><b>x</b></a>
+                                </div>
+                            </div>
+                           {% endfor %}
+                           <div id="{{pregunta.id}}"></div>
+                           <a type="button" class="btn btn-info" onclick="addVariasOpcion('{{pregunta.id}}')"><i class="bi bi-plus-circle"></i></a>
+                       {% endif %}
+                       </div><!--cerrar el div de columna-->
+                       <!--botones de eliminar-->
+                       <div class="col-1">
+                         <!-- Button trigger modal -->
+                        <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{pregunta.id}}">
+                            x
+                        </a>
+                        
+                        <!-- Modal -->
+                        <div class="modal fade" id="confirmarDelete{{pregunta.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Alerta</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                ¿Esta seguro que desea eliminar esta pregunta?
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                                <a type="button" class="btn btn-danger"  href="{% url 'eliminarPregunta' idpreg=pregunta.id idformu=formu.id %}">Si</a>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                       <!--end botones eliminar-->
+                      </div>
+                      <hr>
+                  </div>
+               {% endfor %}
+               <!--boton de actualizar-->
+               <div class="container text-end">
+                  <button type="submit" class="btn btn-success">
+                    Actualizar
+                  </button>
+                  <a type="button" class="btn btn-warning" href="/administracion/formu/listar/">Cancelar</a>
+               </div>
+               <!---end boton actualizar-->
+               </div>
+              </form>
+               <!--end formulario-->
+              <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="mostrarCampos">
+                <label class="form-check-label" for="defaultCheck1">
+                  ¿Quiere agregar nuevos campos?
+                </label>
+              </div>
+
+              <div id="seccionCampos" style="display: none;" class="mt-2">
+                 <div class="alert alert-secondary text-center" role="alert">
+                  <h5><b>Agregar nuevos campos</b></h5>
+                </div>
+                <!--agregar nueva pregunta-->
+                <form action="{% url 'addNewPreguntas' idform=formu.id %}" method="POST">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-control">
+                             <div id="contenedor-formulario"></div>
+                        </div>
+                        <a class="btn btn-primary mt-2" onclick="agregarCampo()"><i class="bi bi-plus-circle" style="font-size: 20px;"></i></a>
+                    </div>
+                   </div>
+                   <!--aqui botones-->
+                   <div class="container text-end">
+                    <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> Agregar</button>
+                  </div>
+                   <!--end botones-->
+                </form>
+                </div>
+               <!--end agregar-->
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+<script src="{% static 'admin/assets/js/jsformu.js' %} "></script>
+<script src="{% static 'admin/assets/js/actuformu.js' %} "></script>
+  <script>
+    agregarCampo();
+  </script>
+ 
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  {% endblock %} 
