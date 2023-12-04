@@ -20,5 +20,6 @@ from .modelos.grupos import Grupos
 from .modelos.gruposcursos import GruposCursos
 from .modelos.grupouser import GruposUser
 from .modelos.sesionasistencia import SesionAsistencia
+from .modelos.calificacionusuarios import CalificacionUsuarios
 
 # Create your models here.

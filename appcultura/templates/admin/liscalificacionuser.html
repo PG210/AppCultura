@@ -1,0 +1,170 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Listado de comentarios</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Listado</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+              
+              <br>
+               <!--alertar-->
+               {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+               {% endif %}
+
+               <!--Barra de aceptacion-->
+               <h5>Aceptación del curso</h5>
+               <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" style="width: {{promedio}}%">{{promedio}}%</div>
+              </div><br>
+               <!--end alertar-->
+               <!-- Table with stripped rows -->
+               <div class="table-responsive" style="text-align: center;">
+               <table class="table" id="tablareactiva">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Grupo</th>
+                    <th>Cargo</th>
+                    <th>Empresa</th>
+                    <th>Valoracion</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for data in datos %}
+                  <tr>
+                    <td>{{ data.id_usuario.nombre }} {{data.id_usuario.apellido}}</td>
+                    {% if grupos %}
+                    <td>
+                      {% for grupo in grupos %}
+                        {{grupo.idgrupo.nombre}}<br>
+                      {% endfor %}
+                    </td> 
+                    {% else %}
+                      <td>Sin Grupo</td>
+                    {% endif %}
+                    <td>{{ data.id_usuario.idcargo.nombre }}</td>
+                    <td>{{ data.id_usuario.idempresa.idempresa.nombre }}</td>
+                    <td >
+                      <!-- Button trigger modal -->
+                        <button  type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modallistarcalificacion">
+                            ver
+                        </button>
+                        
+                        <!-- Modal -->
+                        <div class="modal fade" id="modallistarcalificacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Valoraciones</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <!--Card de Valoración-->
+                                
+
+                                  <div class="modal-body" style="text-align: left;">
+                                    <div class="card" style="width: 29rem;">
+                                      <div class="card-body">
+                                        <h5 class="card-title">Valoración</h5>
+                                        <h6 class="card-subtitle mb-2 text-body-secondary">Cantidad de puntos asignados</h6>
+                                        <p class="card-text">{{data.valoracion}} estrellas</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  
+                                  <!--Card de Aplicar lo aprendido-->
+                                  <div class="modal-body" style="text-align: left;">
+                                    <div class="card" style="width: 29rem;">
+                                      <div class="card-body">
+                                        <h5 class="card-title">¿Como aplicar lo aprendido?</h5>
+                                        <p class="card-text">{{data.comentario}}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                    <!--Card de Que valoras del curso-->
+                                    <div class="modal-body" style="text-align: left;">
+                                      <div class="card" style="width: 29rem;">
+                                        <div class="card-body">
+                                          <h5 class="card-title">¿Que valoras del curso?</h5>
+                                          <p class="card-text">{{data.comentario_valor_curso}} </p>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <!--Card de sugerencias de mejora-->
+                                    <div class="modal-body" style="text-align: left;">
+                                      <div class="card" style="width: 29rem;">
+                                        <div class="card-body">
+                                          <h5 class="card-title">Sugerencias de mejora</h5>
+                                          <p class="card-text">{{data.sugerencia}} </p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                      </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </td>
+                    <!--botones de acciones-->
+                    <td>
+                      <div class="modal-footer">
+                        <!--modal de validación-->
+                          <a type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{data.id}}"><i class="bi bi-trash3-fill"></i></a>
+                          <div class="modal fade" id="confirmarDelete{{data.id}}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">Confirmar</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  ¿Estás seguro de que deseas eliminar este curso?
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                                  <a class="btn btn-primary" href="{% url 'borrarcalificacion' idcali=data.id %}">Si</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <!--end validacion-->
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+               </div>
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  {% endblock %} 
