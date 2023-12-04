@@ -1,0 +1,97 @@
+{% extends 'admin/inicio.html' %}
+
+{% block content%}
+{% load static%}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Calificar</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+          <li class="breadcrumb-item active">Registro</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+      
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">
+              Calificar Sesión
+            </h5>
+              <!--alertar-->
+              {% if mensaje %}
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>{{mensaje}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endif %}
+              <!--end alertar-->
+            <!-- Horizontal Form -->
+            <form action="{% url 'addcalificacion' idsesion=idsesion %}" method="post">
+              {% csrf_token %}
+              <div class="form-control">
+                <div class="row mb-3">
+                    <label for="nombre" class="col-sm-2 col-form-label">Calificación</label>
+                    <div class="col-sm-10" style="text-align:left;">
+                      <h4 class="clasificacion">
+                        <input class="inputradio" id="radio1" type="radio" name="estrellas" value="5"><!--
+                        --><label class="labelradio" for="radio1">★</label><!--
+                        --><input class="inputradio" id="radio2" type="radio" name="estrellas" value="4"><!--
+                        --><label class="labelradio" for="radio2">★</label><!--
+                        --><input class="inputradio" id="radio3" type="radio" name="estrellas" value="3"><!--
+                        --><label class="labelradio" for="radio3">★</label><!--
+                        --><input class="inputradio" id="radio4" type="radio" name="estrellas" value="2"><!--
+                        --><label class="labelradio" for="radio4">★</label><!--
+                        --><input class="inputradio" id="radio5" type="radio" name="estrellas" value="1"><!--
+                        --><label class="labelradio" for="radio5">★</label>
+                      </h4>
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <label for="textAreacomentarios" class="col-sm-2 col-form-label">¿Como aplicar lo aprendido?</label>
+                    <div class="col-sm-10">
+                      <textarea class="form-control" id="textareacomentarios" rows="3" name="textareacomentarios"></textarea>
+                    </div> 
+                  </div>
+
+                  <div class="row mb-3">
+                    <label for="textAreacomentarios" class="col-sm-2 col-form-label">¿Que valoras del curso?</label>
+                    <div class="col-sm-10">
+                      <textarea class="form-control" id="textareacomentarios" rows="3" name="textareavalorcurso"></textarea>
+                    </div> 
+                  </div>
+                  <div class="row mb-3">
+                    <label for="textAreasugerencias" class="col-sm-2 col-form-label">Sugerencias de mejora</label>
+                    <div class="col-sm-10">
+                      <textarea class="form-control" id="textareasugerencias" rows="3" name="textareasugerencias"></textarea>
+                    </div> 
+                  </div>
+            </div>
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Enviar </button>
+                <button type="reset" class="btn btn-secondary">Cancelar</button>
+              </div>
+            </form>
+           
+          </div>
+        </div>
+
+      </div>
+       
+      </div>
+    </section>
+  </main> 
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  <script type="text/javascript" src="{% static 'admin/assets/js/empresa.js' %}"></script>
+  <script src="{% static 'admin/assets/js/script.js' %} "></script>
+{% endblock content%}
+{% block js %}
+<script src="{% static 'admin/assets/js/calificacionusuario.js' %} "></script>
+{% endblock js %}

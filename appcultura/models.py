@@ -24,5 +24,5 @@ from .modelos.sesionasistencia import SesionAsistencia
 from .modelos.formulario import Formulario
 from .modelos.preguntasform import Preguntas
 from .modelos.opcionform import Opciones
-
+from .modelos.calificacionusuarios import CalificacionUsuarios
 # Create your models here.

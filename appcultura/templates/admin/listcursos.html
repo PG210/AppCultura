@@ -119,6 +119,7 @@
                                         <th>Archivos</th>
                                         <th>Compartir Asistencia</th>
                                         <th>Asistentes</th>
+                                        <th>Valoración</th>
                                       </tr>
                                     </thead>
                                   <tbody>
@@ -136,6 +137,7 @@
                                       <td><a  class="btn-info" href="{% url 'download' ruta=tematica.ruta %}" download><i class="bi bi-cloud-arrow-down-fill" style="font-size:24px;"></i></a></td>
                                       <td><a class="btn-info" href="{% url 'generarqr' idsesion=sesion.id %}" target="_blank"><i class="bi bi-share-fill"></i></a></td>
                                       <td><a class="btn btn-primary" href="{% url 'listarasistentes'  idsesion=sesion.id %}" target="_blank" role="button">Ver</a>
+                                      <td><a class="btn btn-primary" href="{% url 'listarcalificacion' idsesion=sesion.id %}"  role="button">Ver</a>
                                       </td>
                                       {% endif %}
                                     {% endfor %}

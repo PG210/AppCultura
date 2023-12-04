@@ -37,6 +37,7 @@
                 <thead>
                   <tr>
                     <th>Curso</th>
+                    <th>Grupos</th>
                     <th>Sesiones</th>
                   </tr>
                 </thead>
@@ -44,11 +45,12 @@
                   {% for curso in cursos %}
                   <tr>
                     <td>{{ curso.idcurso.nombre }}</td>
+                    <td>{{curso.idgrupo.nombre}}</td>
                     <td>
                       <!--aqui modal-->
                          <!-- Modal Dialog Scrollable -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
-                          Sesiones
+                          Ver
                         </button>
                         <div class="modal fade" id="modallistarsesiones{{curso.id}}" tabindex="-1">
                           <div class="modal-dialog modal-dialog-scrollable modal-xl ">
@@ -61,37 +63,42 @@
                                 <table>
                                     <thead>
                                       <tr>
+                                        <th>Id sesion</th>
                                         <th>Fecha inicio</th>
                                         <th>Fecha final</th>
                                         <th>Lugar</th>
-                                        <th>Temáticas</th>
-                                        <th>Descripción</th>
-                                        <th>Recursos</th>
-                                        <th>Archivos</th>
-                                        <th>Compartir Asistencia</th>
-                                        <th>Asistentes</th>
+                                        <th>Asistencia</th>
+                                        <th>Calificar</th>
+                                        
                                       </tr>
                                     </thead>
                                   <tbody>
                                   {% for sesion in sesiones %}
-                                    {% if sesion.idcurso == curso %}
-                                    <tr>
-                                      <td>{{ sesion.fechainicio }}</td>
-                                      <td>{{ sesion.fechafin }}</td>
-                                      <td>{{ sesion.lugar }}</td>
-                                    {% for tematica in tematicas %}
-                                      {% if tematica.idsesion == sesion %}
-                                      <td>{{ tematica.descrip }}</td>
-                                      <td>{{ tematica.competencias }}</td>
-                                      <td>{{ tematica.recursos }}</td>
-                                      <td><a  class="btn-info" href="{% url 'download' ruta=tematica.ruta %}" download><i class="bi bi-cloud-arrow-down-fill" style="font-size:24px;"></i></a></td>
-                                      <td><a class="btn-info" href="{% url 'generarqr' idsesion=sesion.id %}" target="_blank"><i class="bi bi-share-fill"></i></a></td>
-                                      <td><a class="btn btn-primary" href="{% url 'listarasistentes'  idsesion=sesion.id %}" target="_blank" role="button">Ver</a>
-                                      </td>
-                                      {% endif %}
-                                    {% endfor %}
-                                    </tr>
+                                  {% if sesion.idcurso == curso.idcurso %}
+                                  <tr>
+                                    <td>{{sesion.id}}</td>
+                                    <td>{{ sesion.fechainicio }}</td>
+                                    <td>{{ sesion.fechafin }}</td>
+                                    <td>{{ sesion.lugar }}</td>
+                                    {% for asistencia in asistencias %}
+                                    {% if asistencia.idsesioncurso != sesion %}
+                                      <td>No asistió</td>
+                                    {% else %}
+                                      <td>Asistió</td>
                                     {% endif %}
+                                    {% endfor %}
+                                    {% if calificacion %}
+                                      {% for cali in calificacion %}
+                                        {% if cali.estado is False %}
+                                          <td><a class="btn btn-success disabled" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" aria-disabled="true">calificar</a></td>
+                                        {% endif %}
+                                      {% endfor %}
+                                    {% else %}
+                                    <td><a class="btn btn-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button">calificar</a></td>
+                                    {% endif %}
+                                  </tr>
+                                  {% endif %}
+                                  
                                   {% endfor %}
                                  
                                     </tbody>
@@ -106,31 +113,7 @@
                       <!--end modal-->
                     </td>
                     <!--botones de acciones-->
-                    <td>
-                      <div class="modal-footer">
-                        <!--modal de validación-->
-                          <a type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
-                          <div class="modal fade" id="confirmarDelete{{curso.id}}" tabindex="-1">
-                            <div class="modal-dialog modal-dialog-centered">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title">Confirmar</h5>
-                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                  ¿Estás seguro de que deseas eliminar este curso?
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
-                                  <a class="btn btn-primary" href="{% url 'eliminarcurso' idcurso=curso.id %}">Si</a>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        <!--end validacion-->
-                        <a type="button" class="btn btn-info  mr-2" style="display: inline-block;" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
-                      </div>
-                    </td>                  
+                                    
                   </tr>
                   {% endfor %} 
                 </tbody>

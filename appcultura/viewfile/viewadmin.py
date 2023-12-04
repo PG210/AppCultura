@@ -1,3 +1,4 @@
+from ast import Delete
 import os
 import mimetypes
 from pdb import post_mortem
@@ -10,7 +11,9 @@ from django.http import HttpResponse #sirve para hacer las peticiones
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required # proteger las rutas de accesos
 from django.contrib import messages #mensajes para la vista
-from django.db import IntegrityError #errores de la base de datos
+from django.db import IntegrityError
+
+from appcultura.modelos.calificacionusuarios import CalificacionUsuarios #errores de la base de datos
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
 from ..models import TemasSesion, Grupos, GruposCursos, GruposUser
@@ -813,3 +816,31 @@ def eliminarasistente(request, idasis):
         messages.error(request, 'El Asistente no existe')
     return redirect('listarasistentes', idsesion=sesion)
 #Fin codigo Jhon
+
+@login_required
+def listarcalificacion(request,idsesion):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=idsesion)
+    suma=0
+    if datos:
+        
+        for dat in datos:
+            suma=suma+dat.valoracion
+            grupouser = GruposUser.objects.filter(iduser=dat.id_usuario)
+        promedio = (suma/(5*len(datos)))*100
+    else:
+        grupouser = "Sin grupo"
+
+    return render(request, 'admin/liscalificacionuser.html',{'usu':perfil_usuario, 'datos':datos, 'grupos':grupouser, 'promedio':promedio})
+
+@login_required
+def borrarcalificacion(request, idcali):
+    try:
+        calificacion = CalificacionUsuarios.objects.get(id=idcali)
+        sesion = calificacion.id_sesiones_curso.id
+        calificacion.delete()
+        messages.success(request, 'Calificacion eliminada exitosamente.')
+    except:
+        messages.success(request, "No se pudo ingresar a la base de datos")
+    return redirect('listarcalificacion', idsesion=sesion)
+
