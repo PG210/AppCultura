@@ -13,7 +13,9 @@ from django.contrib.auth.decorators import login_required # proteger las rutas d
 from django.contrib import messages #mensajes para la vista
 from django.db import IntegrityError
 
-from appcultura.modelos.calificacionusuarios import CalificacionUsuarios #errores de la base de datos
+from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
+from appcultura.modelos.compromisos import Compromisos
+from appcultura.modelos.estado_compromisos import EstadoCompromisos #errores de la base de datos
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
 from ..models import TemasSesion, Grupos, GruposCursos, GruposUser
@@ -28,7 +30,9 @@ from django.views import View
 import qrcode
 from io import BytesIO
 from django.core.files.storage import default_storage
-from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+from django.core.serializers import serialize
+
 #Fin Codigo Jhon
 
 @login_required #proteger la ruta
@@ -844,3 +848,42 @@ def borrarcalificacion(request, idcali):
         messages.success(request, "No se pudo ingresar a la base de datos")
     return redirect('listarcalificacion', idsesion=sesion)
 
+@login_required
+def listar_compromisos(request):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    
+    cursos = Curso.objects.all()
+    compromisos = Compromisos.objects.filter(id_curso__in=cursos)
+    
+    print(compromisos)
+    return render(request, 'admin/chkcompromisos.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'cursos':cursos})
+
+@login_required
+def addrespuesta(request, idcomp):
+    if request.method == 'POST':
+        compromiso = Compromisos.objects.get(id=idcomp)
+        compromiso.puntaje = request.POST.get("puntuacion")
+        compromiso.respuesta = request.POST.get("txtRespuesta")
+        compromiso.id_estado = EstadoCompromisos.objects.get(descripcion="cumplido")
+        compromiso.save()
+        mensaje="Compromiso respondido correctamente"
+        return redirect('listarcompromisos')
+    else:
+        return redirect('listarcompromisos')
+
+@login_required
+def delete_compromiso(request,idcomp):
+    compromiso = Compromisos.objects.filter(id=idcomp)
+    
+    compromiso.delete()
+    mensaje="Compromiso eliminado correctamente"
+    #return JsonResponse(compromiso_serializado, safe=False)
+    return JsonResponse({'message':mensaje})
+    
+#============================================================apis
+
+def returncursos(request):
+    cursos = Curso.objects.filter(id=1)
+    print(cursos)
+    cursos_serializados = serialize('json', cursos)
+    return JsonResponse(cursos_serializados, safe=False)

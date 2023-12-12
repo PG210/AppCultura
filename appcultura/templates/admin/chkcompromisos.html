@@ -1,0 +1,249 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+
+<main id="main" class="main">
+  {% load static %}
+  
+    <div class="pagetitle">
+      <h1>Compromisos</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Listado</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+    {% if mensaje %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>{{mensaje}}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endif %}
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+              <div class="mt-3">
+                <!--Modal agregar compromiso-->
+                <!-- Button trigger modal -->
+               <div class="table-responsive">
+               <table class="table" id="tablareactiva">
+                <thead>
+                  <tr>
+                    <th>Curso</th>
+                    <th>Descripcion</th>
+                    <th>Compromisos</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if cursos %}
+                      {% for curso in cursos %}
+                        <tr>
+                          <td>{{curso.nombre}}</td>
+                          <td>{{curso.descrip}}</td>
+                          <td>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalinfocomp{{curso.id}}">
+                              Información 
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="modalinfocomp{{curso.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Compromisos</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body table-responsive">
+                                    <table>
+                                        <thead>
+                                          <tr>
+                                            <th>Usuario</th>
+                                            <th>Correo</th>
+                                            <th>Fecha inicial</th>
+                                            <th>Fecha final</th>
+                                            <th>Prioridad</th>
+                                            <th>Estado</th>
+                                            <th>Puntaje</th>
+                                            <th>Compromiso</th>
+                                            <th>Acciones</th>
+                                          </tr>
+                                        </thead>
+                                      <tbody>
+                                        
+                                      {% for com in compromisos %}
+                                        {% if com.id_curso == curso %}
+                                        <tr>
+                                          <td>{{ com.id_usuario.nombre }} {{com.id_usuario.apellido}}</td>
+                                          <td>{{com.id_usuario.user.username}}</td>
+                                          <td>{{ com.fecha_compromiso|date:"d/m/Y" }}</td>
+                                          <td>{{ com.fecha_final|date:"d/m/Y" }}</td>
+                                          <td>{{ com.prioridad }}</td>
+                                          <td>{{ com.id_estado.descripcion }}</td>
+                                          <td>{{ com.puntaje }}</td>
+                                          
+                                          <td>
+                                            
+                                              <button class="btn btn-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdropcompromiso{{com.id}}" aria-controls="staticBackdrop">
+                                                ver
+                                              </button>
+                                    
+                                            <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdropcompromiso{{com.id}}" aria-labelledby="staticBackdropLabel">
+                                              <div class="offcanvas-header">
+                                                <h5 class="offcanvas-title" id="staticBackdropLabel">Compromiso {{com.id}}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                              </div>
+                                              <div class="offcanvas-body">
+                                                <div class="card" style="width: 23rem;">
+                                                  <div class="card-body">
+                                                    <h5 class="card-title">Compromiso</h5>
+                                                    <p class="card-text">{{com.compromiso}}</p>
+                                                    
+                                                  </div>
+                                                </div>
+
+                                                <div class="card" style="width: 23rem;">
+                                                  <div class="card-body">
+                                                    <h5 class="card-title">Con quien</h5>
+                                                    <p class="card-text">{{com.con_quien}}</p>
+                                                    
+                                                  </div>
+                                                </div>
+
+                                                <div class="card" style="width: 23rem;">
+                                                  <div class="card-body">
+                                                    <h5 class="card-title">Respuesta</h5>
+                                                    {% if com.respuesta %}
+                                                    <p class="card-text">{{com.respuesta}}</p>
+                                                    
+                                                    {% endif %}
+                                                    
+                                                    
+                                                  </div>
+                                                </div>
+
+                                              </div>
+                                            </div>
+                                          </td>
+
+                                          <td>
+                                            <!-- Button trigger modal -->
+
+                                            <!--<a class="btn btn-danger" role="button" href="" id="myButton"><i class="bi bi-trash"></i></a>-->
+                                            <!--<a type="button" class="btn btn-danger" onclick="myButton">Danger</a>-->
+                                            <a class="btn btn-danger" type="button" onclick="miFuncion('{{ com.id }}'); return false;"><i class="bi bi-trash"></i></a>
+
+
+                                            <button class="btn btn-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdroprespuesta{{com.id}}" aria-controls="staticBackdrop">
+                                              <i class="bi bi-arrow-90deg-right"></i>
+                                            </button>
+                                            
+                                            <div class="offcanvas offcanvas-start" data-bs-backdrop="static" tabindex="-1" id="staticBackdroprespuesta{{com.id}}" aria-labelledby="staticBackdropLabel">
+                                              <div class="offcanvas-header">
+                                                <h5 class="offcanvas-title" id="staticBackdropLabel">Responder Compromiso</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                              </div>
+                                              <div class="offcanvas-body">
+                                                <div>
+                                                  <form method="POST" action="{% url 'editcompromiso' idcomp=com.id %}">
+                                                    {% csrf_token %}
+                                                    <div class="mb-3">
+                                                      <label>Puntuacion</label><br>
+                                                      <div class="form-floating mb-3">
+                                                        <input type="number" class="form-control" id="floatingInput" placeholder="1" min="1" max="5" name="puntuacion" value="{{com.puntaje}}">
+                                                        
+                                                      </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                      <label>Respuesta</label><br>
+                                                      <div class="form-floating">
+                                                        {% if com.respuesta %}
+                                                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="height: 300px" name="txtRespuesta">{{com.respuesta}}</textarea>
+                                                        {% else %}
+                                                        <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea" style="height: 300px" name="txtRespuesta"></textarea>
+                                                        {% endif %}
+                                                      </div>
+                                                    </div>
+                                                    <div class="mb-3" style="text-align: right;">
+                                                      <input class="btn btn-primary" type="submit" value="Actualizar">
+                                                    </div>
+                                                  </form>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            
+                                          </td>
+                                        </tr>
+                                        {% endif %}
+                                      {% endfor %}
+                                      
+                                        </tbody>
+                                    </table>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                  {% endif %}
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+               </div>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  <script type="text/javascript" src="{% static 'admin/assets/js/bootstrap-datepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/assets/js/functionUser.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/assets/js/functionadmin.js' %}"></script>
+  <script>
+    function miFuncion(parametro) {
+      console.log(parametro);
+      Swal.fire({
+        title: "¿Desea eliminar este compromiso?",
+        showCancelButton: true,
+        confirmButtonText: "Si",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          eliminarCompromiso(parametro);
+          // Usuario hizo clic en "Save"
+          Swal.fire("Saved!", "", "success");
+        }
+      });
+      // Aquí puedes realizar más acciones con el parámetro
+    }
+    async function eliminarCompromiso(parametro){
+    await fetch(`http://localhost:8000/administracion/compromisos/deletecompromiso/${parametro}/`)
+    .then(response => response.json())
+    .then(data => {
+    
+      // Muestra la alerta después de la respuesta del backend
+      Swal.fire(data.message, "", "info");
+      setTimeout(function(){
+        location.reload();
+    }, 2000)
+      
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      Swal.fire("Error al enviar el parámetro al backend", "", "error");
+      });
+    }
+  </script>
+  
+  {% endblock %} 

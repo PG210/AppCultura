@@ -25,4 +25,7 @@ from .modelos.formulario import Formulario
 from .modelos.preguntasform import Preguntas
 from .modelos.opcionform import Opciones
 from .modelos.calificacionusuarios import CalificacionUsuarios
+from .modelos.personas_compromiso import PersonasCompromisos
+from .modelos.estado_compromisos import EstadoCompromisos
+from .modelos.compromisos import Compromisos
 # Create your models here.
