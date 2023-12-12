@@ -1,0 +1,121 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Editar formulario</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Editar</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body" style="border: 2px solid">
+              <br>
+              <h5 class="text-center"><b>Información del Formulario</b></h5>
+               <div class="container form-control">
+                    <!-- Mostrar información del formulario -->
+                      <div class="row">
+                          <div class="col-10">
+                            <b>Nombre:</b> {{ formu.nombre }}
+                          </div>  
+                          <div class="col-2 text-end">
+                             <a href="#" class="btn btn-info">Editar</a>
+                          </div>
+                      </div>
+                      <div class="row mt-2">
+                        <div class="col-10">
+                            <b>Descripción:</b> {{ formu.descrip }}
+                        </div>  
+                        <div class="col-2 text-end">
+                            <a href="#" class="btn btn-info">Editar</a>
+                        </div>
+                    </div>
+               </div>
+           
+               <!-- Mostrar preguntas asociadas al formulario -->
+               <h5 class="text-center"><b>Preguntas</b></h5>
+               <div class="container form-control mt-2">
+               {% for pregunta in preguntas %}
+                       <div class="row">
+                          <div class="col-6">
+                            <p><b>Pregunta: </b> {{ pregunta.descrip }}</p>
+                            <p><b>Puntos: </b> {{pregunta.valor}}</p>
+                         </div>
+                        <div class="col-6">
+                       <!-- Aquí puedes agregar más detalles según el tipo de pregunta -->
+
+                       {% if pregunta.tipo == '1' %}  {# Pregunta de respuesta corta #}
+                          <p><b>Respuesta Corta:</b></p>
+                            <input class="form-control" type="text" placeholder="Ingresar respuesta">
+                        {% elif pregunta.tipo == '2' %}
+                          <p><b>Respuesta Larga:</b></p>
+                          <textarea class="form-control" type="text"></textarea>
+                        {% elif pregunta.tipo == '3' %} {# Pregunta de opciones múltiples #}
+                        <p><b>Opciones: Selección múltiple</b></p> 
+                            {% for opcion in pregunta.opciones_set.all %}
+                                <div class="form-control">
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="opcionesmul{{opcion.id}}">
+                                    <label class="form-check-label" for="opcionesmul{{opcion.id}}">
+                                        {{ opcion.descrip }} 
+                                    </label>
+                                  </div>    
+                                </div>                              
+                            {% endfor %}
+                       {% elif pregunta.tipo == '4' %} {# Pregunta de opciones múltiples con una verdadera #}
+                           <p><b>Opciones: Opciones múltiples con una verdadera</b></p> 
+                           {% for opcion in pregunta.opciones_set.all %}
+                           <div class="form-control">
+                            <div class="form-check">
+                                {% if opcion.correcta %}
+                                 <input class="form-check-input" type="radio" name="opcionradio" id="opcionradio" checked>
+                                {% else %}
+                                 <input class="form-check-input" type="radio" name="opcionradio" id="opcionradio">
+                                {% endif %}
+                                <label class="form-check-label" for="opcionradio{{opcion.id}}">
+                                    {{ opcion.descrip }}
+                                </label>
+                            </div>
+                           </div>
+                          {% endfor %}
+                       {% elif pregunta.tipo == '5' %} {# Pregunta de opciones múltiples con varias verdaderas (Checkbox) #}
+                          <p><b>Opciones: Selección múltiple con varias respuestas</b></p>
+                           {% for opcion in pregunta.opciones_set.all %}
+                           <div class="form-control">
+                           <div class="form-check">
+                                {% if opcion.correcta %}
+                                 <input class="form-check-input" type="checkbox" value="" id="opcionesUnico{{opcion.id}}" checked>
+                                {% else %}
+                                <input class="form-check-input" type="checkbox" value="" id="opcionesUnico{{opcion.id}}">
+                                {% endif %}
+                                <label class="form-check-label" for="opcionesUnico{{opcion.id}}">
+                                    {{ opcion.descrip }} 
+                                </label>
+                            </div>
+                           </div>
+                          {% endfor %}
+                          
+                       {% endif %}
+                       </div><!--cerrar el div de columna-->
+                      </div>
+                      <hr>
+               {% endfor %}
+               </div>
+               <!--end formulario-->
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  {% endblock %} 

@@ -61,8 +61,13 @@ urlpatterns = [
     path('administracion/formu/add/ask/<int:idform>/', viewformu.addNewPreguntas, name='addNewPreguntas'),
     path('administracion/formu/delete/answer/<int:idres>/<int:idform>/', viewformu.eliminarRespuesta, name='eliminarRespuesta'),
     path('administracion/formu/update/<int:idform>/', viewformu.savePreguntas, name='savePreguntas'),
-  
-
+    path('administracion/formu/copiar/<int:idform>/', viewformu.copiarform, name='copiarform'),
+    path('administracion/formu/delete/<int:idform>/', viewformu.eliminarForm, name='eliminarForm'),
+    path('administracion/formu/sesion/add/<int:idform>/', viewformu.addsesionform, name='addsesionform'), #agregar formularios a la sesion
+    #=================== rutas para revisar formularios ==================
+    path('administracion/formu/list/cursos/', viewformu.usersFomularios, name='usersFomularios'), #agregar formularios a la sesion
+    path('administracion/formu/list/forms/sesion/<int:idsesion>/', viewformu.verFomrsesion, name='verFomrsesion'), #agregar formularios a la sesion
+    
     #============= end formularios ==================
     path('administracion/empresa/vincular', viewadmin.vincularareadepto, name='vincularareadepto'), #Vincular area y departamento
     path('administracion/empresa/vincular/list', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
@@ -73,8 +78,11 @@ urlpatterns = [
     path('administracion/curso/deleteasistente/<int:idasis>', viewadmin.eliminarasistente, name='eliminarasistente'),
     path('administracion/curso/list/valoracion/<int:idsesion>', viewadmin.listarcalificacion, name="listarcalificacion"),
     path('administracion/curso/list/deletevaloracion/<int:idcali>', viewadmin.borrarcalificacion, name="borrarcalificacion"),
-
-
+    
+    #==================== rutas para evaluar formulario ============
+    path('usuarios/curso/sesion/formulario/<int:idsesion>/', viewuser.verformusesion, name="verformusesion"),
+    path('usuarios/curso/respuesta/formulario/<int:idsesion>/<int:idformu>/', viewuser.saveRespuestas, name="saveRespuestas"),
+    
     #================================= Rutas de Usuario =============================================================
     path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario"),
     path('usuarios/calificar-sesion/<int:idsesion>', viewuser.add_calificacion, name="addcalificacion")

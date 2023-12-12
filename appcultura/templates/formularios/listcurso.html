@@ -1,0 +1,109 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Listado de cursos</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Listado</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+              <br>
+               <!--alertar-->
+               {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+               {% endif %}
+               <!--end alertar-->
+               <!-- Table with stripped rows -->
+               <div class="table-responsive">
+               <table class="table" id="tablareactiva">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Sesiones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for curso in cursosvin %}
+                  <tr>
+                    <td>{{ curso.nombre }}</td>
+                    <td>{{ curso.descrip }}</td>
+                    <td>
+                      <!--aqui modal-->
+                         <!-- Modal Dialog Scrollable -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaCursoformu{{curso.id}}">
+                          Ver
+                        </button>
+                        <div class="modal fade" id="modalListaCursoformu{{curso.id}}" tabindex="-1">
+                          <div class="modal-dialog modal-dialog-scrollable modal-lg ">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title">Listado de sesiones por curso</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body table-responsive">
+                                <table>
+                                    <thead>
+                                      <tr>
+                                        <th>Fecha</th>
+                                        <th>Lugar</th>
+                                        <th></th>
+                                      </tr>
+                                    </thead>
+                                  <tbody>
+                                    {% for sesiones in curso.sesioncurso_set.all %}
+                                    <tr>
+                                       <th>{{sesiones.fechainicio}}</th>
+                                       <th>{{sesiones.lugar}}</th>
+                                       <th>
+                                       {% if sesiones.respuestaform_set.exists %}
+                                        <a href="{% url 'verFomrsesion' idsesion=sesiones.id %}" type="button" class="btn btn-info">Formularios contestados</a>
+                                        {% else %}
+                                        <p class="alert alert-warning">Sin formularios</p>
+                                        {% endif %}
+                                      </th>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div><!-- End Modal Dialog Scrollable-->
+                      <!--end modal-->
+                    </td>
+                    <!--botones de acciones-->                
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+               </div>
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  {% endblock %} 

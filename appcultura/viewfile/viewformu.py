@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import login_required # proteger las rutas d
 from django.db import IntegrityError #errores de la base de datos
 from django.utils import timezone
 from django.contrib import messages #mensajes para la vista
-from ..models import UserPerfil, Formulario, Preguntas, Opciones
+from ..models import UserPerfil, Formulario, Preguntas, Opciones, Curso, Sesioncurso, SesionFormulario, GruposCursos, RespuestaForm
 from django.http import Http404
-from django.http import JsonResponse
+from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
 #importar modelos 
 
 #vista principal de crear formularios
@@ -17,14 +18,57 @@ def listarformu(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     formu = Formulario.objects.filter()
     preg = Preguntas.objects.filter()
-    return render(request, 'formularios/listarformu.html', {'usu':perfil_usuario, 'formu':formu, 'preg':preg})
+    agregados = SesionFormulario.objects.filter()
+    #============================= aqui sesiones de cursos =======
+    cursos = Curso.objects.all()
+    # Crear un diccionario para almacenar los cursos y sus sesiones respectivas
+    cursos_sesiones = {}
+    for curso in cursos:
+        sesiones = Sesioncurso.objects.filter(idcurso=curso)
+        # Almacenar el curso y sus sesiones en el diccionario
+        cursos_sesiones[curso] = sesiones
+    context = {'cursos_sesiones': cursos_sesiones, 'usu':perfil_usuario, 'formu':formu, 'preg':preg, 'agregados':agregados}
+    #=========================== end sesiones ===============
+    return render(request, 'formularios/listarformu.html', context)
+
+#===================== Aqui agregar formularios a una sesion ==========
+@login_required
+def addsesionform(request, idform):
+    if request.method == 'POST':
+        # ========== buscar los datos ===========
+        formu = Formulario.objects.get(id=idform)
+        selec = request.POST.getlist(f'sesionCurso[]')
+        agregados = SesionFormulario.objects.filter(idform=formu).values('idsesion')
+        # ======== buscar la hora local ===================
+        fecha_actual_utc = timezone.now()
+        fecha_actual_local = timezone.localtime(fecha_actual_utc)
+        # ==================================================
+        sesiones_existentes = [agregado['idsesion'] for agregado in agregados]
+
+        sesiones_usuario = [int(id_sesion) for id_sesion in selec]
+
+        sesiones_a_eliminar = set(sesiones_existentes) - set(sesiones_usuario)
+
+        SesionFormulario.objects.filter(idform=formu, idsesion__in=sesiones_a_eliminar).delete()
+
+        # sesiones restantes
+        for id_sesion in sesiones_usuario:
+            sesiones = Sesioncurso.objects.get(id=id_sesion)
+
+            if SesionFormulario.objects.filter(idform=formu, idsesion=sesiones).exists():
+                continue  # Si existe continuar
+            # Si no existe, se puede proceder con el registro
+            datosformu = SesionFormulario(fecha=fecha_actual_local, idform=formu, idsesion=sesiones)
+            datosformu.save()
+    
+    return redirect('listarformu')
+
 
 @login_required #proteger la ruta
 def crearformu(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     if request.method == 'POST':
         # Acceder a los datos principales del formulario
-        print(request.POST)
         nomform = request.POST.get('nomform')
         desform = request.POST.get('desform')
         
@@ -124,6 +168,9 @@ def eliminarPregunta(request, idpreg, idformu):
 
 @login_required #proteger la ruta
 def addNewPreguntas(request, idform):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    formu = Formulario.objects.get(id=idform)
+    preguntasnew = Preguntas.objects.filter(idform=formu)
     if request.method == 'POST':
         formu = Formulario.objects.get(id=idform) #aqui encuentra el id del formulario
         # Procesar preguntas y tipos de formulario
@@ -185,7 +232,8 @@ def addNewPreguntas(request, idform):
                         gcheck.correcta = True
 
                     gcheck.save()
-        return redirect(editarform, idform=idform)
+        seccionform = 'seccionCampos'
+        return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'seccionform':seccionform})
 
 @login_required #proteger la ruta
 def eliminarRespuesta(request, idres, idform):
@@ -194,7 +242,6 @@ def eliminarRespuesta(request, idres, idform):
     preguntasnew = Preguntas.objects.filter(idform=formu)
     try:
         opt = Opciones.objects.get(id=idres)
-        print('valor de opt', opt)
         opt.delete()
         pregunta_id = opt.idpreg.id
         return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'nseccion':pregunta_id})
@@ -204,72 +251,145 @@ def eliminarRespuesta(request, idres, idform):
 @login_required #proteger la ruta
 def savePreguntas(request, idform):
      perfil_usuario = UserPerfil.objects.get(user=request.user)
-     formu = Formulario.objects.get(id=idform)
-     preguntasnew = Preguntas.objects.filter(idform=formu)
      if request.method == 'POST':
         # Acceder a los datos del formulario
         nombre_formulario = request.POST.get('nombre', '')
         descripcion_formulario = request.POST.get('descrip', '')
-
         # Crear el formulario
-        formulario = Formulario.objects.get(id=idform)
-        formulario.nombre = nombre_formulario
-        formulario.descrip = descripcion_formulario
-        formulario.save()
-        
+        Formulario.objects.filter(id=idform).update(nombre=nombre_formulario, descrip=descripcion_formulario) 
         # Iterar sobre los datos del formulario
+        pregunta_id = None  # Inicializa la variable fuera del bucle
         if request.POST.items():
             for key, value in request.POST.items():
                 if key.startswith('pregunta') and value:
-                    pregunta_id = key.split('pregunta')[1]
-                    puntaje = request.POST.get(f'puntaje{pregunta_id}', '') #puntaje actual que llega
-                    pregunta_ask = request.POST.get(f'pregunta{pregunta_id}', '') # pregunta que llega desde el front
-                    # Obtener la pregunta existente
-                    pregunta = Preguntas.objects.get(id=pregunta_id)
-                    pregunta.descrip = pregunta_ask
-                    pregunta.valor = puntaje
-                    pregunta.save()
+                       pregunta_id = key.split('pregunta')[1]
+                       puntaje = request.POST.get(f'puntaje{pregunta_id}', '') #puntaje actual que llega
+                       pregunta_ask = request.POST.get(f'pregunta{pregunta_id}', '') # pregunta que llega desde el front
+                       # Obtener la pregunta existente
                     
-                    if pregunta.tipo == '3':
-                        # Obtener las opciones múltiples asociadas a la pregunta
-                        opciones = request.POST.getlist(f'opcionesmul_{pregunta_id}[]')
-                        # Crear las opciones
-                        for opcion_texto in opciones:
-                            opcion = Opciones(descrip=opcion_texto, idpreg=pregunta)
-                            opcion.save()
-                    elif pregunta.tipo == '4':
-                        oponemarcada = request.POST.getlist(f'radionum_{pregunta_id}')
-        
-                        try:
-                            opcion_one_correcta = int(oponemarcada[0])
-                        except (ValueError, IndexError):
-                            # Manejar errores de conversión a entero o índice fuera de rango
-                            opcion_one_correcta = None
-                        
-                        if opcion_one_correcta is not None:
-                            oponesvar = request.POST.getlist(f'radioname_{pregunta_id}[]')
+                       pregunta = Preguntas.objects.get(id=pregunta_id)
+                       pregunta.descrip = pregunta_ask
+                       pregunta.valor = puntaje
+                       pregunta.save()
 
-                            for i, opcion_seleccionada in enumerate(oponesvar):
-                                goneopc = Opciones(descrip=opcion_seleccionada, idpreg=pregunta)
-
-                                # Marcar la opción correcta
-                                if i == opcion_one_correcta - 1:
-                                    goneopc.correcta = True
-
-                                goneopc.save()
-
-                        #============= guardar respuestas de multiples respuestas ==========
-                    elif pregunta.tipo == '5':
-                        opcionvar = request.POST.getlist(f'cheknom_{pregunta_id}[]')
-                        checkmarcados =  request.POST.getlist(f'checkval_{pregunta_id}')
-
-                        for i, texto_opcionvar in enumerate(opcionvar, start=1):
-                            opcionv = Opciones(descrip=texto_opcionvar, idpreg=pregunta)
+                       if pregunta.tipo == '3':
+                            # Obtener las opciones múltiples asociadas a la pregunta
+                            opciones = request.POST.getlist(f'opcionesmul_{pregunta_id}[]')
+                            # Crear las opciones
+                            for opcion_texto in opciones:
+                                opcion = Opciones(descrip=opcion_texto, idpreg=pregunta)
+                                opcion.save()
+                       elif pregunta.tipo == '4':
+                            oponemarcada = request.POST.getlist(f'radionum_{pregunta_id}')
+                            print(oponemarcada)
+                            try:
+                                opcion_one_correcta = int(oponemarcada[0])
+                            except (ValueError, IndexError):
+                                # Manejar errores de conversión a entero o índice fuera de rango
+                                opcion_one_correcta = None
                             
-                            if str(i) in checkmarcados:
-                                opcionv.correcta = True
-                            
-                            opcionv.save()
+                            if opcion_one_correcta is not None:
+                                oponesvar = request.POST.getlist(f'radioname_{pregunta_id}[]')
+
+                                for i, opcion_seleccionada in enumerate(oponesvar):
+                                    goneopc = Opciones(descrip=opcion_seleccionada, idpreg=pregunta)
+
+                                    # Marcar la opción correcta
+                                    if i == opcion_one_correcta - 1:
+                                        goneopc.correcta = True
+
+                                    goneopc.save()
+
+                            #============= guardar respuestas de multiples respuestas ==========
+                       elif pregunta.tipo == '5':
+                            opcionvar = request.POST.getlist(f'cheknom_{pregunta_id}[]')
+                            checkmarcados =  request.POST.getlist(f'checkval_{pregunta_id}')
+
+                            for i, texto_opcionvar in enumerate(opcionvar, start=1):
+                                opcionv = Opciones(descrip=texto_opcionvar, idpreg=pregunta)
+                                
+                                if str(i) in checkmarcados:
+                                    opcionv.correcta = True
+                                
+                                opcionv.save()
+                    # si la pregunta no existe
+        formu = Formulario.objects.get(id=idform)
+        preguntasnew = Preguntas.objects.filter(idform=formu)
         return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'nseccion':pregunta_id})
-                    
-        
+
+@login_required #proteger la ruta
+def copiarform(request, idform): #copiar o duplicar el formulario con todos los atributos
+    formulario_original = get_object_or_404(Formulario, id=idform)
+    with transaction.atomic():
+        # Duplicar el formulario
+        formulario_nuevo = Formulario.objects.create(
+            nombre=f"{formulario_original.nombre} (Copia)",
+            descrip=formulario_original.descrip,
+            fecha=formulario_original.fecha,
+        )
+        # Duplicar las preguntas asociadas
+        # Duplicar las preguntas asociadas
+        for pregunta_original in Preguntas.objects.filter(idform=formulario_original):
+            pregunta_nueva = Preguntas.objects.create(
+                descrip=pregunta_original.descrip,
+                tipo=pregunta_original.tipo,
+                valor=pregunta_original.valor,
+                idform=formulario_nuevo,
+            )
+            # Duplicar las opciones asociadas a la pregunta
+            for opcion_original in Opciones.objects.filter(idpreg=pregunta_original):
+                    Opciones.objects.create(
+                        descrip=opcion_original.descrip,
+                        correcta=opcion_original.correcta,
+                        idpreg=pregunta_nueva,
+                    )  
+    return redirect(listarformu)
+    
+#eliminar el formulario por completo
+@login_required #proteger la ruta
+def eliminarForm(request, idform):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    formu = Formulario.objects.filter()
+    try:
+        formudelete = Formulario.objects.get(id=idform)
+        formudelete.delete()
+        newmensaje = "Formulario eliminado de manera exitosa."
+    except Formulario.DoesNotExist:
+        newmensaje = "Error al eliminar el formulario."
+    return render(request, 'formularios/listarformu.html', {'usu':perfil_usuario, 'formu':formu, 'newmensaje':newmensaje})
+
+#listar los formularios completados de los usuarios
+@login_required #proteger la ruta
+def usersFomularios(request):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    cursosvin = Curso.objects.all()
+    return render(request, 'formularios/listcurso.html', {'usu':perfil_usuario, 'cursosvin':cursosvin })
+
+@login_required #proteger la ruta
+def verFomrsesion(request, idsesion):
+    mensajeExito = ''
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    formulario_sesion = SesionFormulario.objects.filter(idsesion=idsesion)
+    usuarios_en_sesion = UserPerfil.objects.filter(respuestaform__idsesion_id=idsesion).distinct()
+    #==============================================
+    usuarios_con_formularios = {}
+    formularios_del_usuario = {}
+    for usuid in usuarios_en_sesion:
+        formularios_del_usuario = Formulario.objects.filter(
+            preguntas__respuestaform__iduser_id=usuid
+        ).distinct()
+        # Agregar el usuario y sus formularios al diccionario
+        usuarios_con_formularios[usuid] = list(formularios_del_usuario)
+    #========================= guardar comentarios del formulario ===========
+    if request.method == 'POST':
+        print(request.POST)
+        comentarios_dict = dict(request.POST.lists())
+        for key, value in comentarios_dict.items():
+            if key.startswith('comentario_'):
+                respuesta_id = int(key.split('_')[1])
+                comentario = value[0]
+                #actualizar la respuesta
+                RespuestaForm.objects.filter(id=respuesta_id).update(comentario=comentario, estado=False)
+        mensajeExito = "Comentarios agregados de manera exitosa."
+    return render(request, 'formularios/formucompletos.html', {'usu':perfil_usuario, 'users':usuarios_en_sesion, 'formularios':formulario_sesion, 'usuarios_con_formularios':usuarios_con_formularios, 'idsesion':idsesion, 'mensajeExito':mensajeExito })
+

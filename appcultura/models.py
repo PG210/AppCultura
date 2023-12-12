@@ -20,9 +20,12 @@ from .modelos.grupos import Grupos
 from .modelos.gruposcursos import GruposCursos
 from .modelos.grupouser import GruposUser
 from .modelos.sesionasistencia import SesionAsistencia
+from .modelos.sesionformulario import SesionFormulario
 #modelos de formularios
 from .modelos.formulario import Formulario
 from .modelos.preguntasform import Preguntas
 from .modelos.opcionform import Opciones
 from .modelos.calificacionusuarios import CalificacionUsuarios
+from .modelos.respuestasformulario import RespuestaForm
+from .modelos.respuestaopciones import RespuestaOpciones
 # Create your models here.

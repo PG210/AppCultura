@@ -191,17 +191,6 @@ function addOneOpcion(idverdadera){
     containern.appendChild(divcompleto);
  }
 
-// levantar la seccion actual
-// Obtén la sección actual del contexto
-var seccionActual = "{{ nseccion }}";
-// Si hay una sección, desplázate a ella usando JavaScript
-if (seccionActual) {
-    var elementoSeccion = document.getElementById('seccion' + seccionActual);
-    if (elementoSeccion) {
-        elementoSeccion.scrollIntoView();
-    }
-}
-  
 // Obtén el elemento del checkbox y la sección
 var checkbox = document.getElementById('mostrarCampos');
 var seccionCampos = document.getElementById('seccionCampos');

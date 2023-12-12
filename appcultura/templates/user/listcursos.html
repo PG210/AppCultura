@@ -60,7 +60,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body table-responsive">
-                                <table>
+                                <table class="table">
                                     <thead>
                                       <tr>
                                         <th>Id sesion</th>
@@ -69,7 +69,7 @@
                                         <th>Lugar</th>
                                         <th>Asistencia</th>
                                         <th>Calificar</th>
-                                        
+                                        <th>Evaluar</th>
                                       </tr>
                                     </thead>
                                   <tbody>
@@ -80,28 +80,36 @@
                                     <td>{{ sesion.fechainicio }}</td>
                                     <td>{{ sesion.fechafin }}</td>
                                     <td>{{ sesion.lugar }}</td>
+                                    <td>
                                     {% for asistencia in asistencias %}
-                                    {% if asistencia.idsesioncurso != sesion %}
-                                      <td>No asistió</td>
-                                    {% else %}
-                                      <td>Asistió</td>
-                                    {% endif %}
+                                      {% if asistencia.idsesioncurso != sesion %}
+                                        No asistió
+                                      {% else %}
+                                        Asistió
+                                      {% endif %}
                                     {% endfor %}
+                                    </td>
+                                    <td>
                                     {% if calificacion %}
                                       {% for cali in calificacion %}
                                         {% if cali.estado is False %}
-                                          <td><a class="btn btn-success disabled" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" aria-disabled="true">calificar</a></td>
+                                          <a class="btn btn-success disabled" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" aria-disabled="true">calificar</a></td>
                                         {% endif %}
                                       {% endfor %}
                                     {% else %}
-                                    <td><a class="btn btn-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button">calificar</a></td>
+                                    <a class="btn btn-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button">calificar</a>
                                     {% endif %}
+                                    </td>
+                                    <!--aqui boton de evaluar formulario-->
+                                     <td>
+                                      <a href="{% url 'verformusesion' idsesion=sesion.id %}" class="btn btn-success">Evaluar</a>
+                                     </td>
+                                    <!--end evaluar-->
                                   </tr>
                                   {% endif %}
                                   
                                   {% endfor %}
-                                 
-                                    </tbody>
+                                  </tbody>
                                 </table>
                               </div>
                               <div class="modal-footer">

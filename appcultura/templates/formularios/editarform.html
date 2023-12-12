@@ -107,9 +107,9 @@
                                 <div class="form-control">
                                         <div class="form-check">
                                             {% if opcion.correcta %}
-                                            <input class="form-check-input" type="radio" name="opcionradio" id="opcionradio" checked>
+                                            <input class="form-check-input" type="radio" name="opcionradio{{pregunta.id}}" id="opcionradio" checked>
                                             {% else %}
-                                            <input class="form-check-input" type="radio" name="opcionradio" id="opcionradio">
+                                            <input class="form-check-input" type="radio" name="opcionradio{{pregunta.id}}" id="opcionradio">
                                             {% endif %}
                                             <label class="form-check-label" for="opcionradio{{opcion.id}}">
                                                 {{ opcion.descrip }}
@@ -238,6 +238,23 @@
 <script src="{% static 'admin/assets/js/actuformu.js' %} "></script>
   <script>
     agregarCampo();
+    // Obtén la sección actual del contexto
+    var seccionActual = "{{ nseccion }}";
+    var seccionNew = "{{ seccionform }}"
+    if (seccionActual) {
+        var elementoSeccion = document.getElementById('seccion' + seccionActual);
+        if (elementoSeccion) {
+            elementoSeccion.scrollIntoView();
+        }
+    }
+   //levantar la sesion de formulario
+    if (seccionNew){
+      var divsec = document.getElementById(seccionNew);
+        if (divsec) {
+            divsec.scrollIntoView();
+        }
+    }
+    
   </script>
  
   <!-- Aqui se encuentran las instrucciones para formularios -->
