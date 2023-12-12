@@ -70,7 +70,7 @@ urlpatterns = [
     
     #============= end formularios ==================
     path('administracion/empresa/vincular', viewadmin.vincularareadepto, name='vincularareadepto'), #Vincular area y departamento
-    path('administracion/empresa/vincular/list', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
+    path('administracion/empresa/vincular/list/', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
     path('administracion/empresa/vincular/delete/<int:idarea>/', viewadmin.eliminavinculo, name='eliminarvinculo'),
     path('administracion/validarasistencia/<int:idsesion>', viewadmin.validarasistencia, name='validarasistencia'),
     path('administracion/generarqr/<int:idsesion>', viewadmin.generarqr, name='generarqr'),
@@ -83,9 +83,25 @@ urlpatterns = [
     path('usuarios/curso/sesion/formulario/<int:idsesion>/', viewuser.verformusesion, name="verformusesion"),
     path('usuarios/curso/respuesta/formulario/<int:idsesion>/<int:idformu>/', viewuser.saveRespuestas, name="saveRespuestas"),
     
+    path('administracion/validarasistencia/<int:idsesion>/', viewadmin.validarasistencia, name='validarasistencia'),
+    path('administracion/generarqr/<int:idsesion>/', viewadmin.generarqr, name='generarqr'),
+    path('administracion/curso/asistentelist/<int:idsesion>/', viewadmin.listarasistentes, name='listarasistentes'),
+    path('administracion/curso/deleteasistente/<int:idasis>/', viewadmin.eliminarasistente, name='eliminarasistente'),
+    path('administracion/curso/list/valoracion/<int:idsesion>/', viewadmin.listarcalificacion, name="listarcalificacion"),
+    path('administracion/curso/list/deletevaloracion/<int:idcali>/', viewadmin.borrarcalificacion, name="borrarcalificacion"),
+    path('administracion/compromisos/', viewadmin.listar_compromisos, name="listarcompromisos"),
+    path('administracion/compromisos/editcompromiso/<int:idcomp>/', viewadmin.addrespuesta, name="editcompromiso"),
+    path('administracion/compromisos/deletecompromiso/<int:idcomp>/', viewadmin.delete_compromiso, name="deletecompromiso"),
+
     #================================= Rutas de Usuario =============================================================
     path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario"),
-    path('usuarios/calificar-sesion/<int:idsesion>', viewuser.add_calificacion, name="addcalificacion")
+    path('usuarios/calificar-sesion/<int:idsesion>/', viewuser.add_calificacion, name="addcalificacion"),
+    path('usuarios/compromisos/', viewuser.agregar_compromiso, name="compromisos"),
+    path('usuarios/compromisos/editar/<int:idcomp>/', viewuser.editarcompromiso, name="editarcompromiso"),
     #============================ Fin de Rutas de usuario ===========================================================
+
+
+    #====================================Apis=======================================================================
+    path('administrador/api/cursos/', viewadmin.returncursos, name="returncursos")
 ]   
    
