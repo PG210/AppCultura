@@ -921,12 +921,19 @@ def addrespuesta(request, idcomp):
         return redirect('listarcompromisos')
 
 @login_required
-def delete_compromiso(request,idcomp):
+def delete_compromiso(request, idcomp):
     compromiso = Compromisos.objects.filter(id=idcomp)
     compromiso.delete()
     mensaje="Compromiso eliminado correctamente"
-    #return JsonResponse(compromiso_serializado, safe=False)
-    return JsonResponse({'message':mensaje})
+    #aqui buscar el compromiso para devolver a todo el listado de usuarios
+    comActu = Compromisos.objects.get(id=idcomp)
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    usu = UserPerfil.objects.get(id=comActu.id_usuario.id)
+    compromisos = Compromisos.objects.filter(id_usuario=usu)
+    estados = EstadoCompromisos.objects.all()
+    return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados})
+
+    
     
 def inscribir_asistente(request, idsesion):
     if request.method == 'POST':

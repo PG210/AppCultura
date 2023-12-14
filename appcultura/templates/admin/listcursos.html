@@ -110,8 +110,7 @@
                                 <table>
                                     <thead>
                                       <tr>
-                                        <th>Fecha inicio</th>
-                                        <th>Fecha final</th>
+                                        <th>Fecha</th>
                                         <th>Lugar</th>
                                         <th>Temáticas</th>
                                         <th>Descripción</th>
@@ -126,18 +125,28 @@
                                   {% for sesion in sesiones %}
                                     {% if sesion.idcurso == curso %}
                                     <tr>
-                                      <td>{{ sesion.fechainicio }}</td>
-                                      <td>{{ sesion.fechafin }}</td>
+                                      <td>{{ sesion.fechainicio|date:"n/j/y g:i a" }}</td>
                                       <td>{{ sesion.lugar }}</td>
                                     {% for tematica in tematicas %}
                                       {% if tematica.idsesion == sesion %}
                                       <td>{{ tematica.descrip }}</td>
                                       <td>{{ tematica.competencias }}</td>
                                       <td>{{ tematica.recursos }}</td>
-                                      <td><a  class="btn-info" href="{% url 'download' ruta=tematica.ruta %}" download><i class="bi bi-cloud-arrow-down-fill" style="font-size:24px;"></i></a></td>
-                                      <td><a class="btn-info" href="{% url 'generarqr' idsesion=sesion.id %}" target="_blank"><i class="bi bi-share-fill"></i></a></td>
-                                      <td><a class="btn btn-primary" href="{% url 'listarasistentes'  idsesion=sesion.id %}" target="_blank" role="button">Ver</a>
-                                      <td><a class="btn btn-primary" href="{% url 'listarcalificacion' idsesion=sesion.id %}"  role="button">Ver</a>
+                                      <td class="text-center"><a  class="btn btn-primary" href="{% url 'download' ruta=tematica.ruta %}" download><i class="bi bi-cloud-arrow-down-fill" ></i></a></td>
+                                      <td class="text-center"><a class="btn btn-primary" href="{% url 'generarqr' idsesion=sesion.id %}" target="_blank"><i class="bi bi-share-fill"></i></a></td>
+                                      <td class="text-center">
+                                        {% if sesion.sesionasistencia_set.all %}
+                                        <a class="btn btn-primary" href="{% url 'listarasistentes'  idsesion=sesion.id %}" role="button">Ver</a>
+                                        {% else %}
+                                        <p style="color: black;">Sin registros</p>
+                                        {% endif %}
+                                      </td>
+                                      <td class="text-center">
+                                        {% if sesion.calificacionusuarios_set.all %}
+                                         <a class="btn btn-primary" href="{% url 'listarcalificacion' idsesion=sesion.id %}"  role="button">Ver</a>
+                                        {% else %}
+                                        <p style="color: black;">Sin registros</p>
+                                        {% endif %}
                                       </td>
                                       {% endif %}
                                     {% endfor %}
@@ -158,9 +167,16 @@
                     </td>
                     <!--botones de acciones-->
                     <td>
-                      <div class="modal-footer">
+                      <div>
+                        <div class="row">
+                          <div class="col-6 text-center">
+                            <a type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
+                          </div>
+                          <div class="col-6 text-center">
+                            <a type="button" class="btn btn-info  mr-2" style="display: inline-block;" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
+                          </div>
+                        </div>
                         <!--modal de validación-->
-                          <a type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
                           <div class="modal fade" id="confirmarDelete{{curso.id}}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                               <div class="modal-content">
@@ -179,7 +195,6 @@
                             </div>
                           </div>
                         <!--end validacion-->
-                        <a type="button" class="btn btn-info  mr-2" style="display: inline-block;" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
                       </div>
                     </td>                  
                   </tr>
