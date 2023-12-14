@@ -29,12 +29,10 @@ from django.db.models import Subquery, OuterRef
 #Codigo Jhon
 from django.http import JsonResponse
 from django.views import View
-import qrcode
-from io import BytesIO
-from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.core.serializers import serialize
 
+from appcultura.viewfile.fadmin.functionadmin import generar_qr
 #Fin Codigo Jhon
 
 @login_required #proteger la ruta
@@ -791,36 +789,10 @@ def validarasistencia(request, idsesion):
         
 
 def generarqr(request, idsesion):
+    data = f'http://localhost:8000/administracion/validarasistencia/{idsesion}/'
+    relative_path = generar_qr(data,idsesion)
+    return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion, 'data':data})
 
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-
-    # Agregar datos al código QR (puedes cambiar el texto según tus necesidades)
-    data = f'http://localhost:8000/administracion/validarasistencia/{idsesion}'
-    qr.add_data(data)
-    qr.make(fit=True)
-
-    # Crear una imagen PIL (Pillow) desde el código QR
-    img = qr.make_image(fill_color="black", back_color="white")
-
-    # Guardar la imagen en un buffer de BytesIO
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-
-    # Guardar la imagen en el sistema de archivos de Django
-    filename = f"appcultura/static/media/qrcodes/{idsesion}_qrcode.png"
-    #filename = f"static/qrcodes/{idsesion}_qrcode.png"
-    filepath = default_storage.save(filename, buffer)
-
-    # Obtener la URL de la imagen
-    qr_code_url = default_storage.url(filepath)
-    relative_path = qr_code_url.split("appcultura/static/")[1]
-    print(relative_path)
-    return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion})
 
 @login_required
 def listarasistentes(request, idsesion):
@@ -969,4 +941,4 @@ def cambiar_pendiente(request, iduser, idsesion):
         asistencia.save()
         messages.success(request,"Cambio de estado realizado satisfactoriamente")
         return redirect('listarasistentes', idsesion=idsesion)
-#============================================================apis
+

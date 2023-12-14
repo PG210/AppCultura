@@ -38,7 +38,6 @@
                   <tr>
                     <th>Nombre</th>
                     <th>Descripción</th>
-                    <th>Estado</th>
                     <th>Fecha</th>
                     <th>Vincular</th>
                     <th>Acciones</th>
@@ -49,14 +48,10 @@
                    <tr>
                     <td>{{f.nombre}}</td>
                     <td>{{f.descrip}}</td>
-                    <td>
-                      {% if f.estado %}
-                         Activado
-                      {% else %}
-                         Inactivo
-                      {% endif %}
-                    </td>
+                    
                     <td>{{f.fecha|date:"m/d/Y"}}</td>
+                    
+                      </td>
                     <td>
                       <!--vincular el formulario con diferentes cursos y sesiones-->
                       <!-- Button trigger modal -->
@@ -85,6 +80,7 @@
                                           <th>Fecha de Inicio</th>
                                           <th>Lugar</th>
                                           <th>Seleccionar</th>
+                                          <th>Compartir</th>
                                       </tr>
                                   </thead>
                                   <tbody>
@@ -103,6 +99,7 @@
                                                   </div>
                                                     <!--end botones-->
                                                   </td>
+                                                  <td><a class="btn btn-primary" href="{% url 'qrformu' idsesion=sesion.id %}" role="button" target="_blank"><i class="bi bi-share-fill"></i></a>
                                               </tr>
                                           {% endfor %}
                                       {% endfor %}
