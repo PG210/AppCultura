@@ -25,79 +25,7 @@
        <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-              <div class="mt-3">
-                <!--Modal agregar compromiso-->
-                <!-- Button trigger modal -->
-                <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvascompromiso" aria-controls="offcanvasExample">
-                  Agregar Compromiso
-                </button>
-                
-                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvascompromiso" aria-labelledby="offcanvasExampleLabel">
-                  <div class="offcanvas-header">
-                    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Agregar Compromiso</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                  </div>
-                  <div class="offcanvas-body">
-                    <!--Cuerpo del offcanvas-->
-                    <form action="{% url 'compromisos' %}" method="POST">
-                      {% csrf_token %}
-                      <div class="mb-3">
-                        <label for="exampleDataList" class="form-label">Seleccione un curso</label>
-                        <input class="form-control" list="datalistcursos" id="exampleDataList" name="cursos">
-                        <datalist id="datalistcursos">
-                          {% for curso in cursos %}
-                            <option value="{{curso.idcurso.nombre}}"></option>
-                          {% endfor %}
-                        </datalist>
-                      </div>
-                      <div class="mb-3">
-                        <label for="exampleFormControlTextarea1" class="form-label">Compromiso</label>
-                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="textCompromiso"></textarea>
-                      </div>
-                      <div class="mb-3">
-                        <label for="exampleFormControlselect" class="form-label">Prioridad</label>
-                        <select class="form-select" aria-label="Default select example" name="prioridad">
-                          <option selected>Open this select menu</option>
-                          <option value="Muy urgente">Muy Urgente</option>
-                          <option value="Medianamente urgente">Medianamente Urgente</option>
-                          <option value="Nada urgente">Nada Urgente</option>
-                        </select>
-                      </div>
-                      <div class="mb-3">
-                        <label for="exampleFormControldate" class="form-label">Fecha Final</label>
-                        <div class="input-group date fj-date" data-provide="datepicker">
-                          <input type="text" class="form-control" name="fechafinal">
-                          <div class="input-group-addon">
-                              <span class="glyphicon glyphicon-th"></span>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="mb-3">
-                        <label for="exampleDataList" class="form-label">Con Quien?</label>
-                        <input class="form-control" list="datalistOptions" id="exampleDataList" name="conquien">
-                        <datalist id="datalistOptions">
-                          {% for user in user_all %}
-                            <option value="{{user.nombre}}"></option>
-                          {% endfor %}
-                        </datalist>
-                      </div>
-                      <br>
-                      <div class="mb-3">
-                        <input class="btn btn-primary" type="submit" value="Agregar">
-                      </div>
-                    </form>
-                    <!--Fin del cuerpo del offcanvas-->
-                  </div>
-                </div>
-                <!-- Fin del modal agragar compromiso-->
-                <br>
-              </div>
-              <br>
-               <!--alertar-->
-               <!--end alertar-->
-               <!-- Table with stripped rows -->
                <br>
-               
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
                 <thead>
@@ -114,21 +42,61 @@
                   {% if compromisos %}
                       {% for comp in compromisos %}
                         <tr>
-                          <td>{{comp.id_curso.nombre}}</td>
+                          <td>{{comp.id_sesion.idcurso.nombre}}</td>
                           <td>{{comp.compromiso}}</td>
-                          <td>{{comp.fecha_compromiso}}</td>
-                          <td>{{comp.fecha_final}}</td>
+                          <td>{{comp.fecha_compromiso|date:'Y-m-d'}}</td>
+                          <td>{{comp.fecha_final|date:'Y-m-d' }}</td>
                           <td>{{comp.id_estado.descripcion}}</td>
                           <td>
-                            <!-- Button trigger modal -->
-                            <a type="button" class="btn btn-info  mr-2" style="display: inline-block;" data-bs-target="#modaleditarcompromiso{{comp.id}}" data-bs-toggle="modal"><i class="bi bi-pencil-square"></i></a>
-
+                            <!--respuesta y puntaje-->
+                             <!-- Button trigger modal -->
+                             {% if comp.id_estado.id == 2 %}
+                             <button type="button" style="background-color: rgba(13, 202, 240); color: white;" disabled> <i class="bi bi-eye-slash-fill"  style="font-size: large;"></i></button>
+                                {% else %}
+                                <a type="button" data-bs-toggle="modal" data-bs-target="#modalMasinfo{{comp.id}}" style="background-color: rgba(13, 202, 240); color: white;">
+                                  <i class="bi bi-eye-fill" style="font-size: large;"></i></a> 
+                              {% endif %}
+                                <!-- Button trigger modal -->
+                            <button type="button" style="background-color: rgba(13, 110, 253); color: white;" data-bs-target="#modaleditarcompromiso{{comp.id}}" data-bs-toggle="modal"><i class="bi bi-pencil-square"  style="font-size: large;"></i></button>
+                              <!-- Modal -->
+                              <div class="modal fade" id="modalMasinfo{{comp.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <!--====================================-->
+                                      <div class="row">
+                                        <div class="col-4">Comentario:</div>
+                                        <div class="col-8">
+                                         <div class="form-control"> {{ comp.respuesta }}</div>
+                                        </div>
+                                      </div>
+                                      <div class="row mt-2">
+                                        <div class="col-4">Puntos:</div>
+                                        <div class="col-8">
+                                          <div class="form-control">
+                                            {{ comp.puntaje }}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <!--=======================================-->
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                          
                             <!-- Modal -->
                             <div class="modal fade" id="modaleditarcompromiso{{comp.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                               <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                   <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Editar Comprommiso</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Editar Compromiso</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                   </div>
                                   <div class="modal-body">
@@ -136,39 +104,47 @@
                                       {% csrf_token %}
                                       <div class="form-control">
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-sm-2 col-form-label">Compromiso</label>
+                                            <label for="nombre" class="col-sm-2 col-form-label"><b>Compromiso</b></label>
                                             <div class="col-sm-10">
-                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="textCompromiso">{{comp.compromiso}}</textarea>
+                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="textCompromiso" required>{{comp.compromiso}}</textarea>
                                             </div>
                                         </div>
                         
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-sm-2 col-form-label">Fecha Final</label>
+                                            <label for="nombre" class="col-sm-2 col-form-label"><b>Fecha Final</b></label>
                                             <div class="col-sm-10">
-                                                <div class="input-group date fj-date" data-provide="datepicker">
-                                                    <input type="text" class="form-control" name="fechafinal" value="{{comp.fecha_final}}">
-                                                    <div class="input-group-addon">
-                                                        <span class="glyphicon glyphicon-th"></span>
-                                                    </div>
-                                                </div>
+                                                <input type="date" class="form-control" min="{{ fechamin|date:'Y-m-d' }}" name="fechafinal" value="{{comp.fecha_final|date:'Y-m-d'}}" required>
                                             </div>
                                         </div>
                                         
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-sm-2 col-form-label">Con quien?</label>
-                                            <div class="col-sm-10">
-                                                <input class="form-control" list="datalistOptions" id="exampleDataList" name="conquien" value="{{comp.con_quien.nombre}}">
-                                                <datalist id="datalistOptions">
-                                                  {% for user in user_all %}
-                                                    <option value="{{user.nombre}}"></option>
-                                                  {% endfor %}
-                                                </datalist>
+                                            <label for="nombre" class="col-2 col-form-label"><b>Personas elegidas</b></label>
+                                            <div class="col-10">
+                                             <!--tabla usuarios-->
+                                             <div class="table-responsive mt-2">
+                                              <table class="table" id="tablareactiva_02">
+                                                <thead>
+                                                  <tr>
+                                                    <th>Nombres</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody>
+                                                  {% for persona in user_all %}
+                                                        <tr>
+                                                            <td>
+                                                              <input class="form-check-input" type="checkbox" id="idpersona" name="idpersona" value="{{ persona.id }}" {% for respuesta in comp.personascompromisos_set.all %} {% if persona.id == respuesta.id_usuario.id %} checked {% endif %} {% endfor %}>&nbsp;&nbsp;{{ persona.nombre }} {{ persona.apellido }}
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                              </table>
+                                            </div>
+                                             <!--end tabla usuarios-->
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                                           <input class="btn btn-primary" type="submit" value="Actualizar" >
-      
                                         </div>
                                     </form>
                                   </div>
@@ -192,6 +168,6 @@
     </section>
 </main><!-- End #main -->
   <!-- Aqui se encuentran las instrucciones para formularios -->
-  <script type="text/javascript" src="{% static 'admin/assets/js/bootstrap-datepicker.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'admin/assets/js/functionUser.js' %}"></script>
+  <!--<script type="text/javascript" src="{% static 'admin/assets/js/bootstrap-datepicker.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/assets/js/functionUser.js' %}"></script>-->
   {% endblock %} 

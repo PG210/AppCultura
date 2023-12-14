@@ -848,15 +848,43 @@ def borrarcalificacion(request, idcali):
         messages.success(request, "No se pudo ingresar a la base de datos")
     return redirect('listarcalificacion', idsesion=sesion)
 
-@login_required
+@login_required # aqui permite retornar el listado de usuarios para elegir y ver los compromisos
 def listar_compromisos(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    
-    cursos = Curso.objects.all()
-    compromisos = Compromisos.objects.filter(id_curso__in=cursos)
-    
-    print(compromisos)
-    return render(request, 'admin/chkcompromisos.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'cursos':cursos})
+    usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
+    #=====================================================
+    return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios})
+
+# aqui permite ver los compromisos por cada usuario 
+@login_required
+def  vercompromisos(request, iduser):
+     perfil_usuario = UserPerfil.objects.get(user=request.user)
+     usu = UserPerfil.objects.get(id=iduser)
+     compromisos = Compromisos.objects.filter(id_usuario=usu)
+     estados = EstadoCompromisos.objects.all()
+     return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'estados':estados})
+
+#aqui actualiza el compromiso de cada usuario
+@login_required
+def savecompromiso(request, idcom):
+    if request.method == 'POST':
+        #obtener estado
+        idestado = request.POST.get("estado")
+        compromiso = Compromisos.objects.get(id=idcom)
+        compromiso.respuesta = request.POST.get("respuesta")
+        compromiso.id_estado = EstadoCompromisos.objects.get(id=idestado)
+        compromiso.puntaje = request.POST.get("puntaje")
+        compromiso.save()
+    #====================================================
+        #obtener usuario
+        comActu = Compromisos.objects.get(id=idcom)
+        perfil_usuario = UserPerfil.objects.get(user=request.user)
+        usu = UserPerfil.objects.get(id=comActu.id_usuario.id)
+        compromisos = Compromisos.objects.filter(id_usuario=usu)
+        estados = EstadoCompromisos.objects.all()
+        mensaje = "Información ingresada de manera exitosa"
+        return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados})
+
 
 @login_required
 def addrespuesta(request, idcomp):

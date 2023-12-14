@@ -92,7 +92,10 @@ urlpatterns = [
     path('administracion/compromisos/', viewadmin.listar_compromisos, name="listarcompromisos"),
     path('administracion/compromisos/editcompromiso/<int:idcomp>/', viewadmin.addrespuesta, name="editcompromiso"),
     path('administracion/compromisos/deletecompromiso/<int:idcomp>/', viewadmin.delete_compromiso, name="deletecompromiso"),
-
+    #=============================== ver compromisos de cada usuario ================================0
+    path('administracion/compromisos/ver/usuario/<int:iduser>/', viewadmin.vercompromisos, name="vercompromisos"),
+    path('administracion/compromisos/savecompromiso/<int:idcom>/', viewadmin.savecompromiso, name="savecompromiso"),
+    
     #================================= Rutas de Usuario =============================================================
     path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario"),
     path('usuarios/calificar-sesion/<int:idsesion>/', viewuser.add_calificacion, name="addcalificacion"),

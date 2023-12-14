@@ -58,7 +58,7 @@
                             <!--editar pregunta-->
                             <div class="input-group">
                                 <span class="input-group-text"><b>Pregunta:</b> </span>
-                                <input type="text" id="pregunta{{pregunta.id}}" name="pregunta{{pregunta.id}}" class="form-control" aria-label="Sizing example input" value="{{ pregunta.descrip }}" required>
+                                <textarea type="text" id="pregunta{{pregunta.id}}" name="pregunta{{pregunta.id}}" class="form-control" aria-label="Sizing example input"  required rows="4" style="text-align: justify;">{{ pregunta.descrip }}</textarea>
                              </div>
                             <!--end pregunta-->
                             <!--editar puntos-->
@@ -76,6 +76,26 @@
                         {% elif pregunta.tipo == '2' %}
                           <p><b>Respuesta Larga:</b></p>
                           <textarea class="form-control" type="text"></textarea>
+                        {% elif pregunta.tipo == '6' %}
+                           <p><b>Compromiso</b></p>
+                           <div class="form-control">
+                           <div class="row mt-2">
+                             <div class="col-4">Descripción</div>
+                             <div class="col-8"><textarea class="form-control"></textarea></div>
+                           </div>
+                           <div class="row mt-2">
+                            <div class="col-4">Prioridad</div>
+                            <div class="col-8"><input class="form-control"></div>
+                          </div>
+                          <div class="row mt-2">
+                            <div class="col-4">Fecha</div>
+                            <div class="col-8"><input type="date" class="form-control"></div>
+                          </div>
+                          <div class="row mt-2">
+                            <div class="col-4">¿Con quién?</div>
+                            <div class="col-8"><input class="form-control"></div>
+                          </div>
+                        </div>
                         {% elif pregunta.tipo == '3' %} {# Pregunta de opciones múltiples #}
                         <p><b>Opciones: Selección múltiple</b></p> 
                             {% for opcion in pregunta.opciones_set.all %}

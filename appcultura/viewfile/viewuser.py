@@ -5,13 +5,13 @@ from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
 from appcultura.modelos.cursos import Curso
 from appcultura.modelos.gruposcursos import GruposCursos
-from datetime import datetime
+from datetime import datetime, date
 from django.contrib import messages
 from appcultura.modelos.grupouser import GruposUser
 from appcultura.modelos.opcionform import Opciones
 from appcultura.modelos.sesionasistencia import SesionAsistencia
 from appcultura.modelos.sesioncurso import Sesioncurso # proteger las rutas de accesos
-from ..models import UserPerfil, SesionFormulario, Preguntas, RespuestaForm, RespuestaOpciones, Formulario
+from ..models import UserPerfil, SesionFormulario, Preguntas, RespuestaForm, RespuestaOpciones, PersonasCompromisos, Formulario
 
 
 @login_required
@@ -52,8 +52,10 @@ def add_calificacion(request, idsesion):
 #============== ver formularios de la sesion =====
 @login_required
 def verformusesion(request, idsesion):
+    fecha_actual = date.today()
     perfil_usuario = get_object_or_404(UserPerfil, user=request.user)
     formulario_sesion = SesionFormulario.objects.filter(idsesion=idsesion)
+    usuarios = UserPerfil.objects.filter(idrol=2).exclude(id=perfil_usuario.id)
     respuestasForm = ''
     #formulario_sesion = get_object_or_404(SesionFormulario, idsesion=idsesion)
     preguntas = Preguntas.objects.all()
@@ -76,9 +78,9 @@ def verformusesion(request, idsesion):
     #============= end buscar =================
     if formulario_sesion_vacia:
         mensajeInfo = "No tiene Formularios disponibles"
-        return render(request, 'user/listaformu.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos})
+        return render(request, 'user/listaformu.html', {'usuarios': usuarios, 'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos, 'fecha_actual':fecha_actual})
     else:
-       return render(request, 'user/listaformu.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos})
+       return render(request, 'user/listaformu.html', {'usuarios': usuarios, 'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos, 'fecha_actual':fecha_actual})
 
 #========================== guardar las respuestas del user =====================
 @login_required
@@ -89,6 +91,8 @@ def saveRespuestas(request, idsesion, idformu):
     datoscurso = Sesioncurso.objects.get(id=idsesion)
     formu_completos = []
     respuestasForm = []
+     # Obtén la fecha actual
+    fecha_actual = date.today()
     #===========================================================
     if request.method == 'POST':
        if request.POST.items():
@@ -149,7 +153,6 @@ def saveRespuestas(request, idsesion, idformu):
                                            break  # No es necesario seguir verificando, al menos una es incorrecta               
                                     #todas_correctas = all(opcion_idmul in opciones_correctas.values_list('id', flat=True) for opcion_idmul in opciones_seleccionadas)
                                    
-                                    print(todas_correctas)
                                     # Asigna el valor de la respuesta múltiple si todas las opciones son correctas
                                     if todas_correctas:
                                         valor_respuesta_multiple = pregunta.valor
@@ -163,6 +166,26 @@ def saveRespuestas(request, idsesion, idformu):
                                         opcion_seleccionada = Opciones.objects.get(id=opcion_id)
                                         respuesta_opcion_one = RespuestaOpciones(idres=nueva_respuesta_multiple, idopcion=opcion_seleccionada, correcta=opcion_seleccionada.correcta)
                                         respuesta_opcion_one.save()
+                       # si la pregunta es tipo 6 debe guardar el compromiso
+                       elif pregunta.tipo == '6':
+                            comentario = request.POST.get(f'compromiso{pregunta_id}')  # aqui llegan todas las respuestas de tipo texto largo y corto
+                            prioridad = request.POST.get(f'prioridad{pregunta_id}') # aqui llega la prioridad
+                            fecha = request.POST.get(f'fecha{pregunta_id}') # aqui llega la fecha final
+                            personas_seleccionadas = request.POST.getlist(f'opcionesPersonas{pregunta_id}')
+                            valorpreg = 0
+                            existe_compromiso = RespuestaForm.objects.filter(iduser=perfil_usuario, idpreg=pregunta_id, idsesion=datoscurso).exists() #evaluar si existe
+                            if not existe_compromiso:
+                               rescompromiso = RespuestaForm(respuesta=comentario, tipores=pregunta.tipo, valores=valorpreg, idpreg=pregunta, iduser=perfil_usuario, idsesion=datoscurso)
+                               rescompromiso.save()
+                               # guardar los datos 
+                               savecompromiso = Compromisos(compromiso=comentario, prioridad=prioridad, fecha_final=fecha, id_sesion=datoscurso, id_usuario=perfil_usuario, idrespuesta=rescompromiso)
+                               savecompromiso.save()
+                               #guardar las opciones de personas requeridas
+                               if personas_seleccionadas:
+                                  for perid in personas_seleccionadas:
+                                      obtenerusu = UserPerfil.objects.get(id=perid)
+                                      savePersonas = PersonasCompromisos(id_compromiso=savecompromiso, id_usuario=obtenerusu)
+                                      savePersonas.save()
             #====== mensaje de exito =============
             mensajeInfo = "La información se ha registrado éxitosamente"
             #tot = RespuestaForm.objects.filter(idpreg__idform=idformu, iduser=perfil_usuario).aggregate(Sum('valores'))
@@ -180,18 +203,19 @@ def saveRespuestas(request, idsesion, idformu):
             #for formuterminados in formu_completos:
             respuestasForm = RespuestaForm.objects.filter(iduser=perfil_usuario, idsesion=datoscurso)
             #print(respuestasForm)
-            return render(request, 'user/listaformu.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'puntaje':puntaje_total, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos})
+            return render(request, 'user/listaformu.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'puntaje':puntaje_total, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos, 'fecha_actual':fecha_actual})
        
        mensajeInfo = "Por favor complete todos los campos"
        puntaje_total = puntaje_total if puntaje_total is not None else 0
-    return render(request, 'user/listaformu.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo})
+    return render(request, 'user/listaformu.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'fecha_actual':fecha_actual})
 
 @login_required
 def agregar_compromiso(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    user_all = UserPerfil.objects.all()
     compromises = Compromisos.objects.all()
     grupo_user = GruposUser.objects.filter(iduser=perfil_usuario)
+    user_all = UserPerfil.objects.filter(idrol=2).exclude(id=perfil_usuario.id)
+    fecha_actual = date.today()
     if grupo_user:
         for user in grupo_user:
             cursos = GruposCursos.objects.filter(idgrupo=user.idgrupo)
@@ -216,29 +240,29 @@ def agregar_compromiso(request):
         message ="Compromiso agragado correctamente"
         return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message})
     else:
-        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises})
+        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises, 'fechamin':fecha_actual})
 
 @login_required
 def editarcompromiso(request, idcomp):
     if request.method == 'POST':
-        compr = request.POST.get('textCompromiso')
-        fecha_str = request. POST.get('fechafinal')
-        con_quien_user = request.POST.get('conquien')
-
-        if '.' in fecha_str:
-            fecha_obj = datetime.strptime(fecha_str, '%b. %d, %Y')
-        else:
-            fecha_obj = datetime.strptime(fecha_str, "%d/%m/%Y")
-        
-        fecha_final = fecha_obj.strftime("%Y-%m-%d")
-
-        con_quien = UserPerfil.objects.get(nombre=con_quien_user)
-
-        compromiso = Compromisos.objects.get(id=idcomp)
-        compromiso.compromiso = compr
-        compromiso.fecha_final = fecha_final
-        compromiso.con_quien = con_quien
-        compromiso.save()
+        compromiso = request.POST.get('textCompromiso')
+        fecha = request. POST.get('fechafinal')
+        personas = request.POST.getlist('idpersona')
+        # guardar la informacion de personas compromiso
+        personasActuales = PersonasCompromisos.objects.filter(id_compromiso=idcomp)
+        # buscar el objeto compromiso por el id
+        updateCompromiso = get_object_or_404(Compromisos, id=idcomp)
+        updateCompromiso.compromiso =  compromiso
+        updateCompromiso.fecha_final = fecha
+        updateCompromiso.save()
+        # registrar los usuarios
+        deletePersonas = PersonasCompromisos.objects.filter(id_compromiso=idcomp)
+        deletePersonas.delete()
+        # guardar la informacion
+        for userper in personas:
+            buscaruser = get_object_or_404(UserPerfil, id=userper)
+            addPersonas = PersonasCompromisos(id_compromiso=updateCompromiso, id_usuario=buscaruser)
+            addPersonas.save()
         return redirect('compromisos')
     else:
         return redirect('compromisos')

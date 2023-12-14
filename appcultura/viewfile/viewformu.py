@@ -68,6 +68,7 @@ def addsesionform(request, idform):
 def crearformu(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     if request.method == 'POST':
+        print(request.POST)
         # Acceder a los datos principales del formulario
         nomform = request.POST.get('nomform')
         desform = request.POST.get('desform')

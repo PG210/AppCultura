@@ -71,6 +71,7 @@ function agregarCampo() {
         { value: 3, text: 'Opciones multiples'},
         { value: 4, text: 'Opciones multiples con una verdadera'},
         { value: 5, text: 'Opciones multiples con varias verdaderas'},
+        { value: 6, text: 'Compromiso'},
     ];
 
     for (var i = 0; i < opciones.length; i++) {
@@ -84,6 +85,31 @@ function agregarCampo() {
     var divRespuestaCorta = document.createElement('div');
     divRespuestaCorta.innerHTML = 'Respuesta corta ___________________________________________________________________________________';
     divRespuestaCorta.classList.add('form-control', 'mt-3', 'd-none'); // Inicialmente oculto
+    
+    //contenedor para compromiso
+    var divCompromiso = document.createElement('div');
+    divCompromiso.classList.add('form-control', 'mt-3', 'd-none'); // Inicialmente oculto
+
+    //crear campos para contenedor
+    var divAtributosCompromiso = document.createElement('div');
+    divAtributosCompromiso.innerHTML = 'Compromiso:  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ';
+    divAtributosCompromiso.classList.add('form-control', 'mt-2');
+    divCompromiso.appendChild(divAtributosCompromiso);
+    
+    var divAtributosPrioridad = document.createElement('div');
+    divAtributosPrioridad.innerHTML = 'Priordidad:  _ _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ';
+    divAtributosPrioridad.classList.add('form-control', 'mt-2');
+    divCompromiso.appendChild(divAtributosPrioridad);
+    
+    var divAtributosFecha = document.createElement('div');
+    divAtributosFecha.innerHTML = 'Fecha final:  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  ';
+    divAtributosFecha.classList.add('form-control', 'mt-2');
+    divCompromiso.appendChild(divAtributosFecha);
+    
+    var divAtributosConquien = document.createElement('div');
+    divAtributosConquien.innerHTML = '¿Con quién?:  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ ';
+    divAtributosConquien.classList.add('form-control', 'mt-2');
+    divCompromiso.appendChild(divAtributosConquien);
 
     // Contenedor para el mensaje de Respuesta Larga
     var divRespuestaLarga = document.createElement('div');
@@ -292,6 +318,7 @@ function agregarCampo() {
     respuestas.appendChild(btnAgregarOpcion);
     respuestas.appendChild(btnAgregar2); //se agrega el boton al div
     respuestas.appendChild(btnAgregar3);
+    respuestas.appendChild(divCompromiso);//agregar compromisos 
     
     // Agregar evento de escucha al select
     selectTipoFormulario.addEventListener('change', function() {
@@ -312,6 +339,8 @@ function agregarCampo() {
         divopmultiple.classList.add('d-none'); //ocultar el contenedor
         divopmultiple2.classList.add('d-none'); // ocultar el contenedor de multiopciones
 
+        divCompromiso.classList.add('d-none'); //ocultar compromisos
+
         // Mostrar el elemento adicional correspondiente a la opción seleccionada
         console.log(valorSeleccionado);
         if (valorSeleccionado == 1) {
@@ -328,6 +357,8 @@ function agregarCampo() {
         } else if (valorSeleccionado == 5){
             divopmultiple2.classList.remove('d-none');
             btnAgregar3.classList.remove('d-none');
+        } else if (valorSeleccionado == 6){ //aqui es funcion para agregar compromiso
+            divCompromiso.classList.remove('d-none');
         }
 
 
