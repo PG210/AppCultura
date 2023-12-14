@@ -1,4 +1,5 @@
 from ast import Delete
+from email import message
 import os
 import mimetypes
 from pdb import post_mortem
@@ -12,6 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required # proteger las rutas de accesos
 from django.contrib import messages #mensajes para la vista
 from django.db import IntegrityError
+from django.contrib.auth import login, logout, authenticate
 
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
@@ -19,9 +21,9 @@ from appcultura.modelos.estado_compromisos import EstadoCompromisos #errores de 
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
 from ..models import TemasSesion, Grupos, GruposCursos, GruposUser
-from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa
+from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa,Cargo
 from django.db.models import Subquery, OuterRef, Q
-from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, SesionAsistencia
+from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, SesionAsistencia, RolUser
 from django.db.models import Subquery, OuterRef
 
 #Codigo Jhon
@@ -735,38 +737,57 @@ def eliminavinculo(request, idarea):
     return redirect('visualizarAreaDepto')
 
 def validarasistencia(request, idsesion):
+    
     if request.method == 'POST':
-        
-            correo = request.POST.get('email')
-            if User.objects.filter(username=correo).exists():
-                usuario = User.objects.get(username=correo)
-                user = UserPerfil.objects.get(user=usuario)
-            else:
-                mensaje = "El usuario no se encuentra registrado en el sistema"
-                return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+            verificar = True
 
+            texto = request.POST.get("inputUser")
+            if '@' in texto:
+                if User.objects.filter(username=texto).exists():
+                    usuario = User.objects.get(username=texto)
+                    user = UserPerfil.objects.get(user=usuario)
+   
+                else:
+                    mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
+                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':True})
+            else:
+                if UserPerfil.objects.filter(cedula=texto).exists():
+                    user = UserPerfil.objects.get(cedula=texto)
+                    
+                else:
+                    mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
+                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje, 'estado':True})
+            
             if Sesioncurso.objects.filter(id=idsesion).exists():
                 sesion = Sesioncurso.objects.get(id=idsesion)
-                curso = GruposCursos.objects.get(idcurso=sesion.idcurso)
-                grupo = GruposUser.objects.get(iduser=user)
+                cursos = GruposCursos.objects.filter(idcurso=sesion.idcurso)
+                grupos = GruposUser.objects.filter(iduser=user)
+                
 
                 if SesionAsistencia.objects.filter(idsesioncurso=sesion, idusuario=user).exists():
                     mensaje="El usuario ya se encuentra registrado a esta sesión"
-                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False})
                 
-                if curso.idgrupo == grupo.idgrupo:
-                    asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user)
+                '''
+                for curso in cursos:
+                    for grupo in grupos:
+                        if grupo.idgrupo == curso.idgrupo:
+                            verificar=True
+                '''
+  
+                if verificar:
+                    asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=True)
                     asistencia.save()
                     mensaje="Asistencia verificada"
-                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
-                else:
-                    mensaje=f'El usuario {user} no esta asignado al curso {curso}'
-                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje})
+                
+                        #mensaje=f'El usuario {texto} no esta asignado al curso {sesion.idcurso.nombre}'
+                return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False})
+                
             else:
                 mensaje = f'la sesion {idsesion} no existe'
-                return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje}) 
+                return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False}) 
     else:    
-        return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion})
+        return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'estado':False})
         
 
 def generarqr(request, idsesion):
@@ -806,8 +827,7 @@ def listarasistentes(request, idsesion):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     sesion = Sesioncurso.objects.get(id=idsesion)
     usuarios = SesionAsistencia.objects.filter(idsesioncurso=sesion)
-    print(usuarios)
-    return render(request, 'admin/listasistentes.html', {'usuarios':usuarios, 'usu':perfil_usuario})
+    return render(request, 'admin/listasistentes.html', {'usuarios':usuarios, 'usu':perfil_usuario, 'sesion':idsesion})
 
 @login_required #proteger la ruta
 def eliminarasistente(request, idasis):
@@ -826,6 +846,7 @@ def listarcalificacion(request,idsesion):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=idsesion)
     suma=0
+    promedio=0
     if datos:
         
         for dat in datos:
@@ -851,11 +872,8 @@ def borrarcalificacion(request, idcali):
 @login_required
 def listar_compromisos(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    
     cursos = Curso.objects.all()
     compromisos = Compromisos.objects.filter(id_curso__in=cursos)
-    
-    print(compromisos)
     return render(request, 'admin/chkcompromisos.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'cursos':cursos})
 
 @login_required
@@ -874,16 +892,50 @@ def addrespuesta(request, idcomp):
 @login_required
 def delete_compromiso(request,idcomp):
     compromiso = Compromisos.objects.filter(id=idcomp)
-    
     compromiso.delete()
     mensaje="Compromiso eliminado correctamente"
     #return JsonResponse(compromiso_serializado, safe=False)
     return JsonResponse({'message':mensaje})
     
-#============================================================apis
+def inscribir_asistente(request, idsesion):
+    if request.method == 'POST':
+        try: 
+            user = User.objects.create_user(username=request.POST['correo'], 
+            password=request.POST['cedula'])
+            user.save()
+            rol_user = RolUser.objects.get(id=2)
+            #id_cargo = request.POST['cargo']
+            cargo_user = Cargo.objects.get(id=1)
+            #id_empresa =  request.POST['empresa']
+            empresa_user = EmpresaAreas.objects.get(id=1)
+            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user, pendiente=True )
+            userper.save()
+            sesion = Sesioncurso.objects.get(id=idsesion)
+            grupo = GruposCursos.objects.filter(idcurso=sesion.idcurso).first()
+            ingreso_grupo = GruposUser(idgrupo=grupo.idgrupo, iduser=userper, )
+            ingreso_grupo.save()
 
-def returncursos(request):
-    cursos = Curso.objects.filter(id=1)
-    print(cursos)
-    cursos_serializados = serialize('json', cursos)
-    return JsonResponse(cursos_serializados, safe=False)
+            asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=userper, asistencia_pendiente=True)
+            asistencia.save()
+            messages.success(request,"Usuario guardado y validado satisfactoriamente")
+            return redirect('validarasistencia', idsesion=idsesion) # redirecciona a otra vista
+        except IntegrityError:
+            messages.error(request, "Error al guardar el usuario")
+            return redirect('validarasistencia', idsesion=idsesion)
+    #end guardar usuario
+    else:
+        return redirect('validarasistencia', idsesion=idsesion)
+
+login_required    
+def cambiar_pendiente(request, iduser, idsesion):
+    if request.method == 'POST':
+        usuario = UserPerfil.objects.get(id=iduser)
+        pendiente = request.POST.get('selectpendiente')
+        usuario.pendiente = pendiente
+        usuario.save()
+        asistencia = SesionAsistencia.objects.get(idusuario=usuario)
+        asistencia.asistencia_pendiente = pendiente
+        asistencia.save()
+        messages.success(request,"Cambio de estado realizado satisfactoriamente")
+        return redirect('listarasistentes', idsesion=idsesion)
+#============================================================apis

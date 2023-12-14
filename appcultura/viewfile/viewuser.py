@@ -214,7 +214,7 @@ def agregar_compromiso(request):
         add_compromiso = Compromisos(id_curso=curso, compromiso=compromiso, prioridad=prioridad, fecha_final=fecha_final, con_quien=con_quien_user, id_usuario=perfil_usuario)
         add_compromiso.save()
         message ="Compromiso agragado correctamente"
-        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message})
+        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message, 'compromisos':compromises})
     else:
         return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises})
 
@@ -232,12 +232,12 @@ def editarcompromiso(request, idcomp):
         
         fecha_final = fecha_obj.strftime("%Y-%m-%d")
 
-        con_quien = UserPerfil.objects.get(nombre=con_quien_user)
+        #con_quien = UserPerfil.objects.get(nombre=con_quien_user)
 
         compromiso = Compromisos.objects.get(id=idcomp)
         compromiso.compromiso = compr
         compromiso.fecha_final = fecha_final
-        compromiso.con_quien = con_quien
+        compromiso.con_quien = con_quien_user
         compromiso.save()
         return redirect('compromisos')
     else:
