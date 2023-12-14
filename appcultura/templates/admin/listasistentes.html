@@ -44,6 +44,7 @@
                       <th>Cedula</th>
                       <th>Telefono</th>
                       <th>Correo</th>
+                      <th>Pendiente</th>
                       <th>Acciones</th>
                     </tr>
                   </thead>
@@ -55,6 +56,45 @@
                         <td>{{usu.idusuario.cedula}}</td>
                         <td>{{usu.idusuario.telefono}}</td>
                         <td>{{usu.idusuario.user.username}}</td>
+                        
+                        <td>
+                          {% if usu.asistencia_pendiente %}
+                          <form method="post" action="{% url 'cambiarpendiente' iduser=usu.idusuario.id idsesion=sesion %}">
+                            {% csrf_token %}
+                            <!-- Button trigger modal -->
+                            
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalpendiente{{usu.id}}">
+                              <i class="bi bi-check-all"></i>
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="modalpendiente{{usu.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Usuario Pendiente</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <p>Este usuario se encuentra actualmente en estado pendiente. Seleccione <strong>Aceptado</strong> si desea cambiar el estado del usuario, caso contrario puede cerrar</p>
+                                    <select class="form-select" aria-label="Default select example" name="selectpendiente">
+                                      <option value="True" selected>Pendiente</option>
+                                      <option value="False">Aceptado</option>
+                                      
+                                    </select>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cerrar</button>
+                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </form>
+                          {% else %}
+                          No
+                          {% endif %}
+                        </td>
                         <td>
                           <!-- modal de validación -->
                           <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAsistente{{ usu.id }}"><i class="bi bi-trash3-fill"></i></a>

@@ -1,3 +1,4 @@
+from tkinter.tix import Tree
 from django.db import models
 from django.contrib.auth.models import User
 from .roluser import RolUser
@@ -14,3 +15,4 @@ class UserPerfil(models.Model):
     idcargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
     idempresa = models.ForeignKey(EmpresaAreas, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    pendiente = models.BooleanField(null=True)

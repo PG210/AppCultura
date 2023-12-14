@@ -86,6 +86,9 @@ urlpatterns = [
     path('administracion/validarasistencia/<int:idsesion>/', viewadmin.validarasistencia, name='validarasistencia'),
     path('administracion/generarqr/<int:idsesion>/', viewadmin.generarqr, name='generarqr'),
     path('administracion/curso/asistentelist/<int:idsesion>/', viewadmin.listarasistentes, name='listarasistentes'),
+
+    path('Administracion/curso/cambiarpendiente/<int:idsesion>/<int:iduser>/', viewadmin.cambiar_pendiente, name="cambiarpendiente"),
+
     path('administracion/curso/deleteasistente/<int:idasis>/', viewadmin.eliminarasistente, name='eliminarasistente'),
     path('administracion/curso/list/valoracion/<int:idsesion>/', viewadmin.listarcalificacion, name="listarcalificacion"),
     path('administracion/curso/list/deletevaloracion/<int:idcali>/', viewadmin.borrarcalificacion, name="borrarcalificacion"),
@@ -101,10 +104,11 @@ urlpatterns = [
     path('usuarios/calificar-sesion/<int:idsesion>/', viewuser.add_calificacion, name="addcalificacion"),
     path('usuarios/compromisos/', viewuser.agregar_compromiso, name="compromisos"),
     path('usuarios/compromisos/editar/<int:idcomp>/', viewuser.editarcompromiso, name="editarcompromiso"),
+    path('usuarios/inscribiruser/<int:idsesion>/', viewadmin.inscribir_asistente, name="inscribirasistente"),
     #============================ Fin de Rutas de usuario ===========================================================
 
 
     #====================================Apis=======================================================================
-    path('administrador/api/cursos/', viewadmin.returncursos, name="returncursos")
+
 ]   
    
