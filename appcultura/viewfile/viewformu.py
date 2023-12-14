@@ -12,6 +12,8 @@ from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
 #importar modelos 
 
+from appcultura.viewfile.fadmin.functionadmin import generar_qr
+
 #vista principal de crear formularios
 @login_required #proteger la ruta
 def listarformu(request):
@@ -394,3 +396,7 @@ def verFomrsesion(request, idsesion):
         mensajeExito = "Comentarios agregados de manera exitosa."
     return render(request, 'formularios/formucompletos.html', {'usu':perfil_usuario, 'users':usuarios_en_sesion, 'formularios':formulario_sesion, 'usuarios_con_formularios':usuarios_con_formularios, 'idsesion':idsesion, 'mensajeExito':mensajeExito })
 
+def qr_formulario(request, idsesion):
+    data = f'http://localhost:8000/usuarios/curso/sesion/formulario/{idsesion}/'
+    relative_path = generar_qr(data,idsesion)
+    return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion, 'data':data})

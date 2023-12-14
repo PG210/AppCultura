@@ -56,6 +56,7 @@ urlpatterns = [
     #====================== Crear formularios ========================
     path('administracion/formu/', viewformu.crearformu, name='crearformu'),
     path('administracion/formu/listar/', viewformu.listarformu, name='listarformu'),
+    path('administracion/formu/compartir/<int:idsesion>/', viewformu.qr_formulario, name="qrformu"),
     path('administracion/formu/editar/<int:idform>/', viewformu.editarform, name='editarform'),
     path('administracion/formu/delete/ask/<int:idpreg>/<int:idformu>/', viewformu.eliminarPregunta, name='eliminarPregunta'),
     path('administracion/formu/add/ask/<int:idform>/', viewformu.addNewPreguntas, name='addNewPreguntas'),
