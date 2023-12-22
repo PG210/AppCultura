@@ -30,10 +30,14 @@
               </div>
              {% endif %}
               <!--end alertar-->
-              <!----=======================================-->
-              <div>
-                <a type="button" class="btn btn-primary" href="/administracion/grupos/crear/"> Agregar </a>
+              <!--=======================================-->
+              <div class="row">
+                <div class="col-3">
+                  <a type="button" class="btn btn-primary" href="/administracion/grupos/crear/" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Agregar Grupos de Formación"> Nuevo Grupo </a>
+                </div>
+                <div class="col-9 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
               </div>
+              
               <div class="table-responsive mt-4">
                 <table class="table" id="tablareactiva">
                     <thead>
@@ -57,8 +61,8 @@
                        <td> {{ gr.total }} </td>
                          <td>
                            <!-- Button trigger modal -->
-                             <a type="button" class="btn btn-primary" href="{% url 'cursosgrupo' idgrupo=gr.id %}">Cursos</a>
-                             <a class="btn btn-success" href="{% url 'usersgrupo' idgrupo=gr.id %}">Usuarios</a>
+                             <a type="button" class="btn btn-primary" href="{% url 'cursosgrupo' idgrupo=gr.id %}"data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Asignar Cursos al grupo {{gr.nombre}}">Cursos</a>
+                             <a class="btn btn-success" href="{% url 'usersgrupo' idgrupo=gr.id %}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Asignar usuarios al grupo {{gr.nombre}}">Usuarios</a>
                              <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#btnconfirmar{{gr.id}}"><i class="bi bi-trash3-fill" style="font-size: 20px;"></i></a>
                              <!---modal de confirmación-->
                              <!-- Modal -->

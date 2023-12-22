@@ -188,12 +188,13 @@ def eliminarcurso(request, idcurso):
 #editar curso
 @login_required #proteger la ruta
 def editarcurso(request, idcurso):
-     perfil_usuario = UserPerfil.objects.get(user=request.user)
-     curso = Curso.objects.get(id=idcurso)
-     sesiones = Sesioncurso.objects.filter(idcurso=curso)
-     objetivos = ObjetivosCurso.objects.filter(idcurso=curso)
-     tematicas = TemasSesion.objects.all()
-     if request.method == 'POST':
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    curso = Curso.objects.get(id=idcurso)
+    sesiones = Sesioncurso.objects.filter(idcurso=curso)
+    objetivos = ObjetivosCurso.objects.filter(idcurso=curso)
+    tematicas = TemasSesion.objects.all()
+    if request.method == 'POST':
+        print(request.POST)
         curso.nombre = request.POST.get('nombre')
         curso.descrip = request.POST.get('descrip')
         curso.precio = request.POST.get('precio')
@@ -208,7 +209,39 @@ def editarcurso(request, idcurso):
             objetivo.descrip = descripobj
             objetivo.competencias = competencias
             objetivo.save()
+        #Recibe los objetivos en caso de que existan
+        '''
+        if request.POST.getlist('desobj[]'):
+            desobj_list = request.POST.getlist('desobj[]')
+            compobj_list = request.POST.getlist('competencias[]')
+            for desobj, compobj in zip(desobj_list, compobj_list):
+                ObjetivosCurso.objects.create(descrip=desobj, competencias=compobj, idcurso=curso)
+        '''
+        
+        #En caso de que exista una fecha de inicio nueva
+        '''
+        if request.POST.getlist('fecha_inicio[]'):
+            fec_inicio_list = request.POST.getlist('fecha_inicio[]')
+            fec_fin_list = request.POST.getlist('fecha_final[]')
+            lugar_list = request.POST.getlist('lugar[]')
+            tema_list = request.POST.getlist('tema[]')
+            desc_tema_list = request.POST.getlist('descripcion[]')
+            recursos_list = request.POST.getlist('recursos[]')
+            if request.POST.getlist('archivo[]')[0] != '':
+                archivo = request.POST.getlist('archivo[]')
+                fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
+                nombre_archivo = fs.save(archivo.name, archivo)
+                ruta_destino = fs.url(nombre_archivo)
+            else:
+                ruta_destino = None
 
+            for fec_inicio, fec_fin, lugar in zip(fec_inicio_list, fec_fin_list, lugar_list):
+                sesionescurso = Sesioncurso.objects.create(fechainicio=fec_inicio, fechafin=fec_fin, lugar=lugar, idcurso=curso)
+
+            for temas, desc_tema, recursos_tema in zip(tema_list, desc_tema_list, recursos_list):
+                TemasSesion.objects.create(descrip=temas, competencias=desc_tema, recursos=recursos_tema, ruta=ruta_destino, idsesion=sesionescurso)
+        '''
+        
         for sesion in sesiones:
             # Obtener los valores actualizados del formulario
             nueva_fecha_inicio = request.POST.get(f'fechainicio_{sesion.id}')
@@ -244,8 +277,8 @@ def editarcurso(request, idcurso):
 
         messages.success(request, 'Curso actualizado exitosamente.')
         return redirect('listarcursos')
-     else:
-         return render(request, 'admin/updatecurso.html', {'usu':perfil_usuario, 'curso': curso, 'sesiones': sesiones, 'objetivos': objetivos, 'temas':tematicas})
+    else:
+        return render(request, 'admin/updatecurso.html', {'usu':perfil_usuario, 'curso': curso, 'sesiones': sesiones, 'objetivos': objetivos, 'temas':tematicas})
      
 #crear funcion para crear kpi de area o departamento  
 @login_required #proteger la ruta
@@ -516,11 +549,11 @@ def creargrupo(request):
         return redirect('creargrupo')
     else:
       #============ solamente obtener los grupos que no tienen ningun curso o usuario vinculado =============
-      grupos_faltantes = ngrupos.exclude(
+        grupos_faltantes = ngrupos.exclude(
             Q(gruposuser__in=addgrupouser) | Q(gruposcursos__in=addgrupocurso)
         )
-      print(grupos_faltantes)
-      return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios})
+        print(grupos_faltantes)
+    return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios})
 #======= listado de grupos ============
 #============= crear grupo ============
 @login_required #proteger la ruta

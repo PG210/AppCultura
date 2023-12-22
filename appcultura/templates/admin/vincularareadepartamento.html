@@ -5,10 +5,10 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-        <h1>Empresas</h1>
+        <h1>Areas y Departamentos</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
                 <li class="breadcrumb-item active">Registro</li>
             </ol>
         </nav>
@@ -22,7 +22,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">
-                            Registrar Areas y Departamentos
+                            vincular Areas y Departamentos <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="En esta sección usted puede vincular Areas y departamentos a una Empresa"></i>
                         </h5>
                         <!--alertar-->
                         {% if mensaje %}
@@ -91,7 +91,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cerrar</button>
                                                 <button type="button" class="btn btn-primary" onclick="guardararea()" data-bs-dismiss="modal">Guardar</button>
                                                 </div>
                                             </div>
@@ -143,9 +143,10 @@
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> |
                                     Guardar </button>
-                                <a type="button" class="btn btn-success" href="{% url 'visualizarAreaDepto' %}"> <i
+                                <a type="button" class="btn btn-success" href="{% url 'visualizarAreaDepto' %}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Listar las vinculaciones de areas y departamentos"> <i
                                         class="bi bi-card-checklist"></i> | Visualizar </a>
-                                <button type="reset" class="btn btn-secondary">Cancelar</button>
+                                <a class="btn btn-warning" href="/administracion/empresa/" role="button">Cancelar</a>
+
                             </div>
                         </form><!-- End Horizontal Form -->
 
