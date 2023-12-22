@@ -2,26 +2,28 @@
 {% block content %}
 
 <main id="main" class="main">
-
     <div class="pagetitle">
       <h1>Listado de Formularios</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
           <li class="breadcrumb-item active">Listado</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
-
     <section class="section dashboard">
       <div class="row">
        <!--registro de cursos forms-->   
        <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-              <div class="mt-3">
-                <a type="button" class="btn btn-primary" href="{% url 'crearformu' %}"> Agregar </a>
+              <div class="row">
+                <div class="mt-3 col-4">
+                  <a type="button" class="btn btn-primary" href="{% url 'crearformu' %}" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Crear Nuevos formularios"> Nuevo Formulario </a>
+                </div>
+                <div class="mt-3 col-8 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
               </div>
+              
               <br>
                <!--alertar-->
                {% if newmensaje %}
@@ -48,20 +50,21 @@
                    <tr>
                     <td>{{f.nombre}}</td>
                     <td>{{f.descrip}}</td>
-                    <td>{{f.fecha|date:"m/d/Y"}}</td>
+                    <td>{{f.fecha|date:"d/m/Y"}}</td>
                     <td>
                       <!--vincular el formulario con diferentes cursos y sesiones-->
                       <!-- Button trigger modal -->
-                      <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vincularModal{{f.id}}">
-                        <i class="bi bi-card-checklist"></i>
-                      </a>
-
+                      <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Vincular {{f.nombre}} a sesiones de curso">
+                        <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vincularModal{{f.id}}">
+                          <i class="bi bi-card-checklist"></i>
+                        </a>
+                      </span>
                       <!-- Modal -->
                       <div class="modal fade" id="vincularModal{{f.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h1 class="modal-title fs-5" id="exampleModalLabel">Vincular formularios a sesiones de curso</h1>
+                              <h1 class="modal-title fs-5" id="exampleModalLabel">Vincular {{f.nombre}} a sesiones de curso</h1>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
@@ -96,7 +99,7 @@
                                                   <td rowspan="{{ sesiones|length }}">{{ curso.nombre }}</td>
                                                   {% endif %}  
                                                   <td>{{ forloop.counter }}</td>  <!-- Número de sesión -->
-                                                  <td>{{ sesion.fechainicio|date:"m/d/Y g:iA" }}</td>
+                                                  <td>{{ sesion.fechainicio|date:"d/m/Y g:iA" }}</td>
                                                   <td>{{ sesion.lugar }}</td>
                                                   <td>
                                                   <div class="text-center">
@@ -108,7 +111,7 @@
                                                     {% for agregado in agregados %}
                                                         {% if agregado.idform.id == f.id %}
                                                           {% if agregado.idsesion.id == sesion.id %}
-                                                            <a class="btn btn-primary" href="{% url 'qrformu' idsesion=sesion.id %}" role="button" target="_blank"><i class="bi bi-share-fill"></i></a>
+                                                            <a class="btn btn-primary" href="{% url 'qrformu' idsesion=sesion.id %}" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Compartir acceso mediante QR o enlace url"><i class="bi bi-share-fill"></i></a>
                                                           {% endif %} 
                                                         {% endif %} 
                                                       {% endfor %}
@@ -134,10 +137,10 @@
                     <td>
                       <div class="row">
                         <div class="col-4">
-                          <a href="{% url 'copiarform' idform=f.id %}"  class="btn btn-success"><i class="bi bi-copy"></i></a>
+                          <a href="{% url 'copiarform' idform=f.id %}"  class="btn btn-success"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Crear una copia de {{f.nombre}}"><i class="bi bi-copy"></i></a>
                         </div>
                         <div class="col-4">
-                          <a href="{% url 'editarform' idform=f.id %}"  class="btn btn-info"><i class="bi bi-eye-fill"></i></a>
+                          <a href="{% url 'editarform' idform=f.id %}"  class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el formulario {{f.nombre}}"><i class="bi bi-eye-fill"></i></a>
                         </div>
                         <div class="col-4">
                           <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal{{f.id}}">
@@ -145,8 +148,7 @@
                           </a>
                         </div>
                       </div>
-                      
-                        <!-- Modal -->
+                      <!-- Modal -->
                         <div class="modal fade" id="eliminarModal{{f.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                           <div class="modal-dialog">
                             <div class="modal-content">

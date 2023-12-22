@@ -8,7 +8,7 @@
       <h1>Listado de cursos</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
           <li class="breadcrumb-item active">Listado</li>
         </ol>
       </nav>
@@ -32,6 +32,9 @@
                {% endif %}
                <!--end alertar-->
                <!-- Table with stripped rows -->
+               <div class="row">
+                <div class="col-12 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+               </div><br>
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
                 <thead>
@@ -49,9 +52,12 @@
                     <td>
                       <!--aqui modal-->
                          <!-- Modal Dialog Scrollable -->
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
-                          Ver
-                        </button>
+                         <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar las sesiones del curso {{curso.idcurso.nombre}}">
+                          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
+                            Ver
+                          </button>
+                         </span>
+                        
                         <div class="modal fade" id="modallistarsesiones{{curso.id}}" tabindex="-1">
                           <div class="modal-dialog modal-dialog-scrollable modal-xl ">
                             <div class="modal-content">
@@ -93,16 +99,16 @@
                                     {% if calificacion %}
                                       {% for cali in calificacion %}
                                         {% if cali.estado is False %}
-                                          <a class="btn btn-success disabled" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" aria-disabled="true">calificar</a></td>
+                                          <a class="btn btn-success disabled" role="button" aria-disabled="true" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} ya se ha realizado.">calificar</a></td>
                                         {% endif %}
                                       {% endfor %}
                                     {% else %}
-                                    <a class="btn btn-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button">calificar</a>
+                                    <a class="btn btn-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} esta habilitada">calificar</a>
                                     {% endif %}
                                     </td>
                                     <!--aqui boton de evaluar formulario-->
                                      <td>
-                                      <a href="{% url 'verformusesion' idsesion=sesion.id %}" class="btn btn-success">Evaluar</a>
+                                      <a href="{% url 'verformusesion' idsesion=sesion.id %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ingrese al formulario de evaluacion de la sesión {{sesion.id}}">Evaluar</a>
                                      </td>
                                     <!--end evaluar-->
                                   </tr>

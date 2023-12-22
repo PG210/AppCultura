@@ -8,7 +8,8 @@
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
-          <li class="breadcrumb-item active">Listado</li>
+          <li class="breadcrumb-item"><a href="/administracion/compromisos/">Usuarios</a></li>
+          <li class="breadcrumb-item active">Compromisos</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -111,13 +112,18 @@
                                             </div>
                                          </div>
                                          <hr>
-                                         <!-----===============-->
+                                         <!---===============-->
                                         <div class="row mt-2">
                                             <div class="col-4">
                                                <h6>Respuesta:</h6>
                                             </div>
                                             <div class="col-8">
-                                                 <textarea class="form-control" rows="5" name="respuesta">{{com.respuesta}}</textarea>
+                                              {% if com.respuesta %}
+                                              <textarea class="form-control" rows="5" name="respuesta">{{com.respuesta}}</textarea>
+                                              {% else %}
+                                              <textarea class="form-control" rows="5" name="respuesta"></textarea>
+                                              {% endif %}
+                                                 
                                             </div>
                                          </div>
                                          <hr>

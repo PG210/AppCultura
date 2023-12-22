@@ -5,10 +5,11 @@
   <main id="main" class="main">
 
       <div class="pagetitle">
-        <h1>Empresas</h1>
+        <h1>Agregar Empresas</h1>
         <nav>
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/administracion/empresa/list/">Listado de Empresas</a></li>
             <li class="breadcrumb-item active">Registro</li>
           </ol>
         </nav>
@@ -21,9 +22,15 @@
         
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">
-                Registrar Empresa
-              </h5>
+              <div class="row">
+                <div class="col-4">
+                  <h5 class="card-title" >
+                    Grupo Empresarial <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Los siguientes datos corresponden a la empresa principal o Grupo Empresarial de la cual se despliegan todas sus sucursales"></i>
+                  </h5>
+                </div>
+                <div class="mt-2 col-8 text-end"><a href="/administracion/empresa/list" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+              </div>
+              
                 <!--alertar-->
                 {% if mensaje %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -78,15 +85,15 @@
               </div>
                 <div class="text-center">
                   <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                  <a type="button" class="btn btn-success" href="{% url 'listarempresa' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
-                  <a type="button" class="btn btn-warning" href="{% url 'vincularareadepto' %}"> <i class="bi bi-card-checklist"></i> | Areas </a>
-                  <button type="reset" class="btn btn-secondary">Cancelar</button>
+                  <a type="button" class="btn btn-success" href="{% url 'listarempresa' %}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Listar Las Empresas inscritas"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
+                  <a type="button" class="btn btn-warning" href="{% url 'vincularareadepto' %}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="En esta sección puede agregar y listar Areas y departamentos de su Empresa"> <i class="bi bi-card-checklist"></i> | Areas </a>
+                  <!--<button type="reset" class="btn btn-secondary">Cancelar</button>-->
                 </div>
               </form>
              
             </div>
           </div>
-
+          
         </div>
          
         </div>

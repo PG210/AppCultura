@@ -8,9 +8,9 @@
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
-            <a href="#">Inicio</a>
+            <a href="/administracion/">Inicio</a>
           </li>
-          <li class="breadcrumb-item active">Listado</li>
+          <li class="breadcrumb-item active">Listado de Empresas</li>
         </ol>
       </nav>
     </div>
@@ -23,8 +23,15 @@
           <div class="card">
             <div class="card-body">
               <br>
-              <a class="btn btn-primary" href="{% url 'registroEmpresa' %}" role="button">Agregar Empresa</a>
-              <h5 class="card-title">Listado de empresas</h5>
+              <div class="row">
+                <div class="col-3 mt-2">
+                  <a class="btn btn-primary" href="{% url 'registroEmpresa' %}" role="button" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Agregar Nueva Empresa">Agregar Empresa</a>
+                </div>
+                <div class="mt-2 col-9 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+              </div>
+              <br>
+              
+              
               <!-- Table with stripped rows -->
               {% if messages %}
                 <br />
@@ -57,9 +64,12 @@
                         <td>
                           <!--Modal de ver mas-->
                           <!-- Button trigger modal -->
-                          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalvermas{{inter.id}}">
-                            Ver mas
-                          </button>
+                          <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Detalles de la empresa {{inter.nombre}}">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalvermas{{inter.id}}">
+                              Ver mas
+                            </button>
+                          </span>
+                          
 
                           <!-- Modal -->
                           <div class="modal fade" id="modalvermas{{inter.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -103,7 +113,7 @@
                             </div>
                           </div>
                           <!-- end validacion -->
-                          <a type="button" class="btn btn-primary" href="{% url 'modificarempresa' idempresa=inter.id %}"><i class="bi bi-pencil-square"></i></a>
+                          <a type="button" class="btn btn-info" href="{% url 'modificarempresa' idempresa=inter.id %}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar empresa {{inter.nombre}}"><i class="bi bi-pencil-square"></i></a>
                         </td>
                       </tr>
                     {% endfor %}

@@ -244,12 +244,17 @@
                         </div>
                         <div class="col-sm-3">
                         <!--================modal =================-->
-                        <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registrarGrupo">
-                           Crear
+                        <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Crear un Nuevo Grupo de formación">
+                          <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registrarGrupo">
+                            Registrar
                         </a>
-                        <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#visualizarGrupo">
-                           Listado
-                         </a>
+                        </span>
+                        <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar los Grupos de formación vacios">
+                          <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#visualizarGrupo">
+                            Listar
+                          </a>
+                        </span>
+                        
                         </div>
                       </div>
                     <!--============End elegir ==========-->
@@ -297,7 +302,7 @@
                    <div class="accordion" id="accordionusu">
                     <div class="accordion-item">
                       <h2 class="accordion-header" id="headingOne">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#acordion1" aria-expanded="true" aria-controls="acordion2">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#acordion2" aria-expanded="true" aria-controls="acordion2">
                           Seleccionar usuarios
                         </button>
                       </h2>
@@ -338,7 +343,7 @@
                   <!--=============end acordion 01============-->
                   <div class="text-center mt-2">
                     <button type="submit" class="btn btn-primary"> Guardar </button>
-                    <a type="button" class="btn btn-success" href="{% url 'listGrupos' %}"> Visualizar </a>
+                    <!--<a type="button" class="btn btn-success" href="{% url 'listGrupos' %}"> Visualizar </a>-->
                     <a type="button" class="btn btn-warning" href="/administracion/grupos/list/"> Volver </a>
                   </div>
               </div>

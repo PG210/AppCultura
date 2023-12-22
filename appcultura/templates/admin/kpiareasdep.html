@@ -6,11 +6,11 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Registro de KPIs</h1>
+      <h1>Registro de KPIs por areas y departamentos</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
-          <li class="breadcrumb-item active"><a href="/administracion/kpis/list/">Listado</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/kpis/list/">KPIs</a></li>
           <li class="breadcrumb-item active">Registro</li>
         </ol>
       </nav>
@@ -23,9 +23,7 @@
       
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">
-              Registro KPI por areas y departamentos
-            </h5>
+            <br>
               <!--alertar-->
               {% if messages %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -124,7 +122,7 @@
               <!--end check-->
               <div class="text-center">
                 <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                <a type="button" class="btn btn-success" href="{% url 'listarkpiarea' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
+                <!--<a type="button" class="btn btn-success" href="{% url 'listarkpiarea' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>-->
                 <a type="button" class="btn btn-warning" href="/administracion/kpis/list/">Cancelar</a>
               </div>
             </form><!-- End Horizontal Form -->

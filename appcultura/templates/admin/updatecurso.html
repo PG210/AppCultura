@@ -1,187 +1,221 @@
 {% extends 'admin/inicio.html' %}
 {% block content %}
+{% load static %}
 <!-- detalle_curso.html -->
 <main id="main" class="main">
 
-    <div class="pagetitle">
-      <h1>Cursos</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
-          <li class="breadcrumb-item active">Actualizar</li>
-        </ol>
-      </nav>
-    </div><!-- End Page Title -->
+  <div class="pagetitle">
+    <h1>Cursos</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+        <li class="breadcrumb-item active">Actualizar</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
 
-    <section class="section dashboard">
-      <div class="row">
-       <!--registro de cursos forms-->   
-       <div class="col-lg-12">
-      
+  <section class="section dashboard">
+    <div class="row">
+      <!--registro de cursos forms-->
+      <div class="col-lg-12">
+
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">
               Actualizar Curso
             </h5>
-              <!--alertar-->
-              {% if msj %}
-              <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <strong>{{msj}}</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-              {% endif %}
-              <!--end alertar-->
+            <!--alertar-->
+            {% if msj %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              <strong>{{msj}}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            <!--end alertar-->
             <!-- Horizontal Form -->
             <form action="{% url 'editarcurso' idcurso=curso.id %}" method="post" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="form-control">
-              <div class="row mb-3">
-                <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="nombre" name="nombre" value="{{ curso.nombre }}" required>
+                <div class="row mb-3">
+                  <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="nombre" name="nombre" value="{{ curso.nombre }}"
+                      required>
+                  </div>
                 </div>
-              </div>
-              <div class="row mb-3">
-                <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
-                <div class="col-sm-10">
-                  <textarea type="text" class="form-control" id="descrip" name="descrip" rows="5" required>{{ curso.descrip }}</textarea>
+                <div class="row mb-3">
+                  <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
+                  <div class="col-sm-10">
+                    <textarea type="text" class="form-control" id="descrip" name="descrip" rows="5"
+                      required>{{ curso.descrip }}</textarea>
+                  </div>
                 </div>
-              </div>
-              <div class="row mb-3">
-                <label for="precio" class="col-sm-2 col-form-label">Precio</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="precio" name="precio" value="{{ curso.precio }}" required>
+                <div class="row mb-3">
+                  <label for="precio" class="col-sm-2 col-form-label">Precio</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="precio" name="precio" value="{{ curso.precio }}"
+                      required>
+                  </div>
                 </div>
-              </div>
-              <div class="row mb-3">
-                <label for="formador" class="col-sm-2 col-form-label">Formador</label>
-                <div class="col-sm-10">
+                <div class="row mb-3">
+                  <label for="formador" class="col-sm-2 col-form-label">Formador</label>
+                  <div class="col-sm-10">
                     <select id="formador" name="formador" class="form-select" required>
-                        <option selected>Elegir formador</option>
-                        <option>Manuel Castrillón</option>
-                      </select>
-                </div>
-              </div>
-            </div>
-              <!--objetivos del curso-->
-            <!-- Default Accordion -->
-            <div class="accordion" id="accordionExample">
-              <div class="accordion-item">
-                <p class="accordion-header" id="headingThree">
-                  <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacorUpdate" aria-expanded="false" aria-controls="idacorUpdate">
-                    Objetivos
-                  </a>
-                </p>
-                <div id="idacorUpdate" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                  <div class="accordion-body">
-                    <!-- Contenedor para los campos del formulario -->
-                    <!-- detalle_curso.html -->
-                    {% for objetivo in objetivos %}
-                    <div class="alert alert-primary" role="alert">
-                      <h6>Objetivo Número: {{ forloop.counter }}</h6>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="descripobj" class="col-sm-2 col-form-label">Descripción</label>
-                        <div class="col-sm-10">
-                          <textarea type="text" class="form-control" id="descripobj" name="descripobj_{{ objetivo.id }}"  rows="5"  required>{{ objetivo.descrip }} </textarea>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <label for="competencias" class="col-sm-2 col-form-label">Competencias</label>
-                        <div class="col-sm-10">
-                          <textarea type="text" class="form-control" id="competencias" name="competencias_{{ objetivo.id }}" rows="5"  required>{{ objetivo.competencias }} </textarea>
-                        </div>
-                      </div>
-                     {% endfor %}
-                    <!--end contendor campos-->
+                      <option selected>Elegir formador</option>
+                      <option>Manuel Castrillón</option>
+                    </select>
                   </div>
                 </div>
               </div>
-            </div><!-- End Default Accordion Example -->
-              <!--end objetivos del curso-->
-            <div class="accordion" id="accordionExample">
+              <!--objetivos del curso-->
+              <!-- Default Accordion -->
+              <div class="accordion" id="accordionExample">
                 <div class="accordion-item">
-                    <p class="accordion-header" id="headingThree">
-                    <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacorUpdatesesion" aria-expanded="false" aria-controls="idacorUpdatesesion">
-                        Sesiones
+                  <p class="accordion-header" id="headingThree">
+                    <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#idacorUpdate" aria-expanded="false" aria-controls="idacorUpdate">
+                      Objetivos
                     </a>
-                    </p>
-                    <div id="idacorUpdatesesion" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                  </p>
+                  <div id="idacorUpdate" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                    data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                        <!-- Contenedor para los campos del formulario -->
-                        <!-- detalle_curso.html -->
-                        {% for sesion in sesiones %}
+                      <!-- Contenedor para los campos del formulario -->
+                      <!-- detalle_curso.html -->
+                      <a class="btn btn-primary" onclick="agregarObjetivo()">Agregar objetivo</a>
+                      <div id="contenedor-objetivos" class="row mb-3 mt-3">
+                        {% for objetivo in objetivos %}
                         <div class="alert alert-primary" role="alert">
-                          <h6>Sesión Número: {{ forloop.counter }}</h6>
+                          <h6>Objetivo Número: {{ forloop.counter }}</h6>
                         </div>
                         <div class="row mb-3">
-                            <label for="fechaini" class="col-sm-2 col-form-label">Fecha Inicio</label>
-                            <div class="col-sm-10">
-                                <input type="datetime-local" class="form-control" id="fechaini" name="fechainicio_{{ sesion.id }}" value="{{ sesion.fechainicio|date:"Y-m-d\TH:i" }}" required>
-                            </div>
+                          <label for="descripobj" class="col-sm-2 col-form-label">Descripción</label>
+                          <div class="col-sm-10">
+                            <textarea type="text" class="form-control" id="descripobj"
+                              name="descripobj_{{ objetivo.id }}" rows="5" required>{{ objetivo.descrip }} </textarea>
+                          </div>
                         </div>
                         <div class="row mb-3">
-                            <label for="fechafin" class="col-sm-2 col-form-label">Fecha fin</label>
-                            <div class="col-sm-10">
-                                <input type="datetime-local" class="form-control" id="fechafin" name="fechafin_{{ sesion.id }}" value="{{ sesion.fechafin|date:"Y-m-d\TH:i" }}" required>
-                            </div>
+                          <label for="competencias" class="col-sm-2 col-form-label">Competencias</label>
+                          <div class="col-sm-10">
+                            <textarea type="text" class="form-control" id="competencias"
+                              name="competencias_{{ objetivo.id }}" rows="5"
+                              required>{{ objetivo.competencias }} </textarea>
+                          </div>
                         </div>
-                        <div class="row mb-3">
-                            <label for="lugar" class="col-sm-2 col-form-label">Lugar</label>
-                            <div class="col-sm-10">
-                                <input type="text" class="form-control" id="lugar" name="lugar_{{ sesion.id }}" value="{{ sesion.lugar}}"  required>
-                            </div>
-                        </div>
-                        {% for tematica in temas %}
-                              {% if tematica.idsesion == sesion %}
-                              <div class="row mb-3">
-                                  <label for="tema" class="col-sm-2 col-form-label">Tema: </label>
-                                  <div class="col-sm-10">
-                                      <input type="text" class="form-control" id="tema" name="tema_{{ sesion.id }}" value="{{ tematica.descrip}}"  required>
-                                  </div>
-                              </div>
-                              <div class="row mb-3">
-                                  <label for="temades" class="col-sm-2 col-form-label">Descripción: </label>
-                                  <div class="col-sm-10">
-                                      <textarea class="form-control" rows="3" id="temades" name="temades_{{ sesion.id }}" value="{{ tematica.competencias }}"  required>{{ tematica.competencias }}</textarea>
-                                  </div>
-                              </div>
-                              <div class="row mb-3">
-                                  <label for="recursos" class="col-sm-2 col-form-label">Recursos: </label>
-                                  <div class="col-sm-10">
-                                      <textarea class="form-control" rows="3" id="recursos" name="recursos_{{ sesion.id }}" required>{{ tematica.recursos }}</textarea>
-                                  </div>
-                              </div>
-                              <div class="row mb-3">
-                                  <label for="temarec" class="col-sm-2 col-form-label">Archivo: </label>
-                                  <div class="col-sm-10">
-                                      <input type="file" class="form-control" id="temarec" name="temarec_{{ sesion.id }}">
-                                  </div>
-                              </div>
-                              <input type="number" id="idtema" name="idtema_{{ sesion.id }}" value="{{tematica.id}}" hidden>
-                              {% endif %}
-                            {% endfor %}
+                        
                         {% endfor %}
-                        <!--end contendor campos-->
+                      </div>
+
+                      <!--end contendor campos-->
                     </div>
+                  </div>
+                </div>
+              </div><!-- End Default Accordion Example -->
+              <!--end objetivos del curso-->
+              <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                  <p class="accordion-header" id="headingThree">
+                    <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                      data-bs-target="#idacorUpdatesesion" aria-expanded="false" aria-controls="idacorUpdatesesion">
+                      Sesiones
+                    </a>
+                  </p>
+                  <div id="idacorUpdatesesion" class="accordion-collapse collapse" aria-labelledby="headingThree"
+                    data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <!-- Contenedor para los campos del formulario -->
+                      <!-- detalle_curso.html -->
+                      <div class="mb-2">
+                        <a class="btn btn-primary" onclick="editarsesion()">Agregar Sesion</a><br>
+                      </div>
+                      
+                      <div id="contenedor-sesion">
+                        {% for sesion in sesiones %}
+                      <div class="alert alert-primary" role="alert">
+                        <h6>Sesión Número: {{ forloop.counter }}</h6>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="fechaini" class="col-sm-2 col-form-label">Fecha Inicio</label>
+                        <div class="col-sm-10">
+                          <input type="datetime-local" class="form-control" id="fechaini"
+                            name="fechainicio_{{ sesion.id }}" value="{{ sesion.fechainicio|date:'Y-m-d\TH:i'  }}"
+                            required>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="fechafin" class="col-sm-2 col-form-label">Fecha fin</label>
+                        <div class="col-sm-10">
+                          <input type="datetime-local" class="form-control" id="fechafin"
+                            name="fechafin_{{ sesion.id }}" value="{{ sesion.fechafin|date:'Y-m-d\TH:i' }}" required>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="lugar" class="col-sm-2 col-form-label">Lugar</label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="lugar" name="lugar_{{ sesion.id }}"
+                            value="{{ sesion.lugar}}" required>
+                        </div>
+                      </div>
+                      {% for tematica in temas %}
+                      {% if tematica.idsesion == sesion %}
+                      <div class="row mb-3">
+                        <label for="tema" class="col-sm-2 col-form-label">Tema: </label>
+                        <div class="col-sm-10">
+                          <input type="text" class="form-control" id="tema" name="tema_{{ sesion.id }}"
+                            value="{{ tematica.descrip}}" required>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="temades" class="col-sm-2 col-form-label">Descripción: </label>
+                        <div class="col-sm-10">
+                          <textarea class="form-control" rows="3" id="temades" name="temades_{{ sesion.id }}"
+                            value="{{ tematica.competencias }}" required>{{ tematica.competencias }}</textarea>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="recursos" class="col-sm-2 col-form-label">Recursos: </label>
+                        <div class="col-sm-10">
+                          <textarea class="form-control" rows="3" id="recursos" name="recursos_{{ sesion.id }}"
+                            required>{{ tematica.recursos }}</textarea>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <label for="temarec" class="col-sm-2 col-form-label">Archivo: </label>
+                        <div class="col-sm-10">
+                          <input type="file" class="form-control" id="temarec" name="temarec_{{ sesion.id }}">
+                        </div>
+                      </div>
+                      <input type="number" id="idtema" name="idtema_{{ sesion.id }}" value="{{tematica.id}}" hidden>
+                      {% endif %}
+                      {% endfor %}
+                      {% endfor %}
+                      </div>
+                      
+                      
+                      <!--end contendor campos-->
                     </div>
+                  </div>
                 </div>
-                </div>
-                <!-- End Default Accordion Example --> 
+              </div>
+              <!-- End Default Accordion Example -->
               <!--end check-->
               <div class="text-center">
                 <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
-                <a type="button" class="btn btn-warning" href="{% url 'listarcursos' %}">Cancelar</a>
+                <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i
+                    class="bi bi-card-checklist"></i> | Visualizar </a>
+                
               </div>
             </form><!-- End Horizontal Form -->
-           
+
           </div>
         </div>
 
       </div>
-       <!--end forms -->
-      </div>
-    </section>
+      <!--end forms -->
+    </div>
+  </section>
 </main><!-- End #main -->
-{% endblock %} 
+<script src="{% static 'admin/assets/js/script.js' %} "></script>
+
+{% endblock %}
