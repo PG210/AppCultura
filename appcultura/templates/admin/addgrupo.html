@@ -31,6 +31,111 @@
               </div>
              {% endif %}
               <!--end alertar-->
+              <div class="offcanvas offcanvas-end" tabindex="-1" id="nuevoUsuario" aria-labelledby="offcanvasRightLabel">
+                <div class="offcanvas-header alert alert-primary">
+                  <h5 class="offcanvas-title" id="offcanvasRightLabel">Completa la información del usuario</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                  <!--canpos de formulario-->
+                  <form action="{% url 'saveusernuevo' %}" method="post">
+                    {% csrf_token %}
+                  <div class="form-control">
+                  <div class="mb-3 row">
+                      <label for="nombre" class="col-sm-3 col-form-label"> Nombre</label>
+                      <div class="col-sm-9">
+                          <input type="text" class="form-control" id="nombre" name="nombre" required>
+                      </div>
+                  </div>
+                  <div class="mb-3 row">
+                      <label for="ape" class="col-sm-3 col-form-label"> Apellido</label>
+                      <div class="col-sm-9">
+                          <input type="text" class="form-control" id="ape" name="ape" required>
+                      </div>
+                  </div>
+                  <div class="mb-3 row">
+                      <label for="ced" class="col-sm-3 col-form-label"> Cedula</label>
+                      <div class="col-sm-9">
+                          <input type="number" class="form-control" id="ced" name="ced" required>
+                      </div>
+                  </div>
+                  <div class="mb-3 row">
+                    <label for="email" class="col-sm-3 col-form-label">Correo</label>
+                    <div class="col-sm-9">
+                      <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" required>
+                    </div>
+                  </div>
+                  <!--select rol-->
+                    <div class="input-group mb-3">
+                      <label class="input-group-text" for="rol">Rol</label>
+                      <select class="form-select" id="rol" name="rol" required>
+                        <option>Elegir ...</option>
+                        {% for rols in rol %}
+                         <option value="{{rols.id}}">{{ rols.descrip }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  <!--end select-->
+                    <!--select empresa-->
+                    <div class="input-group mb-3">
+                      <label class="input-group-text" for="empresa">Empresa</label>
+                      <select class="form-select" id="empresa" name="empresa" required>
+                        <option>Elegir ...</option>
+                        {% for emp in empresa %}
+                        <option value="{{emp.id}}">{{ emp.nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  <!--end select-->
+                  <!--Area-->
+                  <div class="input-group mb-3">
+                    <label class="input-group-text" for="area">Areas</label>
+                    <select class="form-select" id="area" name="area" required>
+                      <option>Elegir ...</option>
+                      {% for ar in areas %}
+                      <option value="{{ar.id}}">{{ ar.nombre }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <!--end area-->
+                  <!--departameto-->
+                  <!--select cargo-->
+                    <div class="input-group mb-3">
+                      <label class="input-group-text" for="cargo">Cargo</label>
+                      <select class="form-select" id="cargo" name="cargo" required>
+                        <option>Elegir ...</option>
+                        {% for car in cargo %}
+                        <option value="{{car.id}}">{{ car.descrip }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  <!--end select-->
+                   <!--Area-->
+                    <label>
+                      <input type="checkbox" id="miCheckbox"> Vincular departamento
+                    </label>
+                  
+                  <div id="miTexto" style="display: none;">
+                    <div class="input-group mb-3 mt-2">
+                      <label class="input-group-text" for="depar">Departamento</label>
+                      <select class="form-select" id="depar" name="depar">
+                        <option>Elegir ...</option>
+                        {% for dep in depars %}
+                        <option value="{{dep.id}}">{{ dep.nombre }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                    <!--end area-->
+                      <div class="text-end">
+                        <button class="btn btn-info">Agregar</button>
+                     </div>
+                  </div>
+                    <!--end formulario -->
+                    </form>
+                    <br><br>
+                </div>
+              </div>
                <!-- Modal -->
                <div class="modal fade" id="registrarGrupo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
@@ -140,7 +245,7 @@
                         <div class="col-sm-3">
                         <!--================modal =================-->
                         <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registrarGrupo">
-                            Registro
+                           Crear
                         </a>
                         <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#visualizarGrupo">
                            Listado
@@ -161,7 +266,7 @@
                         <div class="accordion-body">
                           <!--tabla responsiva-->
                           <div class="table-responsive">
-                          <table class="table">
+                          <table class="table" id="tablareactiva_02">
                             <thead>
                               <tr>
                                 <th scope="col">No</th>
@@ -198,14 +303,18 @@
                       </h2>
                       <div id="acordion2" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionusu">
                         <div class="accordion-body">
+                          <!--crear nuevo usuario-->
+                             <div class="text-end">
+                               <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#nuevoUsuario" aria-controls="offcanvasRight">Nuevo usuario</button>
+                              </div>
                           <!--tabla responsiva-->
                           <div class="table-responsive">
-                          <table class="table">
+                          <table class="table" id="tablareactiva">
                             <thead>
                               <tr>
                                 <th scope="col">No</th>
-                                <th scope="col">Nombre</th>
-                                <th scope="col">Descripción</th>
+                                <th scope="col">Nombres</th>
+                                <th scope="col">Apellidos</th>
                                 <th scope="col">Seleccionar</th>
                               </tr>
                             </thead>
@@ -266,7 +375,7 @@
                 success: function (response) {
                     // Manejar la respuesta del backend
                     $("#formulariogrupo")[0].reset();
-                    
+                    $("#registrarGrupo").modal('hide');
                     var opres = response.opciones; //retorna la data desde el backend
                     Swal.fire({
                         icon: 'success',
@@ -391,6 +500,18 @@
       });
   });
 </script>
-
-
+<!--script para buscar arear pertenecientes a la empresa-->
+<script>
+  var checkbox = document.getElementById('miCheckbox');
+  var texto = document.getElementById('miTexto');
+  checkbox.addEventListener('click', function() {
+      // Si el checkbox está marcado, muestra el texto; de lo contrario, ocúltalo
+      if (checkbox.checked) {
+          texto.style.display = 'block';
+      } else {
+          texto.style.display = 'none';
+      }
+  });
+</script>
+<!-- Asegúrate de tener jQuery incluido antes de este script -->
 {% endblock %} 

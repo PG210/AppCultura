@@ -1,0 +1,133 @@
+{% extends 'layoutsinicio/app2.html' %}
+
+{% block content %}
+{% load static %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+     <!--validar que este crear formu-->
+     <div class="container">
+      <div class="col-lg-6 col-12 mx-auto">
+        {% if error %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>{{error}}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        <!--alertar-->
+        {% for msg in messages %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>{{msg}}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+      
+        {% if mensaje %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <strong>{{mensaje}}</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        <h4 style="text-align: center;">Validar Asistencia</h4>
+        <p>Para completar el siguiente formulario primero validaremos que el usuario este registrado.</p>
+        <br>
+        <!--formulario-->
+        <div class="container shadow-lg border border-dark" style="background-color:white; border-radius: 10px;">
+          <br>
+          <form action="{% url 'validarasistenciaform' idsesion=idsesion %}" method="post">
+            {% csrf_token %}
+            <div class="mb-3 row">
+              <label for="floatingInput" class="col-sm-3 col-form-label" style="text-align: center;"> Usuario</label>
+              <div class="col-sm-9">
+                <div class="form-floating ">
+                  <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com/12345678"
+                    required name="inputUser">
+                  <label for="floatingInput">Correo electronico o cedula</label>
+                </div>
+
+              </div>
+            </div>
+            <div class="container">
+              <div class="mb-3 row">
+                <button class="btn btn-info">Registrar asistencia</button>
+              </div>
+            </div>
+          </form>
+          <div class="row">
+            <div class="col-sm-12" style="text-align: right;">
+              {% if estado %}
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalnuevousuario">
+                Inscribirse
+              </button>
+              {% endif %}
+              <!-- Button trigger modal -->
+              <!-- Modal -->
+              <div class="modal fade" id="modalnuevousuario" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <form action="{% url 'inscribirasistenteform' idsesion=idsesion %}" method="post">
+                      {% csrf_token %}
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo usuario</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      
+                        <!--Nombre-->
+                        <div class="input-group mb-3">
+                          <span class="input-group-text" id="basic-addon1"><i class="bi bi-person"></i></span>
+                          <input type="text" class="form-control" placeholder="Nombre" aria-label="Username"
+                            aria-describedby="basic-addon1" id="floatingInput" required name="nombre">
+                        </div>
+
+                        <!--Apellido-->
+                        <div class="input-group mb-3">
+                          <span class="input-group-text" id="basic-addon1"><i class="bi bi-person"></i></span>
+                          <input type="text" class="form-control" placeholder="Apellido" aria-label="Username"
+                            aria-describedby="basic-addon1" id="floatingInput" required name="apellido">
+                        </div>
+
+                        <!--Cedula-->
+                        <div class="input-group mb-3">
+                          <span class="input-group-text" id="basic-addon1"><i
+                              class="bi bi-credit-card-2-front"></i></span>
+                          <input type="number" class="form-control" placeholder="Cedula" aria-label="Username"
+                            aria-describedby="basic-addon1" id="floatingInput" required name="cedula">
+                        </div>
+
+                        <!--Telefono-->
+                        <div class="input-group mb-3">
+                          <span class="input-group-text" id="basic-addon1"><i class="bi bi-telephone"></i></span>
+                          <input type="number" class="form-control" placeholder="Telefono" aria-label="Username"
+                            aria-describedby="basic-addon1" id="floatingInput" name="telefono">
+                        </div>
+
+                        <!--Correo-->
+                        <div class="input-group mb-3">
+                          <span class="input-group-text" id="basic-addon1"><i class="bi bi-envelope"></i></span>
+                          <input type="email" class="form-control" placeholder="Correo Electronico" aria-label="Username"
+                            aria-describedby="basic-addon1" id="floatingInput" required name="correo">
+                        </div>   
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                      <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                  </form>
+                  </div>
+                </div>
+              </div>
+
+              <br><br>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--end validacion crear formu-->
+  </div>
+</div>
+  
+<script src="{% static 'admin/assets/js/functionUser.js' %}"></script>
+{% endblock %}

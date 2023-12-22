@@ -29,10 +29,18 @@
                 {% endfor %}
               </div>
              {% endif %}
+             <!--mensajes del actualizar-->
+             {% if duplicado %}
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  <strong>{{ duplicado }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+             {% endif %}
+             <!--end mensajes de actualizar-->
               <!--end alertar-->
               <!----=======================================-->
               <div>
-                <a type="button" class="btn btn-primary" href="/administracion/grupos/crear/"> Agregar </a>
+                <a type="button" class="btn btn-primary" href="/administracion/grupos/crear/"> Nuevo grupo </a>
               </div>
               <div class="table-responsive mt-4">
                 <table class="table" id="tablareactiva">
@@ -41,7 +49,8 @@
                         <th>Id interno</th>
                         <th>Nombre</th>
                         <th>Descripción</th>
-                        <th>No. Usuarios</th>
+                        <th>Total</th>
+                        <th>Duplicar</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
@@ -55,11 +64,45 @@
                        <td> {{ gr.nombre }}  </td>
                        <td> {{ gr.descrip }}  </td>
                        <td> {{ gr.total }} </td>
+                       <td> <a href="{% url 'duplicarGrupo' idgr=gr.id %}" class="btn btn-warning"><i class="bi bi-copy"></i></a> </td>
                          <td>
                            <!-- Button trigger modal -->
-                             <a type="button" class="btn btn-primary" href="{% url 'cursosgrupo' idgrupo=gr.id %}">Cursos</a>
-                             <a class="btn btn-success" href="{% url 'usersgrupo' idgrupo=gr.id %}">Usuarios</a>
-                             <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#btnconfirmar{{gr.id}}"><i class="bi bi-trash3-fill" style="font-size: 20px;"></i></a>
+                             <div class="row">
+                               <div class="col-3"><a type="button" class="btn btn-primary" href="{% url 'cursosgrupo' idgrupo=gr.id %}"><i class="bi bi-list-stars"></i></a></div>
+                               <div class="col-3"><a class="btn btn-success" href="{% url 'usersgrupo' idgrupo=gr.id %}"><i class="bi bi-people-fill"></i></a></div>
+                               <div class="col-3"><a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#btnconfirmar{{gr.id}}"><i class="bi bi-trash3-fill"></i></a></div>
+                               <div class="col-3"> <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#menulateral{{gr.id}}" aria-controls="offcanvasRight"><i class="bi bi-pencil-square"></i></button></div>
+                             </div>
+                             <!--====================================-->
+                              <div class="offcanvas offcanvas-end" tabindex="-1" id="menulateral{{gr.id}}" aria-labelledby="offcanvasRightLabel">
+                                <div class="offcanvas-header alert alert-warning">
+                                  <h5 class="offcanvas-title" id="offcanvasRightLabel">Editar la información del grupo</h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                </div>
+                                <div class="offcanvas-body">
+                                  <!---infor grupo-->
+                                  <form action="{% url 'editargrupoagregado' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="form-control">
+                                    <div class="mb-3">
+                                      <label for="nombre" class="form-label"><b>Nombre</b></label>
+                                      <input type="text" class="form-control" id="nombre" name="nombre" value="{{gr.nombre}}">
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="descrip" class="form-label"><b>Descripción</b></label>
+                                      <textarea type="text" class="form-control" id="descrip" name="descrip" rows="5">{{gr.descrip}}</textarea>
+                                    </div>
+                                    <div class="text-end">
+                                      <input value="{{gr.id}}" name="idgrupo" id="idgrupo" hidden>
+                                      <button type="submit" class="btn btn-primary">Actualizar</button>
+                                    </div>
+                                  </div>
+                                  </form>
+                                  
+                                  <!--end info grupo-->
+                                </div>
+                              </div>
+                             <!--=====================================-->
                              <!---modal de confirmación-->
                              <!-- Modal -->
                               <div class="modal fade" id="btnconfirmar{{gr.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

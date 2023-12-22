@@ -5,7 +5,9 @@ from django.contrib.auth import login, logout, authenticate #crea la sesion de u
 from django.contrib.auth.decorators import login_required # proteger las rutas de accesos
 from django.db import IntegrityError #errores de la base de datos
 from django.utils import timezone
-from django.contrib import messages #mensajes para la vista
+from django.contrib import messages
+
+from appcultura.modelos.sesionasistencia import SesionAsistencia #mensajes para la vista
 from ..models import UserPerfil, Formulario, Preguntas, Opciones, Curso, Sesioncurso, SesionFormulario, GruposCursos, RespuestaForm
 from django.http import Http404
 from django.db import transaction
@@ -375,6 +377,9 @@ def verFomrsesion(request, idsesion):
     formulario_sesion = SesionFormulario.objects.filter(idsesion=idsesion)
     usuarios_en_sesion = UserPerfil.objects.filter(respuestaform__idsesion_id=idsesion).distinct()
     #==============================================
+    usuarios_asistencia = SesionAsistencia.objects.filter(idsesioncurso__id=idsesion, asistencia_pendiente=False)
+    usuarios_confirmar = SesionAsistencia.objects.filter(idsesioncurso__id=idsesion, asistencia_pendiente=True)
+    #=======================
     usuarios_con_formularios = {}
     formularios_del_usuario = {}
     for usuid in usuarios_en_sesion:
@@ -385,7 +390,7 @@ def verFomrsesion(request, idsesion):
         usuarios_con_formularios[usuid] = list(formularios_del_usuario)
     #========================= guardar comentarios del formulario ===========
     if request.method == 'POST':
-        print(request.POST)
+        #print(request.POST)
         comentarios_dict = dict(request.POST.lists())
         for key, value in comentarios_dict.items():
             if key.startswith('comentario_'):
@@ -394,9 +399,23 @@ def verFomrsesion(request, idsesion):
                 #actualizar la respuesta
                 RespuestaForm.objects.filter(id=respuesta_id).update(comentario=comentario, estado=False)
         mensajeExito = "Comentarios agregados de manera exitosa."
-    return render(request, 'formularios/formucompletos.html', {'usu':perfil_usuario, 'users':usuarios_en_sesion, 'formularios':formulario_sesion, 'usuarios_con_formularios':usuarios_con_formularios, 'idsesion':idsesion, 'mensajeExito':mensajeExito })
+    return render(request, 'formularios/formucompletos.html', {'usu':perfil_usuario, 'users':usuarios_en_sesion, 'formularios':formulario_sesion, 'usuarios_con_formularios':usuarios_con_formularios, 'idsesion':idsesion, 'mensajeExito':mensajeExito, 'usuarios_asistencia':usuarios_asistencia, 'usuarios_confirmar':usuarios_confirmar})
 
+# Qr para compartir formulario
 def qr_formulario(request, idsesion):
-    data = f'http://localhost:8000/usuarios/curso/sesion/formulario/{idsesion}/'
+    data = f'http://localhost:8000/evaluar/test/{idsesion}/'
     relative_path = generar_qr(data,idsesion)
     return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion, 'data':data})
+
+#============== cambiar pendiente desde los formularios ===============00
+login_required    
+def cambiar_pendiente_formulario(request, iduser, idsesion):
+    usuario = UserPerfil.objects.get(id=iduser)
+    usuario.pendiente = False
+    usuario.save()
+    asistencia = SesionAsistencia.objects.get(idusuario=usuario)
+    asistencia.asistencia_pendiente = False
+    asistencia.save()
+    return redirect('verFomrsesion', idsesion=idsesion)
+
+

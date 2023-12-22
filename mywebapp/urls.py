@@ -26,12 +26,18 @@ urlpatterns = [
     path('login/user/', views.loginuser, name='loginuser'),  #login
     path('logout/', views.singout, name='logout'), # cerrar sesion
     path('reg/user/', views.reguser, name='reguser'),  #registrar user
+    
+    #========= agregar nuevo usuario desde el admin ==============
+    path('administracion/save/nuevo/user/', viewadmin.saveusernuevo, name='saveusernuevo'),
+    #=========================================================
     path('administracion/', views.administracion, name='administracion'),  #panel de administrador
-    path('administracion/curso/', viewadmin.registroCursos, name='registroCursos'),  #registro cursos
-
+    path('administracion/curso/', viewadmin.registroCursos, name='registroCursos'),  #registro curso
     path('administracion/curso/list/', viewadmin.listarcursos, name='listarcursos'),  #registro cursos
     path('administracion/curso/delete/<int:idcurso>/', viewadmin.eliminarcurso, name='eliminarcurso'),  # eliminar cursos
     path('administracion/curso/editar/<int:idcurso>/', viewadmin.editarcurso, name='editarcurso'),  # editar curso
+    path('administracion/curso/competencia/', viewadmin.crearCompetencia, name='crearCompetencia'),
+    path('administracion/curso/competencia/delete/<int:idcom>/', viewadmin.eliminarCompetencia, name='eliminarCompetencia'),
+    
     #==============descargar archvios ===========
     path('administracion/curso/descarga/<path:ruta>/', viewadmin.download, name='download'), 
     #==============================
@@ -47,11 +53,14 @@ urlpatterns = [
     path('administracion/grupos/list/', viewadmin.listGrupos, name='listGrupos'), #ruta para registrar o dirigir a cursos
     path('administracion/grupos/crear/', viewadmin.creargrupo, name='creargrupo'),
     path('administracion/grupos/nuevo/', viewadmin.addgrupo, name='addgrupo'),
-    path('administracion/grupos/delete/<int:idgrupo>', viewadmin.eliminargrupo, name='eliminargrupo'),
+    path('administracion/grupos/delete/<int:idgrupo>/', viewadmin.eliminargrupo, name='eliminargrupo'),
     path('administracion/grupos/editar/', viewadmin.editargrupo, name='editargrupo'),
+    path('administracion/grupos/update/', viewadmin.editargrupoagregado, name='editargrupoagregado'), #editar grupos desde form externo
     path('administracion/grupos/list/user/<int:idgrupo>/', viewadmin.usersgrupo, name='usersgrupo'), #lista los usuarios pertenecientes a un grupo
     path('administracion/grupos/list/cursos/<int:idgrupo>/', viewadmin.cursosgrupo, name='cursosgrupo'),
-    path('administracion/grupos/delete/total/<int:idgrupo>', viewadmin.deletegrupos, name='deletegrupos'),
+    path('administracion/grupos/delete/total/<int:idgrupo>/', viewadmin.deletegrupos, name='deletegrupos'),
+    path('administracion/grupos/duplicar/<int:idgr>/', viewadmin.duplicarGrupo, name='duplicarGrupo'),
+    
     #====================== end registro de grupos =================
     #====================== Crear formularios ========================
     path('administracion/formu/', viewformu.crearformu, name='crearformu'),
@@ -83,13 +92,21 @@ urlpatterns = [
     #==================== rutas para evaluar formulario ============
     path('usuarios/curso/sesion/formulario/<int:idsesion>/', viewuser.verformusesion, name="verformusesion"),
     path('usuarios/curso/respuesta/formulario/<int:idsesion>/<int:idformu>/', viewuser.saveRespuestas, name="saveRespuestas"),
+    path('evaluar/test/<int:idsesion>/', viewuser.verFormuQR, name="verFormuQR"),
+    path('administracion/validarasistenciaform/<int:idsesion>/', viewuser.validarasistenciaform, name='validarasistenciaform'),
+    path('usuarios/inscribiruserform/<int:idsesion>/', viewuser.inscribirasistenteform, name="inscribirasistenteform"),
+    path('usuarios/inscribiruserform/form/<int:idsesion>/<int:idusuario>/', viewuser.listformuqr, name="listformuqr"),
+    path('usuarios/inscribiruserform/form/save/<int:idsesion>/<int:idformu>/<int:idusu>/', viewuser.saveRespuestasFormu, name="saveRespuestasFormu"),
     
+    #=========================================================
     path('administracion/validarasistencia/<int:idsesion>/', viewadmin.validarasistencia, name='validarasistencia'),
     path('administracion/generarqr/<int:idsesion>/', viewadmin.generarqr, name='generarqr'),
     path('administracion/curso/asistentelist/<int:idsesion>/', viewadmin.listarasistentes, name='listarasistentes'),
 
     path('Administracion/curso/cambiarpendiente/<int:idsesion>/<int:iduser>/', viewadmin.cambiar_pendiente, name="cambiarpendiente"),
-
+    #=================== cambiar pendiente desde formularios ========================
+    path('administracion/usuario/cambiarpendiente/<int:idsesion>/<int:iduser>/', viewformu.cambiar_pendiente_formulario, name="cambiar_pendiente_formulario"),
+    
     path('administracion/curso/deleteasistente/<int:idasis>/', viewadmin.eliminarasistente, name='eliminarasistente'),
     path('administracion/curso/list/valoracion/<int:idsesion>/', viewadmin.listarcalificacion, name="listarcalificacion"),
     path('administracion/curso/list/deletevaloracion/<int:idcali>/', viewadmin.borrarcalificacion, name="borrarcalificacion"),

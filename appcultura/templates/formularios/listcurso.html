@@ -55,7 +55,7 @@
                           <div class="modal-dialog modal-dialog-scrollable modal-lg ">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title">Listado de sesiones por curso</h5>
+                                <h5 class="modal-title">Lista de sesiones de curso</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body table-responsive">
@@ -70,15 +70,15 @@
                                   <tbody>
                                     {% for sesiones in curso.sesioncurso_set.all %}
                                     <tr>
-                                       <th>{{sesiones.fechainicio}}</th>
-                                       <th>{{sesiones.lugar}}</th>
-                                       <th>
+                                       <td>{{sesiones.fechainicio}}</td>
+                                       <td>{{sesiones.lugar}}</td>
+                                       <td>
                                        {% if sesiones.respuestaform_set.exists %}
                                         <a href="{% url 'verFomrsesion' idsesion=sesiones.id %}" type="button" class="btn btn-info">Formularios contestados</a>
                                         {% else %}
                                         <p class="alert alert-warning">Sin formularios</p>
                                         {% endif %}
-                                      </th>
+                                      </td>
                                     </tr>
                                     {% endfor %}
                                     </tbody>

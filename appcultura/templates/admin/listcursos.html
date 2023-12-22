@@ -169,11 +169,41 @@
                     <td>
                       <div>
                         <div class="row">
-                          <div class="col-6 text-center">
-                            <a type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
+                          <div class="col-4 text-center">
+                            <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
                           </div>
-                          <div class="col-6 text-center">
-                            <a type="button" class="btn btn-info  mr-2" style="display: inline-block;" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
+                          <div class="col-4 text-center">
+                            <a type="button" class="btn btn-info" style="display: inline-block;" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
+                          </div>
+                          <div class="col-4 text-center">
+                           <!--aqui visualizar competencias a revisar-->
+                           <!-- Button trigger modal -->
+                              <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#compe{{curso.id}}">
+                                <i class="bi bi-list-stars"></i>
+                              </a>
+
+                              <!-- Modal -->
+                              <div class="modal fade" id="compe{{curso.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Competencias a trabajar</h1>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <ul class="list-group">
+                                      {% for comp in curso.competenciacurso_set.all %}
+                                        <li class="list-group-item">{{comp.idcompetencia.nombre}}</li>
+                                      {% endfor %}
+                                     </ul>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                           <!--end competencias-->
                           </div>
                         </div>
                         <!--modal de validación-->

@@ -48,10 +48,7 @@
                    <tr>
                     <td>{{f.nombre}}</td>
                     <td>{{f.descrip}}</td>
-                    
                     <td>{{f.fecha|date:"m/d/Y"}}</td>
-                    
-                      </td>
                     <td>
                       <!--vincular el formulario con diferentes cursos y sesiones-->
                       <!-- Button trigger modal -->
@@ -69,15 +66,23 @@
                             </div>
                             <div class="modal-body">
                               <!--codigo para ver las sesiones-->
+                              <!--=========================-->
+                              <div class="row">
+                                <div class="col-6"></div>
+                                <div class="col-6">
+                                  <input type="text" class="form-control" id="searchInput{{f.id}}" placeholder="Buscar..." name="table{{f.id}}">
+                                </div>
+                              </div>
                               <form action="{% url 'addsesionform' idform=f.id %}" method="post">
                                 {% csrf_token %}
-                              <div class="table-responsive">
-                                <table class="table table-bordered">
-                                  <thead class="table-info">
+                              <div class="table-responsive mt-2">
+                              
+                                <table class="table" id="tablaDatos{{f.id}}">
+                                  <thead>
                                       <tr>
                                           <th>Curso</th>
                                           <th>Sesión</th>
-                                          <th>Fecha de Inicio</th>
+                                          <th>Fecha</th>
                                           <th>Lugar</th>
                                           <th>Seleccionar</th>
                                           <th>Compartir</th>
@@ -88,8 +93,8 @@
                                           {% for sesion in sesiones %}
                                               <tr>
                                                   {% if forloop.first %}  <!-- Para la primera fila del curso -->
-                                                      <td rowspan="{{ sesiones|length }}">{{ curso.nombre }}</td>
-                                                  {% endif %}
+                                                  <td rowspan="{{ sesiones|length }}">{{ curso.nombre }}</td>
+                                                  {% endif %}  
                                                   <td>{{ forloop.counter }}</td>  <!-- Número de sesión -->
                                                   <td>{{ sesion.fechainicio|date:"m/d/Y g:iA" }}</td>
                                                   <td>{{ sesion.lugar }}</td>
@@ -99,7 +104,15 @@
                                                   </div>
                                                     <!--end botones-->
                                                   </td>
-                                                  <td><a class="btn btn-primary" href="{% url 'qrformu' idsesion=sesion.id %}" role="button" target="_blank"><i class="bi bi-share-fill"></i></a>
+                                                  <td>
+                                                    {% for agregado in agregados %}
+                                                        {% if agregado.idform.id == f.id %}
+                                                          {% if agregado.idsesion.id == sesion.id %}
+                                                            <a class="btn btn-primary" href="{% url 'qrformu' idsesion=sesion.id %}" role="button" target="_blank"><i class="bi bi-share-fill"></i></a>
+                                                          {% endif %} 
+                                                        {% endif %} 
+                                                      {% endfor %}
+                                                  </td>
                                               </tr>
                                           {% endfor %}
                                       {% endfor %}
@@ -119,11 +132,20 @@
                       <!--end vincular formularios-->
                     </td>
                     <td>
-                        <a href="{% url 'copiarform' idform=f.id %}"  class="btn btn-success"><i class="bi bi-copy"></i></a>
-                        <a href="{% url 'editarform' idform=f.id %}"  class="btn btn-info"><i class="bi bi-eye-fill"></i></a>
-                        <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal{{f.id}}">
-                          <i class="bi bi-trash3-fill"></i>
-                        </a>
+                      <div class="row">
+                        <div class="col-4">
+                          <a href="{% url 'copiarform' idform=f.id %}"  class="btn btn-success"><i class="bi bi-copy"></i></a>
+                        </div>
+                        <div class="col-4">
+                          <a href="{% url 'editarform' idform=f.id %}"  class="btn btn-info"><i class="bi bi-eye-fill"></i></a>
+                        </div>
+                        <div class="col-4">
+                          <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#eliminarModal{{f.id}}">
+                            <i class="bi bi-trash3-fill"></i>
+                          </a>
+                        </div>
+                      </div>
+                      
                         <!-- Modal -->
                         <div class="modal fade" id="eliminarModal{{f.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                           <div class="modal-dialog">
@@ -149,6 +171,7 @@
                 </tbody>
               </table>
               <!-- End Table with stripped rows -->
+              <!--=========================================-->
                </div>
             </div>
           </div>
@@ -157,4 +180,27 @@
     </section>
 </main><!-- End #main -->
   <!-- Aqui se encuentran las instrucciones para formularios -->
+ 
+  <script>
+    $(document).ready(function() {
+      // Función para filtrar una tabla específica
+      function filterTable(tableId, searchTerm) {
+        $('#' + tableId + ' tbody tr').each(function() {
+          var rowText = $(this).text().toLowerCase();
+          if (rowText.indexOf(searchTerm) === -1) {
+            $(this).hide();
+          } else {
+            $(this).show();
+          }
+        });
+      }
+    
+      // Evento de entrada para los campos de búsqueda
+      $('[id^="searchInput"]').on('input', function() {
+        var searchTerm = $(this).val().toLowerCase();
+        var tableId = 'tablaDatos' + $(this).attr('id').replace('searchInput', '');
+        filterTable(tableId, searchTerm);
+      });
+    });
+    </script>
   {% endblock %} 

@@ -11,21 +11,17 @@
     </div>
     {% endif %}
     <!--end alertar-->
-    
-    <div class="row">
-       <div class="col-3 d-none d-sm-block"></div>
-       <div class="col-12 col-lg-6 ">
-         <div class="container text-center">
-            <h1 style="text-align: center">AppCultura</h1>
-            <br>
-            <img src="{% static '' %}{{qr_code_url}}">
-            <br>
-            <button type="button" class="btn btn-warning" onclick="copiarlink('{{data}}')" id="btnlink">Copiar Enlace</button>
-         </div>
-         
-       </div>
-       <div class="col-3 d-none d-sm-block"></div>
+     <div class="row">
+      <div class="col-12 text-center">
+          <h2>AppCultura</h2>
+          <br>
+          <img src="{% static '' %}{{qr_code_url}}" class="rounded mx-auto d-block d-sm-none" alt="Cargando imagen ..." style="width: 200px; height: 200px;">
+          <img src="{% static '' %}{{qr_code_url}}" class="rounded mx-auto d-block d-none d-sm-block" alt="Cargando imagen ..." style="width: 300px; height: 300px;">
+          <br>
+          <button type="button" class="btn btn-warning btn-block" onclick="copiarlink('{{data}}')" id="btnlink">Copiar Enlace</button>
+      </div>
     </div>
+
     <br><br>
     
 </div>

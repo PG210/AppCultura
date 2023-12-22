@@ -8,20 +8,22 @@ from urllib import request
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse #sirve para hacer las peticiones
+from django.http import HttpResponse, HttpResponseRedirect #sirve para hacer las peticiones
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required # proteger las rutas de accesos
 from django.contrib import messages #mensajes para la vista
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
+from django.urls import reverse
+from django.db import transaction
 
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
 from appcultura.modelos.estado_compromisos import EstadoCompromisos #errores de la base de datos
 from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
 from django.contrib import messages #mensajes para la vista
-from ..models import TemasSesion, Grupos, GruposCursos, GruposUser
-from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa,Cargo
+from ..models import TemasSesion, Grupos, GruposCursos, GruposUser, Competencias, CompetenciaCurso
+from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, Cargo
 from django.db.models import Subquery, OuterRef, Q
 from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, SesionAsistencia, RolUser
 from django.db.models import Subquery, OuterRef
@@ -38,6 +40,7 @@ from appcultura.viewfile.fadmin.functionadmin import generar_qr
 @login_required #proteger la ruta
 def registroCursos(request):
   perfil_usuario = UserPerfil.objects.get(user=request.user)
+  competencias = Competencias.objects.all()
   if request.method == 'POST':
       #=== Get data lists =======
       print(request.POST)
@@ -46,6 +49,7 @@ def registroCursos(request):
       lugares = request.POST.getlist('lugar[]')
       descripciones = request.POST.getlist('desobj[]')
       competencias = request.POST.getlist('competencias[]')
+      compe = request.POST.getlist('compe')
       nombre_curso = request.POST['nombre']
       
       #================ verify that all variables have data ==============
@@ -63,6 +67,11 @@ def registroCursos(request):
       regcurso.save()
       idcurso = Curso.objects.get(id=regcurso.id)
 
+      #=========== registers of competences =================
+      for com in compe:
+          idcom = Competencias.objects.get(id=com)
+          regcom = CompetenciaCurso(idcompetencia=idcom, idcurso=idcurso)
+          regcom.save()
       #======= here register of objectives of course ==========
       for description, competencia in zip(descripciones, competencias):
             regobject = ObjetivosCurso(descrip=description, competencias=competencia, idcurso=idcurso)
@@ -91,9 +100,9 @@ def registroCursos(request):
             regtema.save()
       #========= send messaje and return the view of courses =================
       mensaje = "Curso registrado exitosamente"
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje})
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje, 'competencias':competencias})
   else:
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario})
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':competencias})
 
 #Rergistro de Empresas
 @login_required
@@ -172,7 +181,8 @@ def listarcursos(request):
        sesiones = Sesioncurso.objects.all()
        objetivos = ObjetivosCurso.objects.all()
        tematicas = TemasSesion.objects.all()
-       return render(request, 'admin/listcursos.html', {'usu':perfil_usuario, 'cursos':cursos, 'sesiones':sesiones, 'objetivos':objetivos, 'tematicas':tematicas})
+       compe = CompetenciaCurso.objects.all()
+       return render(request, 'admin/listcursos.html', {'usu':perfil_usuario, 'cursos':cursos, 'sesiones':sesiones, 'objetivos':objetivos, 'tematicas':tematicas, 'compes':compe})
   
 #eliminar curso
 @login_required #proteger la ruta
@@ -519,9 +529,99 @@ def creargrupo(request):
       grupos_faltantes = ngrupos.exclude(
             Q(gruposuser__in=addgrupouser) | Q(gruposcursos__in=addgrupocurso)
         )
-      print(grupos_faltantes)
-      return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios})
-#======= listado de grupos ============
+      #===========obtener los datos para agregar un nuevo usuario ================
+      rol = RolUser.objects.all()
+      empresa = Empresa.objects.all()
+      cargo = Cargo.objects.all()
+      depars = Departamento.objects.all()
+      areas =Area.objects.all()
+      return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios, 'rol':rol, 'empresa':empresa, 'cargo':cargo, 'depars':depars, 'areas':areas})
+#================================================
+#======== Duplicar grupo con todos sus usuarios y cursos agregados ================
+def duplicarGrupo(request, idgr):
+    grupo_original = get_object_or_404(Grupos, id=idgr)
+    with transaction.atomic():
+        # Duplicar el formulario
+        grupo_nuevo = Grupos.objects.create(
+            nombre=f"{grupo_original.nombre} (Copia)",
+            descrip=f"{grupo_original.descrip} (Copia)",
+        )
+        #Duplicar los cursos
+        for cursos_original in GruposCursos.objects.filter(idgrupo=grupo_original):
+            curso_nuevo = GruposCursos.objects.create(
+                idcurso=cursos_original.idcurso,
+                idgrupo=grupo_nuevo,
+            )
+        #duplicar los usuarios en los grupos
+        for usuarios_original in GruposUser.objects.filter(idgrupo=grupo_original):
+            usuarios_nuevo = GruposUser.objects.create(
+                iduser=usuarios_original.iduser,
+                idgrupo=grupo_nuevo,
+            )
+    return HttpResponseRedirect(reverse('listGrupos'))
+#======= Agregar nuevo grupo desde la parte del admin ============
+@login_required #proteger la ruta
+def saveusernuevo(request):
+    if request.method == 'POST':
+       perfil_usuario = UserPerfil.objects.get(user=request.user)
+       ngrupos = Grupos.objects.all()
+       addgrupouser = GruposUser.objects.all()
+       addgrupocurso = GruposCursos.objects.all()
+       cursos = Curso.objects.all()
+       usuarios = UserPerfil.objects.all()
+       rol = RolUser.objects.all()
+       empresa = Empresa.objects.all()
+       cargo = Cargo.objects.all()
+       depars = Departamento.objects.all()
+       areas =Area.objects.all()
+       #============ solamente obtener los grupos que no tienen ningun curso o usuario vinculado =============
+       grupos_faltantes = ngrupos.exclude(
+            Q(gruposuser__in=addgrupouser) | Q(gruposcursos__in=addgrupocurso)
+        )
+       #===========guardar usuario nuevo ======================
+       user = User.objects.create_user(username=request.POST['email'], 
+       password=request.POST['ced'])
+       user.save()
+       #========= guardar en userperfil =================
+       user_id = User.objects.latest('id').id
+       user_n = User.objects.get(id=user_id)
+       id_rol = request.POST['rol']
+       rol_user = RolUser.objects.get(id=id_rol)
+       id_cargo = request.POST['cargo']
+       cargo_user = Cargo.objects.get(id=id_cargo)
+       id_empresa = Empresa.objects.get(id=request.POST['empresa'])
+       id_area = request.POST['area']
+       area_iden = Area.objects.get(id=id_area)
+       idpear = request.POST['depar'] # aqui cambia a none si es vacia
+       id_depar = Departamento.objects.get(id=idpear)
+       if idpear is not None and idpear != '':
+           try:
+               empresa_user = EmpresaAreas.objects.get(idempresa=id_empresa, idarea=area_iden, idepar=id_depar)
+               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user_n)
+               userper.save()
+           except EmpresaAreas.DoesNotExist:
+               crearrelacion = EmpresaAreas(idempresa=id_empresa, idarea=area_iden, idepar=id_depar)
+               crearrelacion.save()
+               #========== guardar datos de usuario
+               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=crearrelacion, user=user_n)
+               userper.save()
+       else:
+           try:
+               empresa_user = EmpresaAreas.objects.get(idempresa=id_empresa, idarea=area_iden,  idepar__isnull=True)
+               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user_n)
+               userper.save()
+           except EmpresaAreas.DoesNotExist:
+               crearrelacion = EmpresaAreas(idempresa=id_empresa, idarea=area_iden)
+               crearrelacion.save()
+               #======= guardar datos==========
+               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=crearrelacion, user=user_n)
+               userper.save()
+       #================ buscar el id de la empresa ===================
+       mensaje = "Usuario guardado de manera exitosa."
+       messages.info(request, mensaje)
+       return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios, 'rol':rol, 'empresa':empresa, 'cargo':cargo, 'depars':depars, 'areas':areas})
+
+       
 #============= crear grupo ============
 @login_required #proteger la ruta
 def addgrupo(request):
@@ -597,6 +697,38 @@ def editargrupo(request):
         except Grupos.DoesNotExist:
             return JsonResponse({'mensaje': 'No se encontró el objeto con el ID proporcionado.'}, status=404)
 
+# editar grupo desde la vista de grupos agregados
+@login_required #proteger la ruta
+def editargrupoagregado(request):
+    if request.method == 'POST':
+        idgr = request.POST.get('idgrupo')
+        nom = request.POST.get('nombre')
+        des = request.POST.get('descrip')
+        try:
+            if nom != '' and des != '':
+                if Grupos.objects.filter(nombre=nom).exists():
+                    mensaje = "Ya existe un grupo con ese nombre. Por favor, elige un nombre diferente."
+                    messages.error(request, mensaje)
+                    url = reverse('listGrupos')
+                    return HttpResponseRedirect(url)
+                else:
+                    datosGrupo = Grupos.objects.get(id=idgr)
+                    datosGrupo.nombre = nom
+                    datosGrupo.descrip = des
+                    datosGrupo.save()
+                    mensaje = "La información se actualizó de manera exitosa."
+                    messages.error(request, mensaje)
+                    return HttpResponseRedirect(reverse('listGrupos'))
+                    #========== validar los grupos solamente aparecer los que estan sin vinculos=========
+            else:
+                mensaje = "Los campos no pueden estar vacios."
+                messages.error(request, mensaje)
+                return HttpResponseRedirect(reverse('listGrupos'))
+        except Grupos.DoesNotExist:
+            mensaje = "No se encontró el grupo para realizar los cambios."
+            messages.error(request, mensaje)
+            return HttpResponseRedirect(reverse('listGrupos'))
+        
 # listar los usuarios pertenecientes a un grupo
 @login_required #proteger la ruta
 def usersgrupo(request, idgrupo):
@@ -936,7 +1068,7 @@ def inscribir_asistente(request, idsesion):
     else:
         return redirect('validarasistencia', idsesion=idsesion)
 
-login_required    
+@login_required    
 def cambiar_pendiente(request, iduser, idsesion):
     if request.method == 'POST':
         usuario = UserPerfil.objects.get(id=iduser)
@@ -949,3 +1081,30 @@ def cambiar_pendiente(request, iduser, idsesion):
         messages.success(request,"Cambio de estado realizado satisfactoriamente")
         return redirect('listarasistentes', idsesion=idsesion)
 
+#=================Aqui se registra una nueva competencia ================
+@login_required  
+def crearCompetencia(request):
+    competencia = request.POST.get('comp')
+    competencia_existente = Competencias.objects.filter(nombre=competencia).exists()
+    if competencia_existente:
+         mensaje = "Esta competencia ya se encuentra registrada."
+         messages.error(request, mensaje)
+         return HttpResponseRedirect(reverse('registroCursos'))
+    else:
+        com = Competencias(nombre=competencia)
+        com.save()
+        mensaje = "La competencia se ha registrado de manera exitosa"
+        messages.error(request, mensaje)
+        return HttpResponseRedirect(reverse('registroCursos'))
+
+#==================== eliminar competencia ==================
+@login_required  
+def eliminarCompetencia(request, idcom):
+    if request.method == 'POST':
+        competencia = get_object_or_404(Competencias, id=idcom)
+        competencia.delete()
+        mensaje = "Competencia eliminada de manera exitosa."
+        perfil_usuario = UserPerfil.objects.get(user=request.user)
+        competencias = Competencias.objects.all()
+        return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':competencias, 'msj':mensaje})
+        
