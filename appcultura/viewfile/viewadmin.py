@@ -16,6 +16,7 @@ from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from django.urls import reverse
 from django.db import transaction
+import pandas as pd
 
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
@@ -43,7 +44,6 @@ def registroCursos(request):
   competencias = Competencias.objects.all()
   if request.method == 'POST':
       #=== Get data lists =======
-      print(request.POST)
       fechas_inicio = request.POST.getlist('fecha_inicio[]')
       fechas_final = request.POST.getlist('fecha_final[]')
       lugares = request.POST.getlist('lugar[]')
@@ -1131,11 +1131,160 @@ def crearCompetencia(request):
 #==================== eliminar competencia ==================
 @login_required  
 def eliminarCompetencia(request, idcom):
+    competencia = get_object_or_404(Competencias, id=idcom)
+    competencia.delete()
+    mensaje = "Competencia eliminada de manera exitosa."
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    competencias = Competencias.objects.all()
+    return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':competencias, 'msj':mensaje})
+
+#================= registro de usuarios ======================
+@login_required
+def registroUser(request):
+     mensaje = ''
+     perfil_usuario = UserPerfil.objects.get(user=request.user)
+     if request.method == 'POST' and request.FILES['archivo']:
+        archivo_excel = request.FILES['archivo']
+        print('Archivo aqui', archivo_excel) 
+        # Utilizamos pandas para leer el archivo Excel directamente desde la memoria
+        df = pd.read_excel(archivo_excel)
+        #=============== obtener los cargos, roluser, empresa fuera del bucle ======
+        id_roles = df['Idrol'].unique()
+        id_cargos = df['Idcargo'].unique()
+        id_empresas = df['Idempresa'].unique()
+        #===== obtener todas las relaciones ===============
+        roles = {role.id: role for role in RolUser.objects.filter(id__in=id_roles)}
+        cargos = {cargo.id: cargo for cargo in Cargo.objects.filter(id__in=id_cargos)}
+        empresas = {empresa.id: empresa for empresa in EmpresaAreas.objects.filter(id__in=id_empresas)}
+        #========== registrar a los usuarios ===============
+        for index, row in df.iterrows():
+            try: 
+                if User.objects.filter(username=row['Email']).exists():
+                   mensaje = "Alguno de los usuarios ya estan registrados"
+                   continue
+                user = User.objects.create_user(username=row['Email'], password=row['Password'])
+                user.save()
+                #========== registrar los datos en perfil user
+                userper = UserPerfil(nombre=row['Nombre'], apellido=row['Apellido'], cedula=row['Cedula'], telefono=row['Telefono'], idrol=roles[row['Idrol']], idcargo=cargos[row['Idcargo']], idempresa=empresas[row['Idempresa']], user=user )
+                userper.save()
+                mensaje = "Registros importados de manera exitosa!"
+            except IntegrityError:
+                mensaje = "Error al procesar el registro"
+            #======== end registrar ============================
+     usuarios = UserPerfil.objects.all() #=== todos los usuarios para listar
+     empresa = Empresa.objects.all() #== listado de empresas
+     areas = Area.objects.all() 
+     depar = Departamento.objects.all()
+     cargo = Cargo.objects.all()
+     rol = RolUser.objects.all()
+     return render(request, 'admin/registrouser.html', {'usu':perfil_usuario, 'mensaje':mensaje, 'usuarios':usuarios, 'empresa':empresa, 'areas':areas, 'depar':depar, 'cargo':cargo, 'roles':rol})
+
+#================= aqui registrar nuevo usuario =================
+@login_required
+def addNewUser(request):
     if request.method == 'POST':
-        competencia = get_object_or_404(Competencias, id=idcom)
-        competencia.delete()
-        mensaje = "Competencia eliminada de manera exitosa."
-        perfil_usuario = UserPerfil.objects.get(user=request.user)
-        competencias = Competencias.objects.all()
-        return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':competencias, 'msj':mensaje})
-        
+       print(request.POST)
+       #================== registrar user ==============
+       try: 
+              id_rol = request.POST['rol']
+              id_cargo = request.POST['cargo']
+              idempresa =  request.POST['empresa']
+              idepar = request.POST.get('depar', '')
+              idarea = request.POST.get('area', '')
+              #================ consultas ====
+              if not idepar:
+                 id_depar = ''
+              else: 
+                 id_depar = get_object_or_404(Departamento, id=idepar)
+              #======================
+              rol_user = get_object_or_404(RolUser, id=id_rol)
+              cargo_user = get_object_or_404(Cargo, id=id_cargo)
+              id_empresa  = get_object_or_404(Empresa, id=idempresa)
+              
+              id_area = get_object_or_404(Area, id=idarea)
+              #===================================================
+              if not id_depar: #=== validar si existe un departamento 
+                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=None)
+              else:
+                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=id_depar)
+              #========= crear el usuario ========
+              user = User.objects.create_user(username=request.POST['email'], password=request.POST['pass'])
+              user.save()
+              #========== crear el user perfil==========
+              userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user )
+              userper.save()
+              mensajereg = f"El usuario: {userper.user.username}, ha sido registrado exitosamente"
+       except IntegrityError:
+              mensajereg = "Error: El usuario ya se encuentra registrado."
+    messages.error(request, mensajereg)
+    return HttpResponseRedirect(reverse('registroUser'))
+
+#==========eliminar usuarios==================
+@login_required
+def deleteUser(request, idusu):
+    find_user = get_object_or_404(UserPerfil, id=idusu)
+    find_user.delete()
+    mensajeDelete = f"Usuario: {find_user.user.username}, eliminado de manera exitosa "
+    messages.error(request, mensajeDelete)
+    return HttpResponseRedirect(reverse('registroUser'))
+
+#============= desactivar un usuario ===========
+@login_required
+def lockaccess(request, idusu):
+    user = get_object_or_404(UserPerfil, id=idusu)
+    if user.estado != 0:
+        user.estado = 0
+    else:
+        user.estado = 1
+    user.save()
+    mensajeDelete = f"El estado del usuario: {user.user.username}, ha cambiado de manera exitosa."
+    messages.error(request, mensajeDelete)
+    return HttpResponseRedirect(reverse('registroUser'))
+
+#============= update user =====
+@login_required
+def updateUser(request, idusu):
+    if request.method == 'POST':
+      try: 
+              id_rol = request.POST.get('rol', '')
+              id_cargo = request.POST.get('cargo', '')
+              idempresa =  request.POST.get('empresa', '')
+              idepar = request.POST.get('depar', '')
+              idarea = request.POST.get('area', '')
+              passw = request.POST.get('pass', '')
+
+              #================ consultas ====
+              if not idepar:
+                 id_depar = ''
+              else: 
+                 id_depar = get_object_or_404(Departamento, id=idepar)
+              #============ validar que no esten vacios =======
+              rol_user = get_object_or_404(RolUser, id=id_rol)
+              cargo_user = get_object_or_404(Cargo, id=id_cargo)
+              id_empresa  = get_object_or_404(Empresa, id=idempresa)
+              id_area = get_object_or_404(Area, id=idarea)
+              #===================================================
+              if not id_depar: #=== validar si existe un departamento 
+                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=None)
+              else:
+                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=id_depar)
+              #========== actualizar el user perfil==========
+              userupdate = get_object_or_404(UserPerfil, id=idusu)
+              userupdate.nombre = request.POST['nombre']
+              userupdate.apellido = request.POST['apellido']
+              userupdate.cedula = request.POST['ced']
+              userupdate.idrol = rol_user 
+              userupdate.idcargo = cargo_user
+              userupdate.idempresa = empresa_user             
+              userupdate.save()
+              #========= update el usuario ========
+              user = get_object_or_404(User, id=userupdate.user.id)
+              if passw:
+                user.password = request.POST['passw']
+                user.save()
+              #================================================
+              mensajeUpdate = f"El usuario: {userupdate.user.username}, ha sido actualizado exitosamente"
+      except IntegrityError:
+              mensajeUpdate = "Error: El sistema no puede encontrar el usuario."
+      messages.error(request, mensajeUpdate)
+      return HttpResponseRedirect(reverse('registroUser'))

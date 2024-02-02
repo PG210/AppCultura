@@ -12,7 +12,7 @@ class UserPerfil(models.Model):
     telefono = models.CharField(max_length=255, null=True, blank=True)
     estado = models.IntegerField(default=1)
     idrol = models.ForeignKey(RolUser, on_delete=models.CASCADE)  # Permitir múltiples usuarios con el mismo rol
-    idcargo = models.ForeignKey(Cargo, on_delete=models.CASCADE)
-    idempresa = models.ForeignKey(EmpresaAreas, on_delete=models.CASCADE)
+    idcargo = models.ForeignKey(Cargo, on_delete=models.CASCADE, null=True)
+    idempresa = models.ForeignKey(EmpresaAreas, on_delete=models.CASCADE,  null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     pendiente = models.BooleanField(null=True)

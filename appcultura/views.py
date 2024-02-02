@@ -24,8 +24,18 @@ def loginuser(request):
                   'error': "Usuario o contraseña no valido",
                })
          else:
-              login(request, user) #crear la sesion
-              return redirect('administracion') # redirecciona a otra vista
+              #======= validar que no este desactivado =============
+              usercom  = get_object_or_404(User, username=user)
+              perfilusu = get_object_or_404(UserPerfil, user=usercom)
+             
+              if perfilusu.estado == 1:
+                  login(request, user) #crear la sesion
+                  return redirect('administracion') # redirecciona a otra vista
+              else:
+                 print('El usuario esta desactivado:', perfilusu.estado)
+                 return render(request, 'layoutsinicio/login.html', {
+                  'error': "el usuario esta desactivado, contacte al administrador.",
+                })  
     else:
          return render(request, 'layoutsinicio/login.html') 
 

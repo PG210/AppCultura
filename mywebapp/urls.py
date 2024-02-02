@@ -18,7 +18,7 @@ from django.urls import path
 from appcultura import views
 from appcultura.viewfile import viewadmin #utilizar una nueva vista 
 from appcultura.viewfile import viewformu #crear formularios
-from appcultura.viewfile import viewuser #Utilizar la vista de usuario
+from appcultura.viewfile import viewuser, viewformador #Utilizar la vista de usuario
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -124,8 +124,18 @@ urlpatterns = [
     path('usuarios/compromisos/editar/<int:idcomp>/', viewuser.editarcompromiso, name="editarcompromiso"),
     path('usuarios/inscribiruser/<int:idsesion>/', viewadmin.inscribir_asistente, name="inscribirasistente"),
     #============================ Fin de Rutas de usuario ===========================================================
+    
+    #============================= carga masiva de los usuarios desde el amdin==================
+    path('usuarios/view/registro/', viewadmin.registroUser, name="registroUser"),
+    path('usuarios/view/nuevo/user/', viewadmin.addNewUser, name="addNewUser"),
+    path('usuarios/view/delete/user/<int:idusu>/', viewadmin.deleteUser, name="deleteUser"),
+    path('usuarios/view/lock/user/<int:idusu>/', viewadmin.lockaccess, name="lockaccess"),
+    path('usuarios/view/update/user/<int:idusu>/', viewadmin.updateUser, name="updateUser"),
 
-
+    #=================================== crear links de formadores =========================
+    path('view/new/trainer/', viewformador.viewhome, name="viewhome"),
+    path('add/new/trainer/', viewformador.registerTrainer, name="registerTrainer"),
+    
     #====================================Apis=======================================================================
 
 ]   

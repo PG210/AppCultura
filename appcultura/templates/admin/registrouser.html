@@ -1,0 +1,487 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+{% load static %}
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Registro de usuarios</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="/administracion/">Inicio</a>
+        </li>
+        <li class="breadcrumb-item active">Registro usuarios</li>
+      </ol>
+    </nav>
+  </div>
+  <!-- End Page Title -->
+
+  <section class="section dashboard">
+    <div class="row">
+      <!-- registro de cursos forms -->
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <!-- Table with stripped rows -->
+            {% if mensaje %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              <strong>{{ mensaje }}</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            {% if messages %}
+            <br>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {% for message in messages %}
+                  <strong>{{ message }}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <br>
+            <!--===================== botones ========================-->
+            <div class="btn-group" role="group" aria-label="Basic outlined example">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="offcanvas" data-bs-target="#canvasNuevoUser" aria-controls="offcanvasRight"><i class="bi bi-person-plus-fill"></i> Nuevo</button>
+
+                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#ImportarUser"><i class="bi bi-file-earmark-excel-fill"></i> Importar</button>
+                <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#formadores"><i class="bi bi-share-fill"></i> Formadores</button>
+                <!--=================== nuevo user =========-->
+                <!-- Button trigger modal -->
+                <!-- Modal -->
+                <div class="modal fade" id="formadores" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Compartir link de registro</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <!--======== aqui copiar ===========-->
+                        <p><small>Nota: Te invito a compartir el siguiente enlace con los formadores para que puedan realizar su registro y crear el curso correspondiente.</small></p>
+                        <div class="mb-3">
+                          <div class="row">
+                            <div class="col-12">
+                              <input type="text" class="form-control" id="ruta_input" value="http://127.0.0.1:8000/view/new/trainer/" readonly>
+                            </div>
+                          </div>
+                            <div class="row mt-2">
+                            <div class="col-12">
+                              <div class="btn-group" role="group" aria-label="Basic outlined compartir">
+                                <button type="button" class="btn btn-outline-primary" onclick="copiarRuta()"><i class="bi bi-copy"></i></button>
+                                <a type="button" class="btn btn-outline-primary" href="https://api.whatsapp.com/send?text=¡Hola!, te comparto el enlace de registro de formadores: http://127.0.0.1:8000/view/new/trainer/" target="_blank"><i class="bi bi-whatsapp"></i></a>
+                                <a href="mailto:?subject=Registro de formadores&amp;body=¡Hola!%20te%20comparto%20a%20el%20enlace%20de%20registro%20de%20formadores%20http://127.0.0.1:8000/view/new/trainer/%20" class="btn btn-outline-primary"><i class="bi bi-envelope"></i></a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!--================================-->
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!---camvas para editar usuario-->
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="canvasNuevoUser" aria-labelledby="offcanvasRightLabel">
+                  <hr>
+                  <div class="offcanvas-body">
+                    <!--form-->
+                    <p><small>Nota: (*) Los campos con este simbolo son requeridos para hacer el registro.</small></p>
+                    <form class="form-control" action="{% url 'addNewUser' %}" method="post">
+                      {% csrf_token %}
+                      <div class="alert alert-secondary" role="alert">
+                        Información personal
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="nombre" class="col-sm-4 col-form-label">Nombre (*)</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                    </div>
+                      <div class="mb-2 row">
+                        <label for="apellido" class="col-sm-4 col-form-label">Apellido (*)</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="apellido" name="apellido" required>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="email" class="col-sm-4 col-form-label">Correo (*)</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="email" name="email" required>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="ced" class="col-sm-4 col-form-label">Cedula</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="ced" name="ced">
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="tel" class="col-sm-4 col-form-label">Teléfono</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="tel" name="tel">
+                        </div>
+                      </div>
+                      <div class="alert alert-secondary" role="alert">
+                        Información laboral
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="empresa" class="col-sm-4 col-form-label">Empresa (*)</label>
+                        <div class="col-sm-8">
+                          <select class="form-select" aria-label="Default select example" id="empresa" name="empresa" required>
+                            <option selected value="">Elegir ...</option>
+                            {% for emp in empresa %}
+                            <option value="{{emp.id}}">{{emp.nombre}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="area" class="col-sm-4 col-form-label">Area (*)</label>
+                        <div class="col-sm-8">
+                          <select class="form-select" aria-label="Default select example" id="area" name="area" required>
+                            <option selected value="">Elegir ...</option>
+                            {% for area in areas %}
+                            <option value="{{area.id}}">{{area.nombre}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="depar" class="col-sm-4 col-form-label">Dpto. </label>
+                        <div class="col-sm-8">
+                          <select class="form-select" aria-label="Default select example" id="depar" name="depar">
+                            <option selected value="">Elegir ...</option>
+                            {% for dep in depar %}
+                            <option value="{{dep.id}}">{{dep.nombre}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="cargo" class="col-sm-4 col-form-label">Cargo (*)</label>
+                        <div class="col-sm-8">
+                          <select class="form-select" aria-label="Default select example" id="cargo" name="cargo" required>
+                            <option selected value="">Elegir ...</option>
+                            {% for car in cargo %}
+                            <option value="{{car.id}}">{{car.nombre}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="alert alert-secondary" role="alert">
+                        Información de la plataforma
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="rol" class="col-sm-4 col-form-label">Rol (*)</label>
+                        <div class="col-sm-8">
+                          <select class="form-select" aria-label="Default select example" id="rol" name="rol" required>
+                            <option selected value="">Elegir ...</option>
+                            {% for rol in roles %}
+                            <option value="{{rol.id}}">{{rol.descrip}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="pass" class="col-sm-4 col-form-label">Passw. (*)</label>
+                        <div class="col-sm-8">
+                          <input type="password" class="form-control" id="pass" name="pass" required>
+                          <input type="checkbox" id="showPassword" onchange="togglePassword()"> Mostrar contraseña
+                        </div>
+                      </div>
+                      <!--botones---->
+                      <div class="mt-4 mb-3 row">
+                        <div class="col-sm-12 text-center">
+                          <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                            <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                          </div>
+                        </div>
+                      </div>
+                      <!--end botones-->
+                    </form>
+                    <!--end form-->
+                  </div>
+                </div>
+              <!--end editar-->
+                <!--=====================================-->
+                     <!-- Modal -->
+                     <div class="modal fade" id="ImportarUser" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Importación De Usuarios</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                            <!--importacion-->
+                            <form action="#" method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                  <label for="archivo" class="col-form-label">Subir archivo (.xlsx):</label>
+                                  <input type="file" class="form-control" id="archivo" name="archivo" accept=".xlsx" required>
+                                </div>
+                            <!--end -->
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            </div>
+                          </form>
+                        </div>
+                        </div>
+                    </div>
+                <!--end modals-->
+            </div>
+            <!--================end botones ========================-->
+            <hr>
+            <div class="table-responsive">
+              <table class="table" id="tablareactiva">
+                <thead>
+                  <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Apellido</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for usu in usuarios %}
+                  <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ usu.nombre }}</td>
+                    <td>{{ usu.apellido }}</td>
+                    <td>{{ usu.user.username}}</td>
+                    <td>{{usu.idrol.descrip}}</td>
+                    <td>{% if usu.estado == 1 %} Activado {% else %} <span style="background-color: yellow;">Inactivo </span> {% endif %}</td>
+                    <td>
+                      <div class="btn-group" role="group" aria-label="Default button group">
+                        <button type="button" class="btn btn-outline-info" data-bs-toggle="offcanvas" data-bs-target="#canvasEditarUser{{usu.id}}" aria-controls="offcanvasRight"><i class="bi bi-pencil-square"></i></button>
+                        <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalDesactivar{{usu.id}}"><i class="bi bi-person-slash"></i></button>
+                        <button type="button" class="btn btn-outline-danger"  data-bs-toggle="modal" data-bs-target="#modalEliminar{{usu.id}}"><i class="bi bi-trash3-fill"></i></button>
+                      </div>
+                      <!---camvas para editar usuario-->
+                        <div class="offcanvas offcanvas-end" tabindex="-1" id="canvasEditarUser{{usu.id}}" aria-labelledby="offcanvasRightLabel">
+                          <hr>
+                          <div class="offcanvas-body">
+                            <!--form-->
+                            <form class="form-control" action="{% url 'updateUser' idusu=usu.id %}" method="post">
+                              {% csrf_token %}
+                              <div class="alert alert-secondary" role="alert">
+                                Información personal
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="nombre" class="col-sm-4 col-form-label">Nombre</label>
+                                <div class="col-sm-8">
+                                  <input type="text" class="form-control" id="nombre" name="nombre" value="{{usu.nombre}}">
+                                </div>
+                            </div>
+                              <div class="mb-2 row">
+                                <label for="apellido" class="col-sm-4 col-form-label">Apellido</label>
+                                <div class="col-sm-8">
+                                  <input type="text" class="form-control" id="apellido" name="apellido" value="{{usu.apellido}}">
+                                </div>
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="email" class="col-sm-4 col-form-label">Correo</label>
+                                <div class="col-sm-8">
+                                  <input type="text" class="form-control" id="email" name="email" value="{{usu.user.username}}" readonly>
+                                </div>
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="ced" class="col-sm-4 col-form-label">Cedula</label>
+                                <div class="col-sm-8">
+                                  <input type="text" class="form-control" id="ced" name="ced" value="{{usu.cedula}}">
+                                </div>
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="tel" class="col-sm-4 col-form-label">Teléfono</label>
+                                <div class="col-sm-8">
+                                  <input type="text" class="form-control" id="tel" name="tel" value="{{usu.telefono}}">
+                                </div>
+                              </div>
+                              <div class="alert alert-secondary" role="alert">
+                                Información laboral
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="empresa" class="col-sm-4 col-form-label">Empresa</label>
+                                <div class="col-sm-8">
+                                  <select class="form-select" aria-label="Default select example" id="empresa" name="empresa" required>
+                                    <option selected value="{{usu.idempresa.idempresa.id}}">{{usu.idempresa.idempresa.nombre}}</option>
+                                    {% for emp in empresa %}
+                                      {% if usu.idempresa.idempresa.id != emp.id %}
+                                      <option value="{{emp.id}}">{{emp.nombre}}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="area" class="col-sm-4 col-form-label">Area</label>
+                                <div class="col-sm-8">
+                                  <select class="form-select" aria-label="Default select example" id="area" name="area" required>
+                                    <option selected value="{{usu.idempresa.idarea.id}}">{{usu.idempresa.idarea.nombre}}</option>
+                                    {% for area in areas %}
+                                      {% if usu.idempresa.idarea.id != area.id %}
+                                      <option value="{{area.id}}">{{area.nombre}}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="depar" class="col-sm-4 col-form-label">Dpto.</label>
+                                <div class="col-sm-8">
+                                  <select class="form-select" aria-label="Default select example" id="depar" name="depar">
+                                    <option selected value="{{usu.idempresa.idepar.id}}">{{usu.idempresa.idepar.nombre}}</option>
+                                    <option value="">Elegir ... </option>
+                                    {% for dep in depar %}
+                                    {% if usu.idempresa.idepar.id != dep.id %}
+                                    <option value="{{dep.id}}">{{dep.nombre}}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="cargo" class="col-sm-4 col-form-label">Cargo</label>
+                                <div class="col-sm-8">
+                                  <select class="form-select" aria-label="Default select example" id="cargo" name="cargo" required>
+                                    <option selected value="{{usu.idcargo.id}}">{{usu.idcargo.nombre}}</option>
+                                    {% for car in cargo %}
+                                      {% if usu.idcargo.id != car.id %}
+                                      <option value="{{car.id}}">{{car.nombre}}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="alert alert-secondary" role="alert">
+                                Información de la plataforma
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="rol" class="col-sm-4 col-form-label">Rol (*)</label>
+                                <div class="col-sm-8">
+                                  <select class="form-select" aria-label="Default select example" id="rol" name="rol">
+                                    <option selected value="{{usu.idrol.id}}">{{usu.idrol.descrip}}</option>
+                                    {% for rol in roles %}
+                                      {% if usu.idrol.id != rol.id %}
+                                      <option value="{{rol.id}}">{{rol.descrip}}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="mb-2 row">
+                                <label for="pass" class="col-sm-4 col-form-label">Passw. (*)</label>
+                                <div class="col-sm-8">
+                                  <input type="password" class="form-control" id="passw" name="passw">
+                                </div>
+                              </div>
+                              <!--botones---->
+                              <div class="mt-4 mb-3 row">
+                                <div class="col-sm-12 text-center">
+                                  <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                    <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                                  </div>
+                                </div>
+                              </div>
+                              <!--end botones-->
+                            </form>
+                            <!--end form-->
+                          </div>
+                        </div>
+                      <!--end editar-->
+                      <!---============= desativar usuario ============-->
+                      <!-- Button trigger modal -->
+                  <!-- Modal -->
+                  <div class="modal fade" id="modalDesactivar{{usu.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de confirmación</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" style="text-align: justify;">
+                          <!--informacion-->
+                          {% if usu.estado == 1 %} 
+                           <p><small>¿Está seguro de que desea desactivar al usuario: <b>{{usu.nombre}} {{usu.apellido}}</b>?</small></p>
+                           <p><small> Tenga en cuenta que si procede con esta acción, {{usu.nombre}} ya no podrá acceder a la plataforma.</small></p>
+                           {% else %} 
+                           <p><small>¿Desea dar acceso a la plataforma al usuario: <b>{{usu.nombre}} {{usu.apellido}}</b>? </small></p>
+                           {% endif %}
+                           <!--end info-->
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                          <a type="button" class="btn btn-info" href="{% url 'lockaccess' idusu=usu.id %}">Si</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                      <!--========end desactivar usuario ==============-->
+                      <!--==============eliminar usuario ===============-->
+                      <!-- Modal -->
+                  <div class="modal fade" id="modalEliminar{{usu.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de confirmación</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" style="text-align: justify;">
+                          <!--informacion-->
+                           <p><small>¿Está seguro de que desea eliminar al usuario: <b>{{usu.nombre}} {{usu.apellido}}</b>?</small></p>
+                           <p><small>Tenga en cuenta que si procede con esta acción, los datos se borraran de manera permanente.</small></p>
+                           <!--end info-->
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                          <a type="button" class="btn btn-info" href="{% url 'deleteUser' idusu=usu.id %}">Si</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!--=====================================================-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<!-- End #main -->
+<script>
+  function togglePassword() {
+      var passwordInput = document.getElementById('pass');
+      var showPasswordCheckbox = document.getElementById('showPassword');
+      // Cambiar el tipo de input basado en la casilla de verificación
+      passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
+  }
+  //================ funcion para registrar============
+  function copiarRuta() {
+      var inputElement = document.getElementById("ruta_input");
+
+      // Seleccionar el texto dentro del campo de entrada
+      inputElement.select();
+      inputElement.setSelectionRange(0, 99999); // Para dispositivos móviles
+
+      // Copiar el texto al portapapeles
+      document.execCommand("copy");
+      // Alerta
+       // Muestra el toast
+       toastr.success("Ruta copiada al portapapeles", "", { progressBar: true });
+    }
+</script>
+{% endblock %}

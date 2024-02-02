@@ -137,3 +137,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #MEDIA_URL = "/media/"
 #MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+#============== para eliminar la sesion de los usuarios ================
+SESSION_COOKIE_AGE = 3600
+
+LOGIN_URL = 'loginuser' # cuando la sesion se vence redirigue a inicio

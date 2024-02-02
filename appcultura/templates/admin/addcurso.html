@@ -1,6 +1,19 @@
 {% extends 'admin/inicio.html' %}
 {% block content %}
+<style>
+  
+  .seccion {
+    display: none;
+  }
 
+  .active {
+    display: block;
+  }
+
+  #extra-buttons {
+      display: none;
+    }
+</style>
 
 <main id="main" class="main">
   {% load static %}
@@ -20,20 +33,18 @@
       <div class="row">
        <!--registro de cursos forms-->   
        <div class="col-lg-12">
-      
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">
-              Registrar Curso
-            </h5>
               <!--alertar-->
               {% if msj %}
+              <br>
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong>{{msj}}</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               {% endif %}
               {% if messages %}
+              <br>
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                   {% for message in messages %}
                     <strong>{{ message }}</strong>
@@ -75,93 +86,112 @@
             <form action="{% url 'registroCursos' %}" method="post" enctype="multipart/form-data">
               {% csrf_token %}
               <div class="form-control">
-              <div class="row mb-3">
-                <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
-                <div class="col-sm-10">
-                  <input type="text" class="form-control" id="nombre" name="nombre" required>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
-                <div class="col-sm-10">
-                  <textarea type="text" class="form-control" id="descrip" name="descrip" rows="5" required></textarea>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <label for="precio" class="col-sm-2 col-form-label">Precio</label>
-                <div class="col-sm-4">
-                  <input type="number" class="form-control" id="precio" name="precio" required>
-                </div>
-                <!--formador-->
-                <label for="formador" class="col-sm-2 col-form-label">Formador</label>
-                <div class="col-sm-4">
-                    <select id="formador" name="formador" class="form-select" required>
-                        <option selected>Elegir formador</option>
-                        <option>Manuel Castrillón</option>
-                      </select>
-                </div>
-                <!--end formador-->
-              </div>
-              <!--aqui debe ir las competencias a fortalecer-->
-              <div class="row mb-3">
-                <label for="precio" class="col-sm-2 col-form-label">Competencias</label>
-                <div class="col-sm-8">
-                   <!--competencias-->
-                   <div class="form-control">
-                    <div style="column-count: 5;">
-                      {% for com in competencias %}
-                        <label style="display: flex; align-items: center; margin-right: 10px;">
-                          <input type="checkbox" name="compe" value="{{ com.id }}">
-                          <span>&nbsp;{{ com.nombre }}</span>&nbsp;
-                          <a href="{% url 'eliminarCompetencia' idcom=com.id %}" style="color: red;">x</a>
-                        </label>
-                      {% endfor %}
-                    </div>
+              <div class="seccion active" id="seccion1">
+                <h5 class="mb-4">Información básica del curso</h5>
+                <div class="row mb-3">
+                  <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
+                  <div class="col-sm-10">
+                    <input type="text" class="form-control" id="nombre" name="nombre" required>
                   </div>
-                   <!--end-->
                 </div>
-                <div class="col-sm-2">
-                   <!-- Button trigger modal -->
-                    <a type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalcompetencia">
-                      <i class="bi bi-pencil-square"></i> Competencia
-                    </a>
+                <div class="row mb-3">
+                  <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
+                  <div class="col-sm-10">
+                    <textarea type="text" class="form-control" id="descrip" name="descrip" rows="5" required></textarea>
+                  </div>
                 </div>
-              <!--end fortalecer competencias-->
-            </div>
+                <div class="row mb-3">
+                  <label for="precio" class="col-sm-2 col-form-label">Precio</label>
+                  <div class="col-sm-4">
+                    <input type="number" class="form-control" id="precio" name="precio" required>
+                  </div>
+                  <!--formador-->
+                  <label for="formador" class="col-sm-2 col-form-label">Formador</label>
+                  <div class="col-sm-4">
+                      <select id="formador" name="formador" class="form-select" required>
+                          <option selected>Elegir formador</option>
+                          <option>Manuel Castrillón</option>
+                        </select>
+                  </div>
+                  <!--end formador-->
+                </div>
+              <!--aqui debe ir las competencias a fortalecer-->
+                <div class="row mb-3">
+                  <label for="precio" class="col-sm-2 col-form-label">Competencias</label>
+                  <div class="col-sm-8">
+                    <!--competencias-->
+                    <div class="form-control">
+                      <div style="column-count: 5;">
+                        {% for com in competencias %}
+                          <label style="display: flex; align-items: center; margin-right: 10px;">
+                            <input type="checkbox" name="compe" value="{{ com.id }}">
+                            <span>&nbsp;{{ com.nombre }}</span>&nbsp;
+                            <a href="{% url 'eliminarCompetencia' idcom=com.id %}" style="color: red;">x</a>
+                          </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+                    <!--end-->
+                  </div>
+                  <div class="col-sm-2">
+                    <!-- Button trigger modal -->
+                      <a type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalcompetencia">
+                        <i class="bi bi-pencil-square"></i> Competencia
+                      </a>
+                  </div>
+                <!--end fortalecer competencias-->
+                </div>
+               </div>
               <!--objetivos del curso-->
             <!-- Default Accordion -->
-            <div class="accordion" id="accordionExample">
-              <div class="accordion-item">
-                <p class="accordion-header" id="headingThree">
-                  <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacordion3" aria-expanded="false" aria-controls="idacordion3">
-                    Registrar objetivos
-                  </a>
-                </p>
-                <div id="idacordion3" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                  <div class="accordion-body">
-                    <!-- Contenedor para los campos del formulario -->
-                    <div id="contenedor-objetivos" class="row mb-3 mt-3">
+            <div class="seccion" id="seccion2">
+              <h5 class="mb-4">Objetivos del curso</h5>
+              <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                  <p class="accordion-header" id="headingThree">
+                   <!-- <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacordion3" aria-expanded="false" aria-controls="idacordion3">
+                      Registrar objetivos
+                    </a>-->
+                  </p>
+                  <div id="idacordion3" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <!-- Contenedor para los campos del formulario -->
+                      <div id="contenedor-objetivos" class="row mb-3 mt-3">
+                      </div>
+                      <!--crear objetivos-->
+                      <a class="btn btn-primary" onclick="agregarObjetivo()">Agregar objetivo</a>
+                      <!--end objetivos-->
                     </div>
-                    <!--crear objetivos-->
-                     <a class="btn btn-primary" onclick="agregarObjetivo()">Agregar objetivo</a>
-                    <!--end objetivos-->
                   </div>
                 </div>
-              </div>
-            </div><!-- End Default Accordion Example -->
+              </div><!-- End Default Accordion Example -->
+            </div>
               <!--end objetivos del curso-->
-            <div class="form-control">
-              <!-- Contenedor para los campos del formulario -->
-               <div id="formulario-container" class="row mb-3 mt-3">
+              <div class="seccion" id="seccion3">
+                <h5 class="mb-4">Sesiones del curso</h5>
+                <div class="form-control">
+                  <!-- Contenedor para los campos del formulario -->
+                  <div id="formulario-container" class="row mb-3 mt-3">
+                  </div>
+                  <!--si marca check-->
+                    <a class="btn btn-primary" onclick="agregarCampo()">Agregar sesión</a>
+                </div>
               </div>
-              <!--si marca check-->
-                 <a class="btn btn-primary" onclick="agregarCampo()">Agregar sesión</a>
-             </div>
               <!--end check-->
-              <div class="text-center">
-                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
-                <a type="reset" class="btn btn-warning" href="/administracion/curso/list/">Cancelar</a>
+              <div class="text-center mt-3 mb-3">
+                <div class="row">
+                  <div class="col-6 text-end">
+                    <a type="button" class="btn btn-info" onclick="prevSection()">Atrás</a>
+                    <a type="button" class="btn btn-warning" onclick="nextSection()">Siguiente</a>
+                  </div>
+                  <div class="col-6 text-start">
+                    <div id="extra-buttons">
+                      <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
+                      <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
+                    </div>
+                  </div>
+                </div>
+                <!--end botones-->
               </div>
             </form><!-- End Horizontal Form -->
            
@@ -178,5 +208,36 @@
   <script>
     agregarObjetivo();
     agregarCampo()
+  </script>
+  <script>
+    let currentSection = 0;
+    const sections = document.querySelectorAll('.seccion');
+    const extraButtons = document.getElementById('extra-buttons');
+
+    function showSection(index) {
+      sections.forEach((seccion, i) => {
+        if (i === index) {
+          seccion.classList.add('active');
+        } else {
+          seccion.classList.remove('active');
+        }
+      });
+       // Mostrar botones adicionales solo en la sección 3
+       extraButtons.style.display = index === 2 ? 'block' : 'none';
+    }
+  
+    function nextSection() {
+      if (currentSection < sections.length - 1) {
+        currentSection++;
+        showSection(currentSection);
+      }
+    }
+  
+    function prevSection() {
+      if (currentSection > 0) {
+        currentSection--;
+        showSection(currentSection);
+      }
+    }
   </script>
 {% endblock %} 
