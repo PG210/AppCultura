@@ -41,7 +41,7 @@ from appcultura.viewfile.fadmin.functionadmin import generar_qr
 @login_required #proteger la ruta
 def registroCursos(request):
   perfil_usuario = UserPerfil.objects.get(user=request.user)
-  competencias = Competencias.objects.all()
+  comp = Competencias.objects.all()
   if request.method == 'POST':
       #=== Get data lists =======
       fechas_inicio = request.POST.getlist('fecha_inicio[]')
@@ -100,9 +100,10 @@ def registroCursos(request):
             regtema.save()
       #========= send messaje and return the view of courses =================
       mensaje = "Curso registrado exitosamente"
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje, 'competencias':competencias})
+      idcom = 1
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje, 'competencias':comp, 'idcom':idcom})
   else:
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':competencias})
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':comp})
 
 #Rergistro de Empresas
 @login_required
@@ -1133,10 +1134,12 @@ def crearCompetencia(request):
 def eliminarCompetencia(request, idcom):
     competencia = get_object_or_404(Competencias, id=idcom)
     competencia.delete()
-    mensaje = "Competencia eliminada de manera exitosa."
+    msj = "Competencia eliminada de manera exitosa."
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     competencias = Competencias.objects.all()
-    return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':competencias, 'msj':mensaje})
+    messages.error(request, msj)
+    return HttpResponseRedirect(reverse('registroCursos'))
+    #return render(request, '', {'usu':perfil_usuario, 'competencias':competencias, 'msj':mensaje})
 
 #================= registro de usuarios ======================
 @login_required
