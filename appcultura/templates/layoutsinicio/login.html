@@ -1,59 +1,66 @@
 {% extends 'layoutsinicio/app.html' %}
 
 {% block content %}
+<main>
+  <div class="container">
 
-<div class="container mt-5 mb-5">
-    <div class="row">
-       <div class="col-3 d-none d-sm-block"></div>
-       <div class="col-12 col-lg-6 ">
-         <!--formulario-->
-         <form action="{% url 'loginuser' %}" method="POST"> 
-         {% csrf_token %}
-         <div class="container shadow-lg border border-dark" style="background-color:white; border-radius: 10px;">
-            <br>
-            {% if error %}
-                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                   {{ error }}
-                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+            <div class="card mb-3">
+
+              <div class="card-body">
+
+                <div class="pt-4 pb-2">
+                  <h5 class="card-title text-center pb-0 fs-4">Verificación de cuenta</h5>
+                  <p class="text-center small">Ingrese su correo electrónico</p>
                 </div>
-            {% endif %}
-         <div class="mb-3 row">
-            <label for="username" class="col-sm-3 col-form-label"><i class="fas fa-user"></i>&nbsp; Usuario</label>
-            <div class="col-sm-9">
-              <input type="email" class="form-control" id="username" name="username" required>
+                {% if error %}
+                  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {{ error }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endif %}
+                <form class="row g-3" action="{% url 'loginuser' %}" method="post">
+                  {% csrf_token %}
+                  <div class="col-12">
+                    <label for="yourUsername" class="form-label">Email</label>
+                    <div class="input-group">
+                      <span class="input-group-text" id="inputGroupPrepend">@</span>
+                      <input type="email" name="username" class="form-control" id="yourUsername" required>
+                    </div>
+                  </div>
+                 <div class="col-12">
+                    <label for="yourPassword" class="form-label">Contraseña</label>
+                    <input type="password" name="password" class="form-control" id="password" required>
+                  </div>
+                  <div class="col-12">
+                      <input type="checkbox" id="showPassword" onchange="togglePassword()"> Mostrar contraseña
+                  </div>
+                  <div class="col-12">
+                    <button class="btn btn-primary w-100" type="submit">Iniciar</button>
+                  </div>
+                </form>
+                <!--======================-->
+              </div>
             </div>
+
           </div>
-          <div class="mb-3 row">
-            <label for="password" class="col-sm-3 col-form-label"><i class="fas fa-lock"></i>&nbsp; Contraseña</label>
-            <div class="col-sm-9">
-              <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-          </div>
-          <div class="container">
-           <!--recordar contraseña--> 
-           <div class="mb-3 row">
-                <div class="col-6 form-check mt-2">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                    <label class="form-check-label" for="exampleCheck1">Recordar</label>
-                </div>
-                <div class="col-6 text-end">
-                    <a href="#" class="form-control-plaintext">Olvidó su contraseña</a>
-                </div>
-            </div>
-           <!--end contraseña-->
-            <div class="mb-3 row">
-            <button class="btn btn-info">Iniciar sesión</button>
-           </div>
-          </div>
-          <br>
-         </div>
-          <!--end formulario -->
-          </form>
-          <br>
-       </div>
-       <div class="col-3 d-none d-sm-block"></div>
-    </div>
-    <br><br>
-</div>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+</main><!-- End #main -->
+<script>
+    function togglePassword() {
+    var passwordInput = document.getElementById('password');
+    var showPasswordCheckbox = document.getElementById('showPassword');
+    // Cambiar el tipo de input basado en la casilla de verificación
+    passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
+}
+</script>
 
 {% endblock %} 

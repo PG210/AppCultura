@@ -22,6 +22,7 @@
 
             <!--alertar-->
             {% if messages %}
+            <br>
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
               {% for message in messages %}
               <strong>{{ message }}</strong>
@@ -29,9 +30,10 @@
               {% endfor %}
             </div>
             {% endif %}
+            <br>
             <div class="row">
               <div class="mt-3 col-2">
-                <a type="button" class="btn btn-primary" href="{% url 'registroCursos' %}" data-bs-toggle="tooltip"
+                <a type="button" class="btn btn-outline-primary" href="{% url 'registroCursos' %}" data-bs-toggle="tooltip"
                   data-bs-placement="right" data-bs-title="Agregar Nuevo Curso"> Nuevo Curso </a>
               </div>
               <div class="mt-3 col-10 text-end"><a href="/administracion/" class="btn btn-warning"><i
@@ -55,17 +57,17 @@
                 <tbody>
                   {% for curso in cursos %}
                   <tr>
-                    <td>{{ curso.nombre }}</td>
-                    <td>{{ curso.descrip }}</td>
-                    <td>{{ curso.precio }}</td>
+                    <td><small>{{ curso.nombre }}</small></td>
+                    <td><small>{{ curso.descrip }}</small></td>
+                    <td><small>{{ curso.precio }}</small></td>
                     <td>
                       <!--aqui modal-->
                       <!-- Modal Dialog Scrollable -->
                       <span data-bs-toggle="tooltip" data-bs-placement="left"
                         data-bs-title="Listar los objetivos de {{curso.nombre}}">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
                           data-bs-target="#modalListaObjetivo{{curso.id}}">
-                          Objetivos
+                         <b>Objetivos</b> 
                         </button>
                       </span>
 
@@ -89,8 +91,8 @@
                                   {% for objetivo in objetivos %}
                                   {% if objetivo.idcurso == curso %}
                                   <tr>
-                                    <td>{{ objetivo.descrip }}</td>
-                                    <td>{{ objetivo.competencias }}</td>
+                                    <td><small>{{ objetivo.descrip }}</small></td>
+                                    <td><small>{{ objetivo.competencias }}</small></td>
                                   </tr>
                                   {% endif %}
                                   {% endfor %}
@@ -110,9 +112,9 @@
                       <!-- Modal Dialog Scrollable -->
                       <span data-bs-toggle="tooltip" data-bs-placement="left"
                         data-bs-title="Listar las sesiones del curso {{curso.nombre}}">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
                           data-bs-target="#modalListaCurso{{curso.id}}">
-                          Sesiones
+                          <b>Sesiones</b>
                         </button>
                       </span>
 
@@ -143,40 +145,40 @@
                                   {% for sesion in sesiones %}
                                   {% if sesion.idcurso == curso %}
                                   <tr>
-                                    <td>{{ sesion.fechainicio|date:"n/j/y g:i a" }}</td>
-                                    <td>{{ sesion.lugar }}</td>
+                                    <td><small>{{ sesion.fechainicio|date:"n/j/y g:i a" }}</small></td>
+                                    <td><small>{{ sesion.lugar }}</small></td>
                                     {% for tematica in tematicas %}
                                     {% if tematica.idsesion == sesion %}
-                                    <td>{{ tematica.descrip }}</td>
-                                    <td>{{ tematica.competencias }}</td>
-                                    <td>{{ tematica.recursos }}</td>
-                                    <td class="text-center"><a class="btn btn-primary"
+                                    <td><small>{{ tematica.descrip }}</small></td>
+                                    <td><small>{{ tematica.competencias }}</small></td>
+                                    <td><small>{{ tematica.recursos }}</small></td>
+                                    <td class="text-center"><a class="btn btn-outline-primary btn-sm"
                                         href="{% url 'download' ruta=tematica.ruta %}" download data-bs-toggle="tooltip"
                                         data-bs-placement="left"
                                         data-bs-title="Descarga los archivos que corresponden a la tematica {{tematica.descrip}}"><i
                                           class="bi bi-cloud-arrow-down-fill"></i></a></td>
-                                    <td class="text-center"><a class="btn btn-primary"
+                                    <td class="text-center"><a class="btn btn-outline-success btn-sm"
                                         href="{% url 'generarqr' idsesion=sesion.id %}" target="_blank"
                                         data-bs-toggle="tooltip" data-bs-placement="left"
                                         data-bs-title="Compate mediante código QR o el enlace a la sesión {{sesion.id}}"><i
                                           class="bi bi-share-fill"></i></a></td>
                                     <td class="text-center">
                                       {% if sesion.sesionasistencia_set.all %}
-                                      <a class="btn btn-primary" href="{% url 'listarasistentes'  idsesion=sesion.id %}"
+                                      <a class="btn btn-outline-primary btn-sm" href="{% url 'listarasistentes'  idsesion=sesion.id %}"
                                         role="button" data-bs-toggle="tooltip" data-bs-placement="left"
                                         data-bs-title="Listar los asistentes de la sesión {{sesion.id}}">Ver</a>
                                       {% else %}
-                                      <p style="color: black;">Sin registros</p>
+                                      <p style="color: black;"><small>Sin registro</small></p>
                                       {% endif %}
                                     </td>
                                     <td class="text-center">
                                       {% if sesion.calificacionusuarios_set.all %}
-                                      <a class="btn btn-primary"
+                                      <a class="btn btn-outline-success btn-sm"
                                         href="{% url 'listarcalificacion' idsesion=sesion.id %}" role="button"
                                         data-bs-toggle="tooltip" data-bs-placement="left"
                                         data-bs-title="Listar las valoraciones a la sesión {{sesion.id}}">Ver</a>
                                       {% else %}
-                                      <p style="color: black;">Sin registros</p>
+                                      <p style="color: black;"><small>Sin registro</small></p>
                                       {% endif %}
                                     </td>
                                     {% endif %}
@@ -198,44 +200,35 @@
                     </td>
                     <!--botones de acciones-->
                     <td>
-                      <div>
-                        <div class="row">
-                          <div class="col-4 text-center">
-                            <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"></i></a>
-                          </div>
-                          <div class="col-4 text-center">
-                            <a type="button" class="btn btn-info" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el curso {{curso.nombre}}" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
-                          </div>
-                          <div class="col-4 text-center">
-                           <!--aqui visualizar competencias a revisar-->
-                           <!-- Button trigger modal -->
-                              <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#compe{{curso.id}}">
-                                <i class="bi bi-list-stars"></i>
-                              </a>
-
-                              <!-- Modal -->
-                              <div class="modal fade" id="compe{{curso.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Competencias a trabajar</h1>
-                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                      <ul class="list-group">
-                                      {% for comp in curso.competenciacurso_set.all %}
-                                        <li class="list-group-item">{{comp.idcompetencia.nombre}}</li>
-                                      {% endfor %}
-                                     </ul>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
-                                    </div>
-                                  </div>
+                       <!--===============================-->  
+                       <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <a type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#compe{{curso.id}}"><i class="bi bi-list-stars" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Competencias a trabajar del curso: {{curso.nombre}}"></i></a>
+                        <a type="button" class="btn btn-outline-info" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el curso {{curso.nombre}}" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
+                        <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar el curso: {{curso.nombre}}"></i></a>
+                      </div>
+                       <!--==============================-->
+                          <!-- Modal -->
+                          <div class="modal fade" id="compe{{curso.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Competencias a trabajar</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <ul class="list-group">
+                                  {% for comp in curso.competenciacurso_set.all %}
+                                    <li class="list-group-item">{{comp.idcompetencia.nombre}}</li>
+                                  {% endfor %}
+                                  </ul>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                                 </div>
                               </div>
-                           <!--end competencias-->
-                        </div>
+                            </div>
+                          </div>
+                        <!--end competencias-->
                         <!--modal de validación-->
                         <div class="modal fade" id="confirmarDelete{{curso.id}}" tabindex="-1">
                           <div class="modal-dialog modal-dialog-centered">
@@ -256,7 +249,6 @@
                           </div>
                         </div>
                         <!--end validacion-->
-                      </div>
                     </td>
                   </tr>
                   {% endfor %}

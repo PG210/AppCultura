@@ -36,6 +36,7 @@
               <!--crear formularios-->
               <form action="{% url 'crearformu' %}" method="post">
                 {% csrf_token %}
+                <!--========================-->
                 <div class="form-control">
                 <div class="row">
                     <div class="col-6">
@@ -46,12 +47,30 @@
                     </div>
                     <div class="col-6">
                         <div class="form">
-                            <textarea rows="2" name="desform" id="desform" required></textarea>
-                            <label class="lbl-nombre"><span class="text-nomb">Descripción</span></label>
+                            <textarea class="text-nomb form-control" rows="2" name="desform" id="desform" required placeholder="Descripción"></textarea>
+                           <label class="lbl-nombre"><span class="text-nomb"></span></label>
                         </div>
                     </div>
                 </div>
-            </div>
+                <!--===============-->
+                {% if usu.idrol.id != 4 %}
+                <div class="row mt-4">
+                  <div class="col-6">
+                    <select class="form-select" aria-label="Default select example" id="formador" name="formador">
+                      <option selected value="">Seleccionar formador ...</option>
+                      {% for formador in formadores %}
+                      <option value="{{formador.id}}">{{formador.nombre}} {{formador.apellido}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-6">
+                    <select class="form-select" aria-label="Default select example" id="empresa" name="empresa">
+                    </select>
+                  </div>
+                </div>
+                {% endif %}
+                <!--===============-->
+               </div>
             <!---formulario-->
             <hr>
             <div class="form-control">
@@ -79,6 +98,7 @@
     </section>
 </main><!-- End #main -->
   <!-- Aqui se encuentran las instrucciones para formularios -->
+<script src="{% static 'admin/assets/js/buscarempresa.js' %} "></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>  
 {% if msj %}
   <script>

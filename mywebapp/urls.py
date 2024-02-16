@@ -45,11 +45,25 @@ urlpatterns = [
     path('administracion/kpis/list/', viewadmin.listarkpiarea, name='listarkpiarea'),  # Crear KPI para area y departamento
     path('administracion/kpis/editar/<int:idkpi>/', viewadmin.editarkpi, name='editarkpi'),  # editar curso
     path('administracion/kpis/delete/<int:idkpi>/', viewadmin.eliminarkpi, name='eliminarkpi'),  # eliminar cursos
+    path('administracion/kpis/estado/<int:idkpi>/', viewadmin.desactivarkpi, name='desactivarkpi'), # activar o desactivar el kpi
+    path('administracion/kpis/select/', viewadmin.selectEmpresa, name='selectEmpresa'), #consultar al bakend las areas de las empresas
+    path('administracion/kpis/select/area/', viewadmin.selectArea, name='selectArea'), # consutar los departamentos del area seleccionada
+   
+
     path('administracion/empresa/', viewadmin.registroEmpresa, name='registroEmpresa'), #Rergistro de empresa
     path('administracion/empresa/list', viewadmin.listarempresa, name='listarempresa'), #Listar Empresas
     path('administracion/empresa/delete/<int:idempresa>/', viewadmin.eliminarempresa, name='eliminarempresa'),  # eliminar cursos
     path('administracion/empresa/update/<int:idempresa>/', viewadmin.modificarempresa, name='modificarempresa'), #Modificar empresa
+    
+
+    #=================== registro de grupo empresarial ============================
+    path('administracion/add/grupo/empresa/', viewadmin.grupoempresa, name='registroGrupoEmp'), #Modificar empresa
+    path('administracion/delete/grupo/empresa/<int:idgrup>/', viewadmin.deleteGrupEmpresa, name='deleteGrupEmpresa'),
+    path('administracion/add/new/area/', viewadmin.addArea, name='addArea'),
+    path('administracion/add/new/departamento/', viewadmin.addDepartamento, name='addDepartamento'),
+    path('administracion/delete/departamento/<int:iddepar>/<int:area>/', viewadmin.deleteDepar, name='deleteDepar'),
     #====================== registro de grupos de fromación =================
+    
     path('administracion/grupos/list/', viewadmin.listGrupos, name='listGrupos'), #ruta para registrar o dirigir a cursos
     path('administracion/grupos/crear/', viewadmin.creargrupo, name='creargrupo'),
     path('administracion/grupos/nuevo/', viewadmin.addgrupo, name='addgrupo'),
@@ -79,7 +93,6 @@ urlpatterns = [
     path('administracion/formu/list/forms/sesion/<int:idsesion>/', viewformu.verFomrsesion, name='verFomrsesion'), #agregar formularios a la sesion
     
     #============= end formularios ==================
-    path('administracion/empresa/vincular', viewadmin.vincularareadepto, name='vincularareadepto'), #Vincular area y departamento
     path('administracion/empresa/vincular/list/', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
     path('administracion/empresa/vincular/delete/<int:idarea>/', viewadmin.eliminavinculo, name='eliminarvinculo'),
     path('administracion/validarasistencia/<int:idsesion>', viewadmin.validarasistencia, name='validarasistencia'),
@@ -135,8 +148,12 @@ urlpatterns = [
     #=================================== crear links de formadores =========================
     path('view/new/trainer/', viewformador.viewhome, name="viewhome"),
     path('add/new/trainer/', viewformador.registerTrainer, name="registerTrainer"),
+    path('show/formadoremp/', viewformador.empresasmodal, name="empresasmodal"),
+    path('formador/cambiar/empresa/', viewformador.cambiarEmpresa, name="cambiarEmpresa"),
+    path('formador/empresa/', viewformador.consultarEmpresa, name="consultarEmpresa"),
     
     #====================================Apis=======================================================================
+   
 
 ]   
    

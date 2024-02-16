@@ -11,7 +11,7 @@ from appcultura.modelos.grupouser import GruposUser
 from appcultura.modelos.opcionform import Opciones
 from appcultura.modelos.sesionasistencia import SesionAsistencia
 from appcultura.modelos.sesioncurso import Sesioncurso # proteger las rutas de accesos
-from ..models import UserPerfil, SesionFormulario, RolUser, EmpresaAreas, Cargo, Preguntas, RespuestaForm, RespuestaOpciones, PersonasCompromisos, Formulario
+from ..models import UserPerfil, SesionFormulario, RolUser, Preguntas, RespuestaForm, RespuestaOpciones, PersonasCompromisos, Formulario
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
@@ -20,12 +20,17 @@ def listar_cursos_usuario(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     asistencias = SesionAsistencia.objects.all()
     grupouser = GruposUser.objects.filter(iduser=perfil_usuario.id)
-    for grupo_usuario in grupouser:
-        grupocurso = GruposCursos.objects.filter(idgrupo=grupo_usuario.idgrupo)
-        for grupo_curso in grupocurso:
-            sesiones = Sesioncurso.objects.filter(idcurso=grupo_curso.idcurso)
-            for sesion in sesiones:
-                calificaciones=CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
+    #=================================================================
+    grupocurso = ''
+    sesiones = ''
+    calificaciones = ''
+    if grupouser:
+        for grupo_usuario in grupouser:
+            grupocurso = GruposCursos.objects.filter(idgrupo=grupo_usuario.idgrupo)
+            for grupo_curso in grupocurso:
+                sesiones = Sesioncurso.objects.filter(idcurso=grupo_curso.idcurso)
+                for sesion in sesiones:
+                    calificaciones=CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
     
     return render(request, 'user/listcursos.html',{'usu':perfil_usuario, 'cursos':grupocurso, 'sesiones':sesiones, 'calificacion':calificaciones, 'asistencias':asistencias})
 
@@ -345,10 +350,9 @@ def inscribirasistenteform(request, idsesion):
             user.save()
             rol_user = RolUser.objects.get(id=2)
             #id_cargo = request.POST['cargo']
-            cargo_user = Cargo.objects.get(id=1)
             #id_empresa =  request.POST['empresa']
-            empresa_user = EmpresaAreas.objects.get(id=1)
-            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user, pendiente=True )
+            #empresa_user = EmpresaAreas.objects.get(id=1)
+            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, cargo=None, idepart=None, user=user, pendiente=True )
             userper.save()
             sesion = Sesioncurso.objects.get(id=idsesion)
             grupo = GruposCursos.objects.filter(idcurso=sesion.idcurso).first()

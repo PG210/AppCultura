@@ -25,12 +25,15 @@
               <br>
               <div class="row">
                 <div class="col-3 mt-2">
-                  <a class="btn btn-primary" href="{% url 'registroEmpresa' %}" role="button" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Agregar Nueva Empresa">Agregar Empresa</a>
+                  <!--================== botones ===============-->
+                  <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <a type="button" class="btn btn-outline-primary" href="{% url 'registroEmpresa' %}" role="button" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Agregar Nueva Empresa"><i class="bi bi-building-add"></i> Agregar </a>
+                  </div>
+                  <!--==========================================-->
                 </div>
                 <div class="mt-2 col-9 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
               </div>
               <br>
-              
               
               <!-- Table with stripped rows -->
               {% if messages %}
@@ -49,8 +52,8 @@
                       <th>Nombre</th>
                       <th>NIT</th>
                       <th>Correo</th>
-                      <th>Grupo Empresarial</th>
-                      <th>Ver Mas</th>
+                      <th>Gr. Empresarial</th>
+                      <th></th>
                       <th>Opciones</th>
                     </tr>
                   </thead>
@@ -60,17 +63,21 @@
                         <td>{{ inter.nombre }}</td>
                         <td>{{ inter.nit }}</td>
                         <td>{{ inter.correo }}</td>
-                        <td>{{ inter.idgrupoem.nombre }}</td>
+                        <td>
+                          {% if inter.idgrupoem.nombre  %}
+                            {{ inter.idgrupoem.nombre }}
+                          {% else %}
+                             <span>Empresa principal</span>
+                          {% endif %}
+                        </td>
                         <td>
                           <!--Modal de ver mas-->
                           <!-- Button trigger modal -->
                           <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Detalles de la empresa {{inter.nombre}}">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalvermas{{inter.id}}">
-                              Ver mas
-                            </button>
+                            <a type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalvermas{{inter.id}}">
+                              <b>Ver mas</b>
+                            </a>
                           </span>
-                          
-
                           <!-- Modal -->
                           <div class="modal fade" id="modalvermas{{inter.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -86,8 +93,7 @@
                                   Tamaño de Empresa: {{inter.idtam.descrip}}
                                 </div>
                                 <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-              
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
                               </div>
                             </div>
@@ -96,7 +102,19 @@
                         </td>
                         <td>
                           <!-- modal de validación -->
-                          <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEmpresa{{ inter.id }}"><i class="bi bi-trash3-fill"></i></a>
+                          <!--=============================================-->
+                          <div class="btn-group" role="group" aria-label="Basic outlined example">
+                            <!--===============================================================-->
+                            <form action="{% url 'visualizarAreaDepto' %}" method="POST">
+                              {% csrf_token %}
+                                <input value="{{inter.id}}" name="selectEmp" hidden>
+                                <button class="btn btn-outline-primary" type="submit" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver areas y departamentos de la empresa: {{inter.nombre}}"><i class="bi bi-list-task"></i></button>
+                            </form>
+                            <!--======================================-->
+                            <a type="button" class="btn btn-outline-success" href="{% url 'modificarempresa' idempresa=inter.id %}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar la empresa: {{inter.nombre}}"><i class="bi bi-pencil-square"></i></a>
+                            <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteEmpresa{{ inter.id }}"><i class="bi bi-trash3-fill" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar los datos de la empresa: {{inter.nombre}}"></i></a>
+                          </div>
+                          <!--==============================================-->
                           <div class="modal fade" id="deleteEmpresa{{ inter.id }}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                               <div class="modal-content">
@@ -106,14 +124,13 @@
                                 </div>
                                 <div class="modal-body">¿Estás seguro de que deseas eliminar esta Empresa?</div>
                                 <div class="modal-footer">
-                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                   <a class="btn btn-primary" href="{% url 'eliminarempresa' idempresa=inter.id %}">Si</a>
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                 </div>
                               </div>
                             </div>
                           </div>
                           <!-- end validacion -->
-                          <a type="button" class="btn btn-info" href="{% url 'modificarempresa' idempresa=inter.id %}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar empresa {{inter.nombre}}"><i class="bi bi-pencil-square"></i></a>
                         </td>
                       </tr>
                     {% endfor %}

@@ -70,11 +70,10 @@
                   <form action="{% url 'inscribirasistente' idsesion=idsesion %}" method="post">
                     {% csrf_token %}
                   <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo usuario</h1>
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Realizar incripción</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
-                    
                       <!--Nombre-->
                       <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon1"><i class="bi bi-person"></i></span>
@@ -111,29 +110,16 @@
                           aria-describedby="basic-addon1" id="floatingInput" required name="correo">
                       </div>
 
-                      <!--Contraseña
+                      <!--cargo-->
                       <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-lock"></i></i></span>
-                        <input type="password" class="form-control" placeholder="Ingrese Contraseña"
-                          aria-label="Username" aria-describedby="basic-addon1" id="password1" required name="pass1">
-                        <button class="btn btn-outline-secondary" type="button" id="toggleButton" onclick="ocultarcontrasena1()"><i
-                            class="bi bi-eye-slash"></i></button>
+                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-person-badge"></i></span>
+                        <input type="text" class="form-control"  aria-label="cargoUser" aria-describedby="basic-addon1" id="cargoUser" name="cargoUser" placeholder="Cargo" required>
                       </div>
-
-                      
-                      <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1"><i class="bi bi-lock"></i></i></span>
-                        <input type="password" class="form-control" placeholder="Confirme la Contraseña"
-                          aria-label="Username" aria-describedby="basic-addon1" id="password2" required name="pass2">
-                        <button class="btn btn-outline-secondary" type="button" id="toggleButton" onclick="ocultarcontrasena2()"><i
-                            class="bi bi-eye-slash"></i></button>
-                      </div>-->
-
                     
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
                   </div>
                 </form>
                 </div>

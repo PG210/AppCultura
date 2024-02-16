@@ -23,7 +23,14 @@
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">Listado de Vinculaciones Areas y Departamentos</h5>
+            <div class="row">
+               <div class="col-10">
+                <h5 class="card-title">Listado de Vinculaciones Areas y Departamentos</h5>
+               </div>
+               <div class="mt-3 col-2 text-end">
+                <a href="/administracion/empresa/list" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a>
+              </div>
+            </div>
             <!-- Table with stripped rows -->
             {% if messages %}
             <br />
@@ -34,7 +41,7 @@
               {% endfor %}
             </div>
             {% endif %}
-            <form method="POST">
+            <form action="{% url 'visualizarAreaDepto' %}" method="POST">
               {% csrf_token %}
               <!-- Inicio de Select Empresa-->
               <div class="form-control">
@@ -42,12 +49,15 @@
                   <label for="nombre" class="col-sm-2 col-form-label">Nombre de la empresa</label>
                   <div class="col-sm-8">
                     <select class="form-select" aria-label="Default select example" name="selectEmp">
-                      {% for emp in empresa %}
                       <option value="{{emp.id}}">{{emp.nombre}}</option>
+                      {% for empres in empresa %}
+                      {% if empres.id != emp.id %}
+                      <option value="{{empres.id}}">{{empres.nombre}}</option>
+                      {% endif %}
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="col-sm-1">
+                  <div class="col-sm-2 text-end">
                     <button class="btn btn-primary" type="submit">Buscar</button>
                   </div>
                 </div>
@@ -64,73 +74,103 @@
                     <th>Area</th>
                     <th>Información</th>
                     <th>Departamentos</th>
-                    <th>Acciones</th>
+                    <th class="text-center">
+                      <!---canvas-->
+                      <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#canvasCrearArea" aria-controls="offcanvasRight"><i class="bi bi-plus-square"></i> Nuevo</button>
+                        <div class="offcanvas offcanvas-end {% if activarPanel == 1 %} show {% endif %}" tabindex="-1" id="canvasCrearArea" aria-labelledby="offcanvasRightLabel">
+                          <div class="offcanvas-header">
+                            <h6 class="offcanvas-title" id="offcanvasRightLabel">Crear arear y departamentos para la empresa: {{emp.nombre}} </h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                          </div>
+                          <div class="offcanvas-body" style="text-align: left;">
+                            <!--=============================-->
+                            <div id="texto_original" style="display: none;">
+                              <hr>
+                              <form action="{% url 'addArea' %}" method="post">
+                              {% csrf_token %}
+                               <p><small>Agrega una nueva area
+                               <div class="mb-2">
+                                <label for="areanueva" class="form-label">Area (*)</label>
+                                <input type="text" class="form-control" id="nomarea" name="nomarea" required>
+                              </div>
+                              <div class="mb-2">
+                                <label for="desareanueva" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="desareanueva" name="desareanueva" rows="2"></textarea>
+                              </div>
+                              <input type="text" class="form-control" id="empresa" name="empresa" value="{{emp.id}}" hidden>
+                              <div class="mb-2 text-end">
+                                <button type="submit" class="btn btn-outline-primary">Agregar</button>
+                              </div>
+                            </small></p>
+                             </form>
+                            </div>
+                            <!---==========================-->
+                            <form action="{% url 'addDepartamento' %}" method="post">
+                             {% csrf_token %} 
+                            <div class="form-control">
+                              <div class="mb-3">
+                                <div class="row">
+                                  <div class="col-sm-9">
+                                    <label for="area" class="form-label">Area</label>
+                                    <select class="form-select" aria-label="Default select example" id="area" name="area">
+                                      <option selected>Elegir area ...</option>
+                                      {% for area in areas %}
+                                      <option value="{{area.id}}">{{area.nombre}}</option>
+                                      {% endfor %}
+                                    </select>
+                                  </div>
+                                  <div class="col-sm-3">
+                                     <!---ocultar y mostrar-->
+                                     <label for="mostrar_texto">Agregar</label>
+                                     <input type="checkbox" id="mostrar_texto">
+                                     <!---==========-->
+                                  </div>
+                                </div>
+                               
+                              </div>
+                              <div class="mb-3" id="campos_depar">
+                                <label for="departamento" class="form-label">Departamento</label>
+                                <input class="form-control" id="departamento" name="departamento" required>
+                                <label for="descripdep" class="form-label mt-2">Descripción</label>
+                                <textarea class="form-control" id="descripdep" name="descripdep" rows="2"></textarea>
+                                <!--boton-->
+                                <div class="text-end mt-2">
+                                  <button type="submit" class="btn btn-outline-primary">Agregar</button>
+                                </div>
+                                <!--end boton-->
+                              </div>
+                             </div>
+                            </form>
+                             <!--================================-->
+                             <div class="form-control">
+                                <div class="mb-3">
+                                  <div id="texto_oculto"></div>
+                                </div>
+                              </div>
+                            <!---=================================-->
+                            <!--============================-->
+                          </div>
+                        </div>
+                      <!--end camvas-->
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for area in areas %}
                   <tr>
-                    <td>{{ area.idarea.nombre }}</td>
+                    <td>{{ area.nombre }}</td>
+                    <td>{{area.descrip}}</td>
                     <td>
-                      <!-- Button trigger modal -->
-                      <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#modalarea{{area.id}}">
-                        Info
-                      </button>
-
-                      <!-- Modal -->
-                      <div class="modal fade" id="modalarea{{area.id}}" tabindex="-1"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="exampleModalLabel">Información de {{area.idarea.nombre}}</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                              {{area.idarea.descrip}}
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </td>
-                    <td>
-                      <!--Modal Departamentos -->
-                      <!-- Button trigger modal -->
-                      <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#modaldepto{{area.id}}">
-                        {{area.idepar.nombre}}
-                      </button>
-
-                      <!-- Modal -->
-                      <div class="modal fade" id="modaldepto{{area.id}}" tabindex="-1"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h5 class="modal-title" id="exampleModalLabel">Departamento de {{area.idepar.nombre}}</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                              {{area.idepar.descrip}}
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      {% for dep in depar %}
+                        {% if dep.idarea.id == area.id %}
+                        <div class="form-control"><li>{{dep.nombre}}&nbsp;<span><a href="{% url 'deleteDepar' iddepar=dep.id area=dep.idarea.id %}" style="color: red;">x</a></span> </li> </div>
+                        {% endif %}
+                      {% endfor %}
                     </td>
 
                     <td>
                       <!-- modal de validación -->
-                      <a type="button" class="btn btn-danger" data-bs-toggle="modal"
+                      <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                         data-bs-target="#deletearea{{ area.id }}"><i class="bi bi-trash3-fill"></i></a>
                       <div class="modal fade" id="deletearea{{ area.id }}" tabindex="-1">
                         <div class="modal-dialog modal-dialog-centered">
@@ -140,10 +180,10 @@
                               <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">¿Estás seguro de que deseas eliminar esta Empresa?</div>
+                            <div class="modal-body">¿Estás seguro de que deseas eliminar el area: {{area.nombre}} ?</div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                               <a class="btn btn-primary" href="{% url 'eliminarvinculo' idarea=area.id %}">Si</a>
+                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                             </div>
                           </div>
                         </div>
@@ -164,6 +204,22 @@
 </main>
 <!-- End #main -->
 <!-- Aqui se encuentran las instrucciones para formularios -->
-<script src="{% static 'admin/assets/js/empresa.js' %}"></script>
-<script src="{% static 'admin/assets/js/script.js' %} "></script>
+<script>
+  const checkbox = document.getElementById('mostrar_texto');
+  const texto_oculto = document.getElementById('texto_oculto');
+  const texto_original = document.getElementById('texto_original').innerHTML;
+  const camposdepar = document.getElementById('campos_depar');
+
+  checkbox.addEventListener('change', function() {
+    if (this.checked) {
+      texto_oculto.innerHTML = texto_original;
+      camposdepar.style.display = 'none';
+    } else {
+      texto_oculto.innerHTML = '';
+      camposdepar.style.display = 'block';
+    }
+  });
+  //============= enviar formulario al backend=====
+  
+</script>
 {% endblock %}

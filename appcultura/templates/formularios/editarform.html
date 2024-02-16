@@ -47,6 +47,30 @@
                             <input type="text" id="descrip" name="descrip" class="form-control" aria-label="Sizing example input" value="{{ formu.descrip }}" required>
                          </div>   
                     </div>
+                    <!--======== elegir formador ========-->
+                    {% if usu.idrol.id != 4 %}
+                    <div class="row mt-2">
+                      <div class="col-6">
+                        <div class="input-group mb-3">
+                          <span class="input-group-text"><b>Formador:</b> </span>
+                          <select class="form-select" aria-label="Default select example" id="formador" name="formador">
+                            <option selected value="{{formu.idusu.id}}">{{formu.idusu.nombre}} {{formu.idusu.apellido}}</option>
+                            {% for formador in formadores %}
+                            {% if formador.id != formu.idusu.id %}
+                            <option value="{{formador.id}}">{{formador.nombre}} {{formador.apellido}}</option>
+                            {% endif %}
+                            {% endfor %}
+                          </select>
+                       </div>  
+                      </div>
+                      <div class="col-6">
+                        <select class="form-select" aria-label="Default select example" id="empresa" name="empresa" required>
+                          <option selected value="{{formu.idempresa.id}}">{{formu.idempresa.nombre}}</option>
+                        </select>
+                      </div> 
+                  </div>
+                  {% endif %}
+                    <!---================================-->
                </div>
                <!-- Mostrar preguntas asociadas al formulario -->
                <h5 class="text-center"><b>Preguntas</b></h5>
@@ -209,9 +233,7 @@
                {% endfor %}
                <!--boton de actualizar-->
                <div class="container text-end">
-                  <button type="submit" class="btn btn-success">
-                    Actualizar
-                  </button>
+                  <button type="submit" class="btn btn-success">Actualizar</button>
                   <a type="button" class="btn btn-warning" href="/administracion/formu/listar/">Cancelar</a>
                </div>
                <!---end boton actualizar-->
@@ -256,6 +278,7 @@
 </main><!-- End #main -->
 <script src="{% static 'admin/assets/js/jsformu.js' %} "></script>
 <script src="{% static 'admin/assets/js/actuformu.js' %} "></script>
+<script src="{% static 'admin/assets/js/buscarempresa.js' %} "></script>
   <script>
     agregarCampo();
     // Obtén la sección actual del contexto

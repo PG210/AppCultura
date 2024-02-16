@@ -4,7 +4,7 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Respuestas de Formularios</h1>
+      <h1>Lista de sesiones</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
@@ -32,7 +32,13 @@
                <!--end alertar-->
                <!-- Table with stripped rows -->
                <div class="row">
-                <div class="mt-2 col-12 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+                  <div class="mt-2 col-6">
+                    <h5>Lista de cursos y sesiones</h5>
+                    <p><small>Aquí encuentra las respuestas de los formularios en cada sesión del curso.</small></p>
+                  </div>
+                  <div class="mt-2 col-6 text-end">
+                   <a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a>
+                  </div>
                </div><br>
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
@@ -52,7 +58,7 @@
                       <!--aqui modal-->
                          <!-- Modal Dialog Scrollable -->
                          <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Aqui puede listar las respuestas de los formularios según el curso {{curso.nombre}}">
-                          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaCursoformu{{curso.id}}">
+                          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalListaCursoformu{{curso.id}}">
                             Ver
                           </button>
                          </span>
@@ -80,9 +86,9 @@
                                        <td>{{sesiones.lugar}}</td>
                                        <td>
                                        {% if sesiones.respuestaform_set.exists %}
-                                        <a href="{% url 'verFomrsesion' idsesion=sesiones.id %}" type="button" class="btn btn-info" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listado de usuarios que contestaron el formulario para la sesion {{sesiones.id}}">Formularios contestados</a>
+                                        <a href="{% url 'verFomrsesion' idsesion=sesiones.id %}" type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listado de usuarios que contestaron el formulario para esta sesión"><b>Formularios contestados</b></a>
                                         {% else %}
-                                        <p class="alert alert-warning">Sin formularios</p>
+                                        <small style="background-color: rgb(247, 250, 66); border-radius: 10px; padding: 1px 3px 1px 3px;">Sin formularios contestados</small>
                                         {% endif %}
                                       </td>
                                     </tr>

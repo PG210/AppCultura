@@ -55,14 +55,14 @@
                             <!--respuesta y puntaje-->
                              <!-- Button trigger modal -->
                              {% if comp.id_estado.id == 2 %}
-                             <button type="button" style="background-color: rgba(13, 202, 240); color: white;" disabled data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Este compromiso se encuentra en estado pendiente"> <i class="bi bi-eye-slash-fill"  style="font-size: large;"></i></button>
+                             <button type="button" class="btn btn-outline-secondary  btn-sm" disabled data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Este compromiso se encuentra en estado pendiente"> <i class="bi bi-eye-slash-fill" ></i></button>
                                 {% else %}
-                                <a type="button" data-bs-toggle="modal" data-bs-target="#modalMasinfo{{comp.id}}" style="background-color: rgba(13, 202, 240); color: white;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="El compromiso ya ha sido revisado. Puede visualizar la retroalimentación">
-                                  <i class="bi bi-eye-fill" style="font-size: large;"></i></a> 
+                                <a type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalMasinfo{{comp.id}}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="El compromiso ya ha sido revisado. Puede visualizar la retroalimentación">
+                                  <i class="bi bi-eye-fill" ></i></a> 
                               {% endif %}
                                 <!-- Button trigger modal -->
                                 <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el compromiso">
-                                  <button type="button" style="background-color: rgba(13, 110, 253); color: white;" data-bs-target="#modaleditarcompromiso{{comp.id}}" data-bs-toggle="modal"><i class="bi bi-pencil-square"  style="font-size: large;"></i></button>
+                                  <button type="button" class="btn btn-outline-success btn-sm" data-bs-target="#modaleditarcompromiso{{comp.id}}" data-bs-toggle="modal"><i class="bi bi-pencil-square"></i></button>
                                 </span>
                             
                               <!-- Modal -->

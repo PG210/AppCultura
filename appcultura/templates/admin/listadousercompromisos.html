@@ -49,6 +49,7 @@
                   <tbody>
                     {% for usu in usuarios %}
                      <!--aqui datos de usuarios--> 
+                     {% if formador.idempresa.id == usu.idepart.idarea.idempresa.id or formador.idempresa.id == usu.idarea.idempresa.id %}
                       <tr>
                         <td>{{usu.nombre}}</td>
                         <td>{{usu.apellido}}</td>
@@ -57,12 +58,13 @@
                         <td>{{usu.idrol.descrip}}</td>
                         <td>
                           {% if usu.compromisos_set.all %}
-                          <a class="btn btn-info" href="{% url 'vercompromisos' iduser=usu.id %}"data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar los compromisos del usuario {{usu.nombre}} {{usu.apellido}}"><i class="bi bi-card-checklist"></i></a>
+                          <a class="btn btn-outline-info" href="{% url 'vercompromisos' iduser=usu.id %}"data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar los compromisos del usuario {{usu.nombre}} {{usu.apellido}}"><i class="bi bi-card-checklist"></i></a>
                           {% else %}
-                          <a class="btn btn-secondary" disable data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="El Usuario {{usu.nombre}} {{usu.apellido}} no tiene compromisos" >Sin compromisos</a>
+                          <a class="btn btn-outline-secondary" disable data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="El Usuario {{usu.nombre}} {{usu.apellido}} no tiene compromisos" >Sin compromisos</a>
                           {% endif %}
                         </td>
                       </tr>
+                     {% endif %}
                      <!--end datos user-->
                      {% endfor %}
                   </tbody>

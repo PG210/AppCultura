@@ -1,0 +1,65 @@
+<!--modal del listado de empresas al cual elegir -->
+<!-- Modal -->
+<div class="modalEmpresas">
+<div class="modal fade " id="modalEmpresas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Empresas asociadas</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form action="{% url 'cambiarEmpresa' %}" method="post">
+            {% csrf_token %}
+        <div class="modal-body">
+        <div class="mb-2 row">
+            <label for="area" class="col-sm-4 col-form-label">Empresas</label>
+            <div class="col-sm-8">
+                <select class="form-select" aria-label="Default select example" id="selectEmpresa" name="selectEmpresa" required></select>
+            </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+       </form>
+        </div>
+    </div>
+</div>
+</div>
+    <style>
+           .modal-backdrop {
+                z-index: 0; /* Puedes ajustar este valor según tus necesidades */
+            }
+      </style>
+      <script>
+        // script.js
+        $(document).ready(function(){
+            // Función para cargar los datos del modal al abrirlo
+            $("#openModalBtn").click(function(){
+                // Realizar una petición AJAX para obtener los datos de la tabla
+                $.ajax({
+                    url: "/show/formadoremp/", // Reemplaza con la URL de tu vista que devuelve los datos de la tabla
+                    success: function(data){
+                        
+                        let datos = data.data; 
+                        let selEmp = $("#selectEmpresa");
+                        selEmp.empty(); // Limpiar datos
+                        selEmp.append(`<option value="">Elegir ...</option>`);
+                        datos.forEach(function(dep) {
+                            if (dep.estado) {
+                                selEmp.append(`<option value="${dep.idempresa}" selected>${dep.idempresa__nombre}</option>`);
+                            }
+                            else {
+                                selEmp.append(`<option value="${dep.idempresa}">${dep.idempresa__nombre}</option>`);
+                              }
+                            
+                        });
+                    }
+                });
+            });
+
+            // Función para cerrar el modal al hacer clic en el botón de cierre
+        });
+
+      </script>

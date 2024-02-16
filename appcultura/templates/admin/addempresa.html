@@ -38,59 +38,151 @@
                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endif %}
+                {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    {% for message in messages %}
+                      <strong>{{ message }}</strong>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    {% endfor %}
+                  </div>
+                {% endif %}
                 <!--end alertar-->
-              <!-- Horizontal Form -->
-              <form action="{% url 'registroEmpresa' %}" method="post">
-                {% csrf_token %}
-                <div class="form-control">
-                <div class="row mb-3">
-                  <label for="nombre" class="col-sm-2 col-form-label">Nombre de la Empresa</label>
-                  <div class="col-sm-10">
-                    <input type="text" class="form-control" id="nombre" name="nameEmp" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="descrip" class="col-sm-2 col-form-label">NIT</label>
-                  <div class="col-sm-10">
-                      <input type="number" class="form-control" id="nombre" name="nit" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="descrip" class="col-sm-2 col-form-label">Dirección Sede Principal</label>
-                  <div class="col-sm-10">
-                      <input type="text" class="form-control" id="nombre" name="direccion" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="descrip" class="col-sm-2 col-form-label">Correo</label>
-                  <div class="col-sm-10">
-                      <input type="email" class="form-control" id="nombre" name="correo" required>
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="descrip" class="col-sm-2 col-form-label">Télefono</label>
-                  <div class="col-sm-10">
-                      <input type="tel" class="form-control" id="nombre" name="telefono" required>
-                  </div>
-                </div>
-                </div>
-                <div class="row mb-3">
-                  <div id="contenedor-sucursals" class="row mb-3 mt-3">
+                <!--=================modal===================-->
+                <div class="modal fade" id="nuevoGrupo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Agrega un nuevo grupo empresarial</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
-                      
-                       <a class="btn btn-primary col-sm-3"  onclick="agregarSucursal()">Agregar Sucursal</a>
-                      
+                      <div class="modal-body">
+                       <!--======================-->
+                       <form action="{% url 'registroGrupoEmp' %}" method="post">
+                        {% csrf_token %}
+                        <div class="form-control">
+                        <div class="row mb-3">
+                          <label for="nombre" class="col-sm-4 col-form-label">Grupo empresarial</label>
+                          <div class="col-sm-8">
+                            <input type="text" class="form-control" id="nombre" name="nameEmp" required>
+                          </div>
+                        </div>
+                        <div class="row mb-3">
+                          <label for="descrip" class="col-sm-4 col-form-label">NIT</label>
+                          <div class="col-sm-8">
+                              <input type="number" class="form-control" id="nombre" name="nit" min="0" required>
+                          </div>
+                        </div>
+                        <div class="row mb-3">
+                          <label for="descrip" class="col-sm-4 col-form-label">Dirección Sede Principal</label>
+                          <div class="col-sm-8">
+                              <input type="text" class="form-control" id="nombre" name="direccion" required>
+                          </div>
+                        </div>
+                        <div class="row mb-3">
+                          <label for="descrip" class="col-sm-4 col-form-label">Correo</label>
+                          <div class="col-sm-8">
+                              <input type="email" class="form-control" id="nombre" name="correo" required>
+                          </div>
+                          </div>
+                          <div class="row mb-3">
+                          <label for="descrip" class="col-sm-4 col-form-label">Celular</label>
+                          <div class="col-sm-8">
+                              <input type="tel" class="form-control" id="nombre" name="telefono" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="310-789-0067" required>
+                          </div>
+                        </div>
+                      </div>
+                       <!--==========================-->
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                      </div>
+                    </form>
+                    </div>
+                  </div>
                 </div>
-                
-              </div>
-                <div class="text-center">
+                <!--====================modal de listar los grupos organizacionales====================-->
+                <div class="modal fade" id="GruupoLista" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Listado de grupos empresariales</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                       <!--======================-->
+                      <div class="form-control">
+                         <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">Grupo</th>
+                                <th scope="col">Nit</th>
+                                <th scope="col">Dirección</th>
+                                <th scope="col">Correo</th>
+                                <th scope="col">Celular</th>
+                                <th scope="col">Acciones</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for empres in grupoEmpresarial %}
+                              <tr>
+                                <td>{{empres.nombre}}</td>
+                                <td>{{empres.nit}}</td>
+                                <td>{{empres.direccion}}</td>
+                                <td>{{empres.correo}}</td>
+                                <td>{{empres.telefono}}</td>
+                                <td><a href="{% url 'deleteGrupEmpresa' idgrup=empres.id %}" class="btn btn-outline-danger"><i class="bi bi-trash-fill"></i></a></td>
+                              </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                         </div>
+                      
+                      </div>
+                       <!--==========================-->
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!---=================================-->
+             <form action="{% url 'registroEmpresa' %}" method="post">
+              {% csrf_token %}  
+              <div class="container">
+                  <div class="row" style="border-radius: 10px; border: 1px solid rgb(204, 201, 201);">
+                      <label for="grupoEm" class="col-sm-2 col-form-label mt-2">Grupo Empresarial</label>
+                      <div class="col-sm-7 mt-2">
+                        <select class="form-select" aria-label="Default select example" id="grupoEm" name="grupoEm">
+                          <option value="" selected>Sin grupo empresarial</option>
+                          {% for empresa in grupoEmpresarial %}
+                          <option value="{{empresa.id}}">{{empresa.nombre}} - Nit: {{empresa.nit}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                   <div class="col-sm-3 mt-2 text-end">
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                      <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#nuevoGrupo" data-bs-whatever="@mdo">Agregar</button>
+                      <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#GruupoLista" data-bs-whatever="@mdo">Listado</button>
+                    </div> 
+                  </div>
+                  </div>
+                 
+              <!-- Horizontal Form -->
+              <!--=======================================-->
+                <div class="row mb-3" style="border-radius: 10px; border: 1px solid rgb(204, 201, 201);">
+                  <div id="contenedor-sucursals" class="row mb-3 mt-3"></div>
+                </div>
+                  <a class="btn btn-info col-sm-2 btn-sm"  onclick="agregarSucursal()"><span><b>Agregar Sucursal</b></span></a>
+               </div>
+                <div class="text-end mb-3">
                   <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                  <a type="button" class="btn btn-success" href="{% url 'listarempresa' %}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Listar Las Empresas inscritas"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
-                  <a type="button" class="btn btn-warning" href="{% url 'vincularareadepto' %}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="En esta sección puede agregar y listar Areas y departamentos de su Empresa"> <i class="bi bi-card-checklist"></i> | Areas </a>
-                  <!--<button type="reset" class="btn btn-secondary">Cancelar</button>-->
                 </div>
               </form>
-             
+             <!--=================================-->
+            </div>
             </div>
           </div>
           
@@ -102,4 +194,8 @@
     <!-- Aqui se encuentran las instrucciones para formularios -->
     <script type="text/javascript" src="{% static 'admin/assets/js/empresa.js' %}"></script>
     <script src="{% static 'admin/assets/js/script.js' %} "></script>
+    <script>
+      agregarSucursal();
+      //====================================
+    </script>
   {% endblock content%}

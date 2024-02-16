@@ -1,10 +1,11 @@
 from ast import Delete
 from email import message
+import json
 import os
 import mimetypes
 from pdb import post_mortem
 import select
-from urllib import request
+from urllib import request, response
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render, redirect, get_object_or_404
@@ -16,24 +17,26 @@ from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from django.urls import reverse
 from django.db import transaction
+from django.utils import timezone
 import pandas as pd
 
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
-from appcultura.modelos.estado_compromisos import EstadoCompromisos #errores de la base de datos
-from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos, EmpresaAreas
+from appcultura.modelos.estado_compromisos import EstadoCompromisos
+from appcultura.modelos.formador_empresa import FormadorEmpresa #errores de la base de datos
+from ..models import UserPerfil, Curso, Sesioncurso, ObjetivosCurso, Area, Departamento, Kpiarea, Kpiobjetivos
 from django.contrib import messages #mensajes para la vista
 from ..models import TemasSesion, Grupos, GruposCursos, GruposUser, Competencias, CompetenciaCurso
-from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, Cargo
+from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa
 from django.db.models import Subquery, OuterRef, Q
 from ..models import TamEmpresa, SectorEmpresa, Empresa, GrupoEmpresa, SesionAsistencia, RolUser
 from django.db.models import Subquery, OuterRef
 
 #Codigo Jhon
-from django.http import JsonResponse
 from django.views import View
 from django.http import JsonResponse
 from django.core.serializers import serialize
+from django.urls import reverse
 
 from appcultura.viewfile.fadmin.functionadmin import generar_qr
 #Fin Codigo Jhon
@@ -42,6 +45,7 @@ from appcultura.viewfile.fadmin.functionadmin import generar_qr
 def registroCursos(request):
   perfil_usuario = UserPerfil.objects.get(user=request.user)
   comp = Competencias.objects.all()
+  formadores = UserPerfil.objects.filter(idrol=4)
   if request.method == 'POST':
       #=== Get data lists =======
       fechas_inicio = request.POST.getlist('fecha_inicio[]')
@@ -51,6 +55,8 @@ def registroCursos(request):
       competencias = request.POST.getlist('competencias[]')
       compe = request.POST.getlist('compe')
       nombre_curso = request.POST['nombre']
+      formador_select = request.POST.get('formador', '')
+      empresa_select = request.POST.get('empresa', '')
       
       #================ verify that all variables have data ==============
       if not any(fechas_inicio) or not any(fechas_final) or not any(lugares):
@@ -63,7 +69,23 @@ def registroCursos(request):
             return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje})
      
       #================= here the courses =============
-      regcurso = Curso(nombre=request.POST['nombre'], descrip=request.POST['descrip'], precio=request.POST['precio'])
+      #====== look on the rol =========================
+      if perfil_usuario.idrol.id == 4: 
+          #buscar a que empresa y el formador para guardarlo en la tabla
+          idformador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+          id_formador = idformador.idusu
+          id_empresa = idformador.idempresa
+      else:
+          if formador_select and empresa_select:
+              perfil_formador = UserPerfil.objects.get(id=formador_select)
+              empresa_sel = Empresa.objects.get(id=empresa_select)   
+              id_formador = perfil_formador
+              id_empresa = empresa_sel 
+          else:
+              id_formador = None
+              id_empresa = None
+
+      regcurso = Curso(nombre=request.POST['nombre'], descrip=request.POST['descrip'], precio=request.POST['precio'], idempresa=id_empresa, idusu=id_formador)
       regcurso.save()
       idcurso = Curso.objects.get(id=regcurso.id)
 
@@ -86,7 +108,7 @@ def registroCursos(request):
             recur = request.POST.get(f'recur_{contador}')
             archivo = request.FILES.get(f'archivo_{contador}')
             #guardar la sesion
-            regsesion = Sesioncurso(fechainicio=fecha_inicio, fechafin=fecha_final, lugar=lugar, estado=1, idcurso=idcurso)
+            regsesion = Sesioncurso(fechainicio=fecha_inicio, fechafin=fecha_final, lugar=lugar, estado=1, idcurso=regcurso)
             regsesion.save()
             #=========guarda el archivo
             if archivo:
@@ -101,41 +123,23 @@ def registroCursos(request):
       #========= send messaje and return the view of courses =================
       mensaje = "Curso registrado exitosamente"
       idcom = 1
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje, 'competencias':comp, 'idcom':idcom})
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje, 'competencias':comp, 'idcom':idcom, 'formadores':formadores})
   else:
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':comp})
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':comp, 'formadores':formadores})
 
 #Rergistro de Empresas
 @login_required
 def registroEmpresa(request):
+    grupoEmpresarial = GrupoEmpresa.objects.all() # llama a los grupos empresariales 
     grupem = Empresa.objects.all()
     sec = SectorEmpresa.objects.all()
     varible = TamEmpresa.objects.all()
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     if request.method == 'POST':
         #=== Get data lists =======
-        #Guardar empresa principal
-        nombre = request.POST['nameEmp']
-        nit = request.POST['nit']
-        direction = request.POST['direccion']
-        email = request.POST['correo']
-        phone = request.POST['telefono']
-
-        if not any(nombre) or not any(nit) or not any(direction) or not any(email) or not any(phone):
-            mensaje = "Los campos no pueden quedar vacios"
-            return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
-        
-        if Empresa.objects.filter(nit=nit).exists():
-            mensaje = "La empresa ya se encuentra registrada"
-            return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
-        
-        regEmpresa = GrupoEmpresa(nombre=nombre, nit=nit, direccion=direction, correo=email, telefono=phone)
-        regEmpresa.save()
-        mensaje = "Empresa Registrada exitosamente"
-        #Fin guardar empresa principal
-
+        print('datos empresa', request.POST)
+        grupoEm = request.POST.get('grupoEm', '') #== llega el select de grupo empresarial
         #Guardar Empresa Sucursal
-
         nameSuc = request.POST.getlist('nameSucursal[]')
         nitSuc = request.POST.getlist('nameNit[]')
         dirSuc = request.POST.getlist('nameDireccion[]')
@@ -148,11 +152,13 @@ def registroEmpresa(request):
         tmp = TamEmpresa.objects.filter(pk__in=tmint)
         sc = SectorEmpresa.objects.filter(pk__in=scint)
 
-        
-
+        if not grupoEm: #== si no existe significa que no existe un grupo empresarial
+            idempresa = None
+        else: 
+            idempresa = GrupoEmpresa.objects.get(id=grupoEm)
+        #================== registro de la sucursal ==================
         if any(nameSuc) or any(nitSuc) or any(dirSuc) or any(correoSuc) or any(telSuc) or any(secSuc) or any(tamSuc):
             empresas_sucursales = []
-            idempresa = GrupoEmpresa.objects.get(id=regEmpresa.id)
             for i in range(len(nameSuc)):
                 empresa_sucursal = Empresa(
                     nombre=nameSuc[i],
@@ -166,19 +172,58 @@ def registroEmpresa(request):
                 )
                 empresas_sucursales.append(empresa_sucursal)
             Empresa.objects.bulk_create(empresas_sucursales)
-    
+            mensaje = f"Datos de la empresa registrados de manera exitosa."
         return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'mensaje':mensaje})
     else:
-        return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem})
+        return render(request, 'admin/addempresa.html', {'usu':perfil_usuario, 'tamempresa':varible, 'secEmp':sec, 'grp':grupem, 'grupoEmpresarial': grupoEmpresarial})
 
-        #Fin Guardar Empresa Sucursal
-
+#Fin Guardar Empresa Sucursal
+#===================== funcion para crear el grupo empresarial =================
+@login_required 
+def grupoempresa(request):
+    if request.method == 'POST':
+        #Guardar empresa principal
+        nombre = request.POST['nameEmp']
+        nit = request.POST['nit']
+        direction = request.POST['direccion']
+        email = request.POST['correo']
+        phone = request.POST['telefono']
+        #======== registrar la empresa ============
+        buscar = GrupoEmpresa.objects.filter(nombre=nombre) | GrupoEmpresa.objects.filter(nit=nit)
+        if buscar.exists():
+            mensaje_grupo = f"Ya existe una empresa con el mismo nombre:  {nombre} o NIT: {nit}."
+        else:
+            regEmpresa = GrupoEmpresa(nombre=nombre, nit=nit, direccion=direction, correo=email, telefono=phone)
+            regEmpresa.save()
+            mensaje_grupo = f"Grupo empresarial: {nombre} registrado exitosamente."
+        #==============mensajes =============
+        messages.error(request, mensaje_grupo)
+        return HttpResponseRedirect(reverse('registroEmpresa'))
+        #Fin guardar empresa principal
+#=======================================================================
+@login_required
+def deleteGrupEmpresa(request, idgrup):
+    try:
+        buscar = GrupoEmpresa.objects.get(id=idgrup)
+        buscar.delete()
+        mensaje_delete_em = f"Grupo empresarial: {buscar.nombre}, eliminado con éxito."
+    except GrupoEmpresa.DoesNotExist:
+        mensaje_delete_em = f"Error: Información no encontrada."
+    messages.error(request, mensaje_delete_em)
+    return HttpResponseRedirect(reverse('registroEmpresa'))
+    
 #Vista para listar cursos
 @login_required #proteger la ruta
 def listarcursos(request):
   perfil_usuario = UserPerfil.objects.get(user=request.user)
   if request.method == 'GET':
-       cursos = Curso.objects.all()
+       #============= aqui verificar el rol que tiene =====================
+       if perfil_usuario.idrol.id == 4:
+          empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
+          cursos = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+       else:  
+          cursos = Curso.objects.all()
+       #=============== fin validacion ===================================
        sesiones = Sesioncurso.objects.all()
        objetivos = ObjetivosCurso.objects.all()
        tematicas = TemasSesion.objects.all()
@@ -221,37 +266,6 @@ def editarcurso(request, idcurso):
             objetivo.competencias = competencias
             objetivo.save()
         #Recibe los objetivos en caso de que existan
-        '''
-        if request.POST.getlist('desobj[]'):
-            desobj_list = request.POST.getlist('desobj[]')
-            compobj_list = request.POST.getlist('competencias[]')
-            for desobj, compobj in zip(desobj_list, compobj_list):
-                ObjetivosCurso.objects.create(descrip=desobj, competencias=compobj, idcurso=curso)
-        '''
-        
-        #En caso de que exista una fecha de inicio nueva
-        '''
-        if request.POST.getlist('fecha_inicio[]'):
-            fec_inicio_list = request.POST.getlist('fecha_inicio[]')
-            fec_fin_list = request.POST.getlist('fecha_final[]')
-            lugar_list = request.POST.getlist('lugar[]')
-            tema_list = request.POST.getlist('tema[]')
-            desc_tema_list = request.POST.getlist('descripcion[]')
-            recursos_list = request.POST.getlist('recursos[]')
-            if request.POST.getlist('archivo[]')[0] != '':
-                archivo = request.POST.getlist('archivo[]')
-                fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
-                nombre_archivo = fs.save(archivo.name, archivo)
-                ruta_destino = fs.url(nombre_archivo)
-            else:
-                ruta_destino = None
-
-            for fec_inicio, fec_fin, lugar in zip(fec_inicio_list, fec_fin_list, lugar_list):
-                sesionescurso = Sesioncurso.objects.create(fechainicio=fec_inicio, fechafin=fec_fin, lugar=lugar, idcurso=curso)
-
-            for temas, desc_tema, recursos_tema in zip(tema_list, desc_tema_list, recursos_list):
-                TemasSesion.objects.create(descrip=temas, competencias=desc_tema, recursos=recursos_tema, ruta=ruta_destino, idsesion=sesionescurso)
-        '''
         
         for sesion in sesiones:
             # Obtener los valores actualizados del formulario
@@ -297,31 +311,26 @@ def kpiarea(request):
     try:
         perfil_usuario = UserPerfil.objects.get(user=request.user)
         if request.method == 'POST':
+            print(request.POST)
             # ================= here the KPI of areas =============
             objetivos = request.POST.getlist('objetivos[]')
             metas = request.POST.getlist('metas[]')
             indicadores = request.POST.getlist('indicadores[]')
-            idem = perfil_usuario.idempresa  # aquí se obtiene la empresa a la cual pertenece
-            idemp = idem.idempresa  # se obtiene el idempresa
+            #idem = perfil_usuario.idempresa  # aquí se obtiene la empresa a la cual pertenece
+            #idemp = idem.idempresa  # se obtiene el idempresa
             idarea = request.POST.get('area')
-            iddepartamento = request.POST.get('depar')
-            print('res', iddepartamento)
+            iddepartamento = request.POST.get('depar', '')
             #=========== validar si es nulo para aplicar a toda el area ===============
-            try:
-                if iddepartamento == 'none':
-                    empresa_area = EmpresaAreas.objects.get(idempresa=idemp, idarea=idarea, idepar__isnull=True)
-                else:
-                    empresa_area = EmpresaAreas.objects.get(idempresa=idemp, idarea=idarea, idepar=iddepartamento)
-            except EmpresaAreas.DoesNotExist:
-                    messages.error(request, 'No se encontró la empresa o área especificada.')
-                    return redirect('kpiarea')
-            
-            # ========= guardar la info en la tabla de kpis area =========
-            regkpi = Kpiarea(nombre=request.POST['nombre'], descrip=request.POST['descrip'],
-                             fechaini=request.POST['fechaini'], fechafin=request.POST['fechafin'],
-                             valor=request.POST['valor'], idemparea=empresa_area)
-            regkpi.save()
-            
+            id_area = get_object_or_404(Area, id=idarea)
+           
+            if not iddepartamento:
+                # ========= guardar la info en la tabla de kpis area =========
+                regkpi = Kpiarea(nombre=request.POST['nombre'], descrip=request.POST['descrip'], fechaini=request.POST['fechaini'], fechafin=request.POST['fechafin'], valor=request.POST['valor'], idarea=id_area, idepar=None)
+                regkpi.save()
+            else:
+                id_depar = get_object_or_404(Departamento, id=iddepartamento)
+                regkpi = Kpiarea(nombre=request.POST['nombre'], descrip=request.POST['descrip'], fechaini=request.POST['fechaini'], fechafin=request.POST['fechafin'], valor=request.POST['valor'], idarea=None, idepar=id_depar)
+                regkpi.save()
             # ================ guardar los objetivos de kpi ==============
             idkpi = Kpiarea.objects.get(id=regkpi.id)
             
@@ -339,9 +348,15 @@ def kpiarea(request):
     
     area = Area.objects.all()
     depart = Departamento.objects.all()
-    return render(request, 'admin/kpiareasdep.html', {'usu': perfil_usuario, 'area': area, 'depart': depart})
+    empresas = Empresa.objects.all()
+    #================= obtner las fechas actuales ================
+    fecha_actual_utc = timezone.now()
+    fecha_actual_local = timezone.localtime(fecha_actual_utc)
+   
+    return render(request, 'admin/kpiareasdep.html', {'usu': perfil_usuario, 'area': area, 'depart': depart, 'fecha':fecha_actual_local, 'empresas':empresas})
 
 #listar KPIs de cada area
+@login_required
 def listarkpiarea(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     kparea = Kpiarea.objects.all()
@@ -349,31 +364,41 @@ def listarkpiarea(request):
     return render(request, 'admin/listkpi.html', {'usu': perfil_usuario, 'kpareas':kparea, 'kpobjs':kpobj})
 
 #editar kpi de cada area
+@login_required
 def editarkpi(request, idkpi):
+    mensajeUpdate = ''
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     datoskpi = Kpiarea.objects.get(id=idkpi)
     objetivos = Kpiobjetivos.objects.filter(idkpi=datoskpi)
+    fecha_actual_utc = timezone.now()
+    fecha_actual_local = timezone.localtime(fecha_actual_utc)
     if request.method == 'POST':
         #=======validar el id de la empresa ==================
-        idem = perfil_usuario.idempresa  # aquí se obtiene la empresa a la cual pertenece
-        idemp = idem.idempresa  # se obtiene el idempresa
-        idarea = request.POST.get('area')
-        iddepartamento = request.POST.get('depar')
-        try:
-            empresa_area = EmpresaAreas.objects.get(idempresa=idemp, idarea=idarea, idepar=iddepartamento)
-        except EmpresaAreas.DoesNotExist:
-            messages.error(request, 'No se encontró la empresa o área especificada.')
-            return redirect('kpiarea')
-        #====================================================
+        #idem = perfil_usuario.idepart  # aquí se obtiene la empresa a la cual pertenece
+        id_area = request.POST.get('area', '')
+        iddepartamento = request.POST.get('depar', '')
+        if not id_area and not iddepartamento:
+             mensajeAlerta = 'Debe existir al menos una Area o Departamento seleccionados.'
+             messages.error(request, mensajeAlerta)
+             return HttpResponseRedirect(reverse('editarkpi', kwargs={'idkpi': idkpi}))
+        #=========== recupera los datos del front ================
         datoskpi.nombre = request.POST.get('nombre')
         datoskpi.descrip = request.POST.get('descrip')
         datoskpi.fechaini = request.POST.get('fecini')
         datoskpi.fechafin = request.POST.get('fecfin')
         datoskpi.valor = request.POST.get('valor')
-        datoskpi.estado = request.POST.get('estado')
-        datoskpi.idemparea = empresa_area
+       
+        if not iddepartamento:
+            # ========= guardar la info en la tabla de kpis area =========
+            idarea = get_object_or_404(Area, id=id_area)
+            datoskpi.idarea = idarea
+            datoskpi.idepar=None
+        else:
+            id_depar = Departamento.objects.get(id=iddepartamento)
+            datoskpi.idarea = None
+            datoskpi.idepar=id_depar
         datoskpi.save()
-
+        #====================================================
         for objetivo in objetivos:
                 # Obtener los valores actualizados del formulario
                 descripobj = request.POST.get(f'descripobj_{objetivo.id}')
@@ -385,14 +410,16 @@ def editarkpi(request, idkpi):
                 objetivo.meta = metas
                 objetivo.indicador = indicador
                 objetivo.save() 
-        messages.success(request, 'Curso actualizado exitosamente.')
-        return redirect('listarkpiarea')
+        mensajeUpdate = 'Kpi actualizado de manera exitosa.'
+    #=======consultas para la vista =========================
+    infokpi = Kpiarea.objects.get(id=idkpi)
+    obkpi = Kpiobjetivos.objects.filter(idkpi=idkpi)
+    empresa = Empresa.objects.all()
+    if not infokpi.idarea:
+        emprincipal = Empresa.objects.get(id=infokpi.idepar.idarea.idempresa.id)
     else:
-        infokpi = Kpiarea.objects.get(id=idkpi)
-        obkpi = Kpiobjetivos.objects.filter(idkpi=idkpi)
-        area = Area.objects.all()
-        depart = Departamento.objects.all()
-        return render(request, 'admin/updatekpi.html', {'usu': perfil_usuario, 'infokpis':infokpi, 'obkpis':obkpi, 'area':area, 'depart':depart})
+        emprincipal = Empresa.objects.get(id=infokpi.idarea.idempresa.id) 
+    return render(request, 'admin/updatekpi.html', {'usu': perfil_usuario, 'infokpis':infokpi, 'obkpis':obkpi, 'empresa':empresa, 'principal':emprincipal, 'mensajeUp':mensajeUpdate, 'fecha':fecha_actual_local})
 
 #eliminar kpi de un area
 @login_required #proteger la ruta
@@ -404,7 +431,40 @@ def eliminarkpi(request, idkpi):
     except Kpiarea.DoesNotExist:
         messages.error(request, 'El Kpi no existe.')
     return redirect('listarkpiarea')
+
+#========== desactivar o activar el KPI =============
+@login_required
+def desactivarkpi(request, idkpi):
+    try:
+        kpi = Kpiarea.objects.get(id=idkpi)
+        if kpi.estado:
+           kpi.estado = False
+        else:
+            kpi.estado = True
+        kpi.save()
+        messages.success(request, 'El estado del KPI ha sido actualizado.')
+    except Kpiarea.DoesNotExist:
+        messages.error(request, 'Existe un error con el KPI seleccionado.')
+    return redirect('listarkpiarea')
+
+#================= consultar empresa seleccionada ======
+@login_required
+def selectEmpresa(request):
+    idempresa = request.GET.get('opcion')
+    #========= buscar la empresa ==========
+    empresa = Empresa.objects.get(id=idempresa)
+    data = list(Area.objects.filter(idempresa=empresa).values('id', 'nombre', 'descrip'))
+    return JsonResponse({'areas': data})
    
+#=============== consultar el area seleccionada ====================
+@login_required
+def selectArea(request):
+    idarea = request.GET.get('opcion')
+    area = Area.objects.get(id=idarea)
+    data = list(Departamento.objects.filter(idarea=area).values('id', 'nombre', 'descrip'))
+    return JsonResponse({'data': data})
+
+
 #Vista para listar Empresas
 @login_required
 def listarempresa(request):
@@ -428,28 +488,35 @@ def eliminarempresa(request, idempresa):
 @login_required #proteger la ruta
 def modificarempresa(request, idempresa):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    empresa = Empresa.objects.get(id=idempresa)
     grpEmp = GrupoEmpresa.objects.all()
     sector = SectorEmpresa.objects.all()
     tamint = TamEmpresa.objects.all()
+    empresabus = Empresa.objects.get(id=idempresa)
     if request.method == 'POST':
+        empresa = Empresa.objects.get(id=idempresa)
         empresa.nombre = request.POST.get('nameEmp')
         empresa.nit = request.POST.get('nit')
         empresa.direccion = request.POST.get('direccion')
         empresa.correo = request.POST.get('correo')
         empresa.telefono = request.POST.get('telefono')
-        gropemp = request.POST.get('groupEmp')
+        gropemp = request.POST.get('groupEmp', '')
         sec = request.POST.get('sector')
         tam = request.POST.get('tamanioEmp')
 
-        empresa.idgrupoem = GrupoEmpresa.objects.get(id=gropemp)
+        #=========== validar que el grupo empresa no este vacio =======
+        if not gropemp:
+            grupo = None
+        else:
+            grupo = GrupoEmpresa.objects.get(id=gropemp)
+
+        empresa.idgrupoem = grupo # === se asigna en blanco si no hay datos
         empresa.idsector = SectorEmpresa.objects.get(id=sec)
         empresa.idtam = TamEmpresa.objects.get(id=tam)
         empresa.save()
         messages.success(request, 'Empresa actualizada exitosamente.')
         return redirect('listarempresa')
     else:
-        return render(request, 'admin/updateempresa.html', {'usu':perfil_usuario, 'empresa':empresa, 'sector':sector, 'grpEmp':grpEmp, 'tamint':tamint})
+        return render(request, 'admin/updateempresa.html', {'usu':perfil_usuario, 'empresa':empresabus, 'sector':sector, 'grpEmp':grpEmp, 'tamint':tamint})
 
 #Codigo Jhon
 class empresagetsector(View):
@@ -566,10 +633,9 @@ def creargrupo(request):
       #===========obtener los datos para agregar un nuevo usuario ================
         rol = RolUser.objects.all()
         empresa = Empresa.objects.all()
-        cargo = Cargo.objects.all()
         depars = Departamento.objects.all()
         areas =Area.objects.all()
-        return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios, 'rol':rol, 'empresa':empresa, 'cargo':cargo, 'depars':depars, 'areas':areas})
+        return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios, 'rol':rol, 'empresa':empresa, 'depars':depars, 'areas':areas})
 #================================================
 #======== Duplicar grupo con todos sus usuarios y cursos agregados ================
 def duplicarGrupo(request, idgr):
@@ -605,55 +671,36 @@ def saveusernuevo(request):
        usuarios = UserPerfil.objects.all()
        rol = RolUser.objects.all()
        empresa = Empresa.objects.all()
-       cargo = Cargo.objects.all()
        depars = Departamento.objects.all()
        areas =Area.objects.all()
        #============ solamente obtener los grupos que no tienen ningun curso o usuario vinculado =============
        grupos_faltantes = ngrupos.exclude(
             Q(gruposuser__in=addgrupouser) | Q(gruposcursos__in=addgrupocurso)
         )
-       #===========guardar usuario nuevo ======================
-       user = User.objects.create_user(username=request.POST['email'], 
-       password=request.POST['ced'])
-       user.save()
        #========= guardar en userperfil =================
-       user_id = User.objects.latest('id').id
-       user_n = User.objects.get(id=user_id)
        id_rol = request.POST['rol']
-       rol_user = RolUser.objects.get(id=id_rol)
-       id_cargo = request.POST['cargo']
-       cargo_user = Cargo.objects.get(id=id_cargo)
-       id_empresa = Empresa.objects.get(id=request.POST['empresa'])
-       id_area = request.POST['area']
-       area_iden = Area.objects.get(id=id_area)
-       idpear = request.POST['depar'] # aqui cambia a none si es vacia
-       id_depar = Departamento.objects.get(id=idpear)
-       if idpear is not None and idpear != '':
-           try:
-               empresa_user = EmpresaAreas.objects.get(idempresa=id_empresa, idarea=area_iden, idepar=id_depar)
-               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user_n)
-               userper.save()
-           except EmpresaAreas.DoesNotExist:
-               crearrelacion = EmpresaAreas(idempresa=id_empresa, idarea=area_iden, idepar=id_depar)
-               crearrelacion.save()
-               #========== guardar datos de usuario
-               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=crearrelacion, user=user_n)
-               userper.save()
-       else:
-           try:
-               empresa_user = EmpresaAreas.objects.get(idempresa=id_empresa, idarea=area_iden,  idepar__isnull=True)
-               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user_n)
-               userper.save()
-           except EmpresaAreas.DoesNotExist:
-               crearrelacion = EmpresaAreas(idempresa=id_empresa, idarea=area_iden)
-               crearrelacion.save()
-               #======= guardar datos==========
-               userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=crearrelacion, user=user_n)
-               userper.save()
+       cargo_user = request.POST.get('cargo', '')
+       idepar = request.POST.get('depar', '')
+       idarea = request.POST.get('area', '')
+        #================ consultas ================
+       rol_user = get_object_or_404(RolUser, id=id_rol)
+        #========= crear el usuario ========
+       user = User.objects.create_user(username=request.POST['email'], password=request.POST['pass'])
+       user.save()
+        #========== crear el user perfil==========
+       if not idepar:
+           id_area = Area.objects.get(id=idarea)
+           id_depar = None
+       else: 
+        id_depar = Departamento.objects.get(id=idepar)
+        id_area = None
+       userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], idrol=rol_user, cargo=cargo_user, idepart=id_depar, idarea=id_area, user=user )
+       userper.save()
+        
        #================ buscar el id de la empresa ===================
        mensaje = "Usuario guardado de manera exitosa."
        messages.info(request, mensaje)
-       return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios, 'rol':rol, 'empresa':empresa, 'cargo':cargo, 'depars':depars, 'areas':areas})
+       return render(request, 'admin/addgrupo.html', {'usu':perfil_usuario, 'ngrupos':grupos_faltantes, 'cursos':cursos, 'usuarios':usuarios, 'rol':rol, 'empresa':empresa, 'depars':depars, 'areas':areas})
 #============= crear grupo ============
 @login_required #proteger la ruta
 def addgrupo(request):
@@ -823,80 +870,101 @@ def cursosgrupo(request, idgrupo):
         messages.error(request, 'Datos actualizados correctamente')
     return render(request, 'admin/listcursogrupo.html', {'usu':perfil_usuario, 'idgrupo':idgrupo, 'regcurso':regcurso, 'cursos':cursos, 'gruponame':gruponame })
     
-@login_required
-def vincularareadepto(request):
-    empresa = Empresa.objects.all()
-    areas = Area.objects.all()
-    perfil_usuario = UserPerfil.objects.get(user=request.user)
-    if request.method == 'POST':
-        selectemp = request.POST.get('selectEmp')
-        namearea = request.POST.get('namearea')
-        descarea = request.POST.get('descripcionarea')
-        namedepto = request.POST.getlist('nomdepto[]')
-        desdepto = request.POST.getlist('desdepto[]')
-        Departamentos = []
-        vinculos = []
-
-        #Guardar data de areas
-        area = Area(nombre=namearea, descrip=descarea)
-        area.save()
-
-        #Guardar data de Departamentos
-        if any(namedepto) or any(desdepto):
-            for i in range(len(namedepto)):
-                deptolist = Departamento(
-                    nombre = namedepto[i],
-                    descrip = desdepto[i]
-                )
-                Departamentos.append(deptolist)
-            Departamento.objects.bulk_create(Departamentos)
-
-        #Vincular data de Areas y Departamentos a Empresa
-        depto = Departamento.objects.filter(nombre__in=namedepto)
-        emp = Empresa.objects.get(id=selectemp)
-        id_area = Area.objects.get(nombre=namearea)
-        print("variable", emp)
-        if any(namedepto) or any(desdepto):
-            for i in range (len(namedepto)):
-                vinculolist = EmpresaAreas(
-                    idempresa = emp,
-                    idarea = id_area,
-                    idepar = depto[i]
-                )
-                vinculos.append(vinculolist)
-            EmpresaAreas.objects.bulk_create(vinculos)
-            mensaje = "Areas y departamentos vinculados satisfactoriamente"
-            return render(request, 'admin/vincularareadepartamento.html', {'usu':perfil_usuario, 'empresa':empresa, 'mensaje':mensaje, 'areas':areas})
-        else:
-            vincular = EmpresaAreas(idempresa=emp, idarea=id_area)
-            vincular.save()
-            mensaje = "Areas vinculadas satisfactoriamente"
-        return render(request, 'admin/vincularareadepartamento.html', {'usu':perfil_usuario, 'empresa':empresa, 'mensaje':mensaje, 'areas':areas})
-    else:
-        return render(request, 'admin/vincularareadepartamento.html', {'usu':perfil_usuario, 'empresa':empresa, 'areas':areas})
 
 @login_required
 def visualizarAreaDepto(request):
-    print(request.POST)
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    empresa = Empresa.objects.all()
+    areas = ''
+    if request.method == 'POST':
+        selecarea = request.POST.get('selectEmp')
+        # ===========  buscar todas las areas ligadas a la empresa seleccionada ========
+        #========= empresa seleccionada ======
+        empr = Empresa.objects.get(id=selecarea)
+        areas = Area.objects.filter(idempresa=empr)
+        #========= departamentos ==============
+        depar = Departamento.objects.all()
+        return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa, 'areas':areas, 'selecarea':selecarea, 'emp':empr, 'depar':depar})
+    else:
+        return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa})
+#================ crear una nueva area =========
+@login_required
+def addArea(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     empresa = Empresa.objects.all()
     if request.method == 'POST':
-        selecarea = request.POST.get('selectEmp')
-        areas = EmpresaAreas.objects.filter(idempresa=selecarea)
-        print(areas)
-        return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa, 'areas':areas})
-    else:
-        return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa})
+        # Recibe los datos del formulario
+        activarPanel = 1 #===== acti var el popup una vez guardado
+        area_nueva = request.POST.get('nomarea')
+        descripcion = request.POST.get('desareanueva', '')
+        empresa_select = request.POST.get('empresa')
+        #=========== craer el area ============
+        empr = Empresa.objects.get(id=empresa_select)
+        depar = Departamento.objects.all()
+        areas = Area.objects.filter(idempresa=empr)
+        #========= validar ====
+        existing_area = Area.objects.filter(nombre=area_nueva, idempresa=empr).first()
+        if not existing_area:
+           newarea = Area(nombre=area_nueva, descrip=descripcion, idempresa=empr)
+           newarea.save() 
+        return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa, 'areas':areas, 'activarPanel':activarPanel, 'selecarea':empresa_select, 'emp':empr, 'depar':depar})
+
+#===================== crear nuevo departamento =======
+@login_required
+def addDepartamento(request):
+     perfil_usuario = UserPerfil.objects.get(user=request.user)
+     empresa = Empresa.objects.all()
+     if request.method == 'POST':
+         area = request.POST.get('area')
+         depar = request.POST.get('departamento', '')
+         descrip = request.POST.get('descripdep', '')
+         areaob = Area.objects.filter(id=area).first()
+         emp_select = areaob.idempresa.id #empresa elegida
+         empr = Empresa.objects.get(id=emp_select)
+         areas = Area.objects.filter(idempresa=empr)
+         existing_dep = Departamento.objects.filter(nombre=depar, idarea=areaob).first()
+         if not existing_dep:
+             newdepar = Departamento(nombre=depar, descrip=descrip, idarea=areaob)
+             newdepar.save()
+         deparcom = Departamento.objects.all()
+         return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa, 'areas':areas,  'selecarea':emp_select, 'emp':empr, 'depar':deparcom})
+
+#================ eliminar departamento =========
+@login_required
+def deleteDepar(request, iddepar, area):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    empresa = Empresa.objects.all()
+    areaob = Area.objects.filter(id=area).first()
+    emp_select = areaob.idempresa.id #empresa elegida
+    empr = Empresa.objects.get(id=emp_select)
+    areas = Area.objects.filter(idempresa=empr)
+    deparcom = Departamento.objects.all()
+    try:
+        emp = Departamento.objects.get(id=iddepar)
+        emp.delete()
+        messages.success(request, 'Departamento eliminado exitosamente.')
+    except Empresa.DoesNotExist:
+        messages.error(request, 'El departamento no existe Existe')
+    return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa, 'areas':areas,  'selecarea':emp_select, 'emp':empr, 'depar':deparcom})
 
 @login_required
 def eliminavinculo(request, idarea):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    empresa = Empresa.objects.all()
+    areaob = Area.objects.filter(id=idarea).first()
+    emp_select = areaob.idempresa.id #empresa elegida
+    empr = Empresa.objects.get(id=emp_select)
+    areas = Area.objects.filter(idempresa=empr)
+    deparcom = Departamento.objects.all()
     try:
-        emp = EmpresaAreas.objects.get(id=idarea)
+        emp = Area.objects.get(id=idarea)
         emp.delete()
-        messages.success(request, 'Vinculacion eliminada exitosamente.')
-    except Empresa.DoesNotExist:
-        messages.error(request, 'La Vinculacion no Existe')
-    return redirect('visualizarAreaDepto')
+        messages.success(request, 'Area eliminada exitosamente.')
+    except Area.DoesNotExist:
+        messages.error(request, 'El area no Existe')
+    areas = Area.objects.filter(idempresa=empr)
+    return render(request, 'admin/listvinculacion.html',{'usu':perfil_usuario, 'empresa':empresa, 'areas':areas,  'selecarea':emp_select, 'emp':empr, 'depar':deparcom})
+    
 
 def validarasistencia(request, idsesion):
     
@@ -930,12 +998,6 @@ def validarasistencia(request, idsesion):
                     mensaje="El usuario ya se encuentra registrado a esta sesión"
                     return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False})
                 
-                '''
-                for curso in cursos:
-                    for grupo in grupos:
-                        if grupo.idgrupo == curso.idgrupo:
-                            verificar=True
-                '''
   
                 if verificar:
                     asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=True)
@@ -1009,8 +1071,11 @@ def borrarcalificacion(request, idcali):
 def listar_compromisos(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
+    formador = ''
     #=====================================================
-    return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios})
+    if perfil_usuario.idrol.id == 4:
+        formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+    return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios, 'formador':formador})
 
 # aqui permite ver los compromisos por cada usuario 
 @login_required
@@ -1069,8 +1134,6 @@ def delete_compromiso(request, idcomp):
     estados = EstadoCompromisos.objects.all()
     return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados})
 
-    
-    
 def inscribir_asistente(request, idsesion):
     if request.method == 'POST':
         try: 
@@ -1078,20 +1141,22 @@ def inscribir_asistente(request, idsesion):
             password=request.POST['cedula'])
             user.save()
             rol_user = RolUser.objects.get(id=2)
-            #id_cargo = request.POST['cargo']
-            cargo_user = Cargo.objects.get(id=1)
-            #id_empresa =  request.POST['empresa']
-            empresa_user = EmpresaAreas.objects.get(id=1)
-            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user, pendiente=True )
+            
+            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, cargo=request.POST['cargoUser'], idepart=None, idarea=None, user=user, pendiente=True )
             userper.save()
+            #=========== vincular al grupo =======
             sesion = Sesioncurso.objects.get(id=idsesion)
-            grupo = GruposCursos.objects.filter(idcurso=sesion.idcurso).first()
-            ingreso_grupo = GruposUser(idgrupo=grupo.idgrupo, iduser=userper, )
-            ingreso_grupo.save()
-
-            asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=userper, asistencia_pendiente=True)
-            asistencia.save()
-            messages.success(request,"Usuario guardado y validado satisfactoriamente")
+            #grupo_curso = GruposCursos.objects.filter(idcurso=sesion.idcurso.id).first()
+            #grupo = Grupos.objects.get(id=grupo_curso.idgrupo.id)
+            try: 
+               # ingreso_grupo = GruposUser(idgrupo=grupo, iduser=userper)
+               # ingreso_grupo.save()
+                asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=userper, asistencia_pendiente=True)
+                asistencia.save()
+                messages.success(request,"Usuario guardado y validado satisfactoriamente")
+            except Exception as e:
+                messages.error(request,"Ocurrio un error con su registro")
+            
             return redirect('validarasistencia', idsesion=idsesion) # redirecciona a otra vista
         except IntegrityError:
             messages.error(request, "Error al guardar el usuario")
@@ -1148,17 +1213,16 @@ def registroUser(request):
      perfil_usuario = UserPerfil.objects.get(user=request.user)
      if request.method == 'POST' and request.FILES['archivo']:
         archivo_excel = request.FILES['archivo']
-        print('Archivo aqui', archivo_excel) 
         # Utilizamos pandas para leer el archivo Excel directamente desde la memoria
         df = pd.read_excel(archivo_excel)
         #=============== obtener los cargos, roluser, empresa fuera del bucle ======
-        id_roles = df['Idrol'].unique()
-        id_cargos = df['Idcargo'].unique()
-        id_empresas = df['Idempresa'].unique()
+        id_roles = df['Idrol'].dropna().unique()
+        id_area = df['Idarea'].dropna().unique()
+        id_depar = df['Idepart'].dropna().unique()
         #===== obtener todas las relaciones ===============
         roles = {role.id: role for role in RolUser.objects.filter(id__in=id_roles)}
-        cargos = {cargo.id: cargo for cargo in Cargo.objects.filter(id__in=id_cargos)}
-        empresas = {empresa.id: empresa for empresa in EmpresaAreas.objects.filter(id__in=id_empresas)}
+        areasn = {area.id: area for area in Area.objects.filter(id__in=id_area)}
+        departamentos = {depar.id: depar for depar in Departamento.objects.filter(id__in=id_depar)}
         #========== registrar a los usuarios ===============
         for index, row in df.iterrows():
             try: 
@@ -1168,7 +1232,17 @@ def registroUser(request):
                 user = User.objects.create_user(username=row['Email'], password=row['Password'])
                 user.save()
                 #========== registrar los datos en perfil user
-                userper = UserPerfil(nombre=row['Nombre'], apellido=row['Apellido'], cedula=row['Cedula'], telefono=row['Telefono'], idrol=roles[row['Idrol']], idcargo=cargos[row['Idcargo']], idempresa=empresas[row['Idempresa']], user=user )
+                if row['Idarea'] and row['Idarea'] in areasn:
+                    idarea = areasn[row['Idarea']]
+                else:
+                    idarea = None
+                #================
+                if row['Idepart'] and row['Idepart'] in departamentos:
+                    idep = departamentos[row['Idepart']]
+                else:
+                    idep = None
+                #================
+                userper = UserPerfil(nombre=row['Nombre'], apellido=row['Apellido'], cedula=row['Cedula'], telefono=row['Telefono'], idrol=roles[row['Idrol']], cargo=row['Cargo'], idarea=idarea, idepart=idep, user=user )
                 userper.save()
                 mensaje = "Registros importados de manera exitosa!"
             except IntegrityError:
@@ -1178,9 +1252,9 @@ def registroUser(request):
      empresa = Empresa.objects.all() #== listado de empresas
      areas = Area.objects.all() 
      depar = Departamento.objects.all()
-     cargo = Cargo.objects.all()
      rol = RolUser.objects.all()
-     return render(request, 'admin/registrouser.html', {'usu':perfil_usuario, 'mensaje':mensaje, 'usuarios':usuarios, 'empresa':empresa, 'areas':areas, 'depar':depar, 'cargo':cargo, 'roles':rol})
+     formadorempresa = FormadorEmpresa.objects.all()
+     return render(request, 'admin/registrouser.html', {'usu':perfil_usuario, 'mensaje':mensaje, 'usuarios':usuarios, 'empresa':empresa, 'areas':areas, 'depar':depar, 'roles':rol, 'formador':formadorempresa})
 
 #================= aqui registrar nuevo usuario =================
 @login_required
@@ -1190,32 +1264,33 @@ def addNewUser(request):
        #================== registrar user ==============
        try: 
               id_rol = request.POST['rol']
-              id_cargo = request.POST['cargo']
-              idempresa =  request.POST['empresa']
+              cargo_user = request.POST.get('cargo', '')
               idepar = request.POST.get('depar', '')
               idarea = request.POST.get('area', '')
-              #================ consultas ====
-              if not idepar:
-                 id_depar = ''
-              else: 
-                 id_depar = get_object_or_404(Departamento, id=idepar)
-              #======================
+              idempresa = request.POST.get('emp', '')
+              #================ consultas ================
               rol_user = get_object_or_404(RolUser, id=id_rol)
-              cargo_user = get_object_or_404(Cargo, id=id_cargo)
-              id_empresa  = get_object_or_404(Empresa, id=idempresa)
-              
-              id_area = get_object_or_404(Area, id=idarea)
-              #===================================================
-              if not id_depar: #=== validar si existe un departamento 
-                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=None)
-              else:
-                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=id_depar)
+              id_empresa = get_object_or_404(Empresa, id=idempresa)
               #========= crear el usuario ========
               user = User.objects.create_user(username=request.POST['email'], password=request.POST['pass'])
               user.save()
               #========== crear el user perfil==========
-              userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user )
-              userper.save()
+              if rol_user.id != 4:
+                if not idepar:
+                    id_area = Area.objects.get(id=idarea)
+                    id_depar = None
+                else: 
+                    id_depar = Departamento.objects.get(id=idepar)
+                    id_area = None
+                userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], idrol=rol_user, cargo=cargo_user, idepart=id_depar, idarea=id_area, user=user )
+                userper.save()
+              else: 
+                userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], idrol=rol_user, cargo=cargo_user, idepart=None, idarea=None, user=user )
+                userper.save()
+                #============ guardar la relacion de empresa y formador
+                formador = FormadorEmpresa(idempresa=id_empresa, idusu=userper)
+                formador.save()
+
               mensajereg = f"El usuario: {userper.user.username}, ha sido registrado exitosamente"
        except IntegrityError:
               mensajereg = "Error: El usuario ya se encuentra registrado."
@@ -1227,6 +1302,8 @@ def addNewUser(request):
 def deleteUser(request, idusu):
     find_user = get_object_or_404(UserPerfil, id=idusu)
     find_user.delete()
+    usu = User.objects.get(id=find_user.user.id)
+    usu.delete()
     mensajeDelete = f"Usuario: {find_user.user.username}, eliminado de manera exitosa "
     messages.error(request, mensajeDelete)
     return HttpResponseRedirect(reverse('registroUser'))
@@ -1249,42 +1326,49 @@ def lockaccess(request, idusu):
 def updateUser(request, idusu):
     if request.method == 'POST':
       try: 
-              id_rol = request.POST.get('rol', '')
-              id_cargo = request.POST.get('cargo', '')
-              idempresa =  request.POST.get('empresa', '')
-              idepar = request.POST.get('depar', '')
-              idarea = request.POST.get('area', '')
-              passw = request.POST.get('pass', '')
+              id_rol = request.POST.get('rolUsu', '')
+              cargo_user = request.POST.get('cargoUsu', '')
+              idepar = request.POST.get('deparUsu', '')
+              idarea = request.POST.get('areaUsu', '')
+              passw = request.POST.get('passwUsu', '')
 
               #================ consultas ====
-              if not idepar:
-                 id_depar = ''
-              else: 
-                 id_depar = get_object_or_404(Departamento, id=idepar)
+              userupdate = get_object_or_404(UserPerfil, id=idusu)
+              if userupdate.idrol.id != 4:
+                if not idepar:
+                    id_area = Area.objects.get(id=idarea)
+                    id_depar = None
+                else: 
+                    id_depar = Departamento.objects.get(id=idepar)
+                    id_area = None
+              else:
+                  empresas_selec = request.POST.getlist('empvincu')
+                  id_depar = None
+                  id_area = None
               #============ validar que no esten vacios =======
               rol_user = get_object_or_404(RolUser, id=id_rol)
-              cargo_user = get_object_or_404(Cargo, id=id_cargo)
-              id_empresa  = get_object_or_404(Empresa, id=idempresa)
-              id_area = get_object_or_404(Area, id=idarea)
-              #===================================================
-              if not id_depar: #=== validar si existe un departamento 
-                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=None)
-              else:
-                  empresa_user, created = EmpresaAreas.objects.get_or_create(idempresa=id_empresa, idarea=id_area, idepar=id_depar)
               #========== actualizar el user perfil==========
-              userupdate = get_object_or_404(UserPerfil, id=idusu)
-              userupdate.nombre = request.POST['nombre']
-              userupdate.apellido = request.POST['apellido']
-              userupdate.cedula = request.POST['ced']
+              userupdate.nombre = request.POST['nombreUsu']
+              userupdate.apellido = request.POST['apellidoUsu']
+              userupdate.cedula = request.POST['cedUsu']
+              userupdate.telefono = request.POST['telUsu']
               userupdate.idrol = rol_user 
-              userupdate.idcargo = cargo_user
-              userupdate.idempresa = empresa_user             
+              userupdate.cargo = cargo_user
+              userupdate.idepart = id_depar     
+              userupdate.idarea = id_area          
               userupdate.save()
               #========= update el usuario ========
               user = get_object_or_404(User, id=userupdate.user.id)
               if passw:
-                user.password = request.POST['passw']
+                user.set_password(passw)
                 user.save()
+              if userupdate.idrol.id == 4:
+                #==== borrar los datos antes de actualizar ==============
+                FormadorEmpresa.objects.filter(idusu=userupdate).delete()
+                for empresa_id in empresas_selec:
+                    empresa = Empresa.objects.get(id=empresa_id)
+                    formadorempresa = FormadorEmpresa(idempresa=empresa, idusu=userupdate)
+                    formadorempresa.save()   
               #================================================
               mensajeUpdate = f"El usuario: {userupdate.user.username}, ha sido actualizado exitosamente"
       except IntegrityError:

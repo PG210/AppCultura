@@ -21,9 +21,16 @@
       
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">
-              Modificar Empresa
-            </h5>
+            <div class="row">
+               <div class="col-sm-8">
+                <h5 class="card-title">
+                  Modificar Empresa
+                </h5>
+               </div>
+               <div class="col-sm-4 mt-2 text-end">
+                 <a href="/administracion/empresa/list" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a>
+               </div>
+            </div>
               <!--alertar-->
               {% if msj %}
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -36,6 +43,27 @@
             <form action="{% url 'modificarempresa' idempresa=empresa.id %}" method="post">
               {% csrf_token %}
               <div class="form-control">
+              <!--=========================-->
+              <div class="row mb-3">
+                <label for="descrip" class="col-sm-2 col-form-label">Grupo Empresarial</label>
+                <div class="col-sm-10">
+                  <select class="form-select" aria-label="Default select example" name="groupEmp">
+                    {% if empresa.idgrupoem.nombre %}
+                    <option value="{{empresa.idgrupoem.id}}">{{empresa.idgrupoem.nombre}} - Nit: {{empresa.idgrupoem.nit}} </option>
+                    <option value="">Empresa principal</option>
+                    {% else %}
+                    <option value="">Empresa principal</option>
+                    {% endif %}
+                    
+                    {% for emp in grpEmp %}
+                      {% if emp.id != empresa.idgrupoem.id %}
+                        <option value="{{emp.id}}">{{emp.nombre}} - Nit: {{emp.nit}} </option>  
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <!--=======================-->
               <div class="row mb-3">
                 <label for="nombre" class="col-sm-2 col-form-label">Nombre de la Empresa</label>
                 <div class="col-sm-10">
@@ -44,44 +72,27 @@
               </div>
               <div class="row mb-3">
                 <label for="descrip" class="col-sm-2 col-form-label">NIT</label>
-                <div class="col-sm-10">
+                <div class="col-sm-4">
                     <input type="text" class="form-control" id="nombre" name="nit" value="{{empresa.nit}}">
                 </div>
-              </div>
-              <div class="row mb-3">
-                <label for="descrip" class="col-sm-2 col-form-label">Dirección Sede Principal</label>
-                <div class="col-sm-10">
+                <label for="descrip" class="col-sm-2 col-form-label">Dirección Sede</label>
+                <div class="col-sm-4">
                     <input type="text" class="form-control" id="nombre" name="direccion" value="{{empresa.direccion}}">
                 </div>
               </div>
               <div class="row mb-3">
                 <label for="descrip" class="col-sm-2 col-form-label">Correo</label>
-                <div class="col-sm-10">
+                <div class="col-sm-4">
                     <input type="email" class="form-control" id="nombre" name="correo" value="{{empresa.correo}}">
                 </div>
-              </div>
-              <div class="row mb-3">
-                <label for="descrip" class="col-sm-2 col-form-label">Télefono</label>
-                <div class="col-sm-10">
+                <label for="descrip" class="col-sm-2 col-form-label">Teléfono</label>
+                <div class="col-sm-4">
                     <input type="tel" class="form-control" id="nombre" name="telefono" value="{{empresa.telefono}}">
                 </div>
               </div>
               <div class="row mb-3">
-                <label for="descrip" class="col-sm-2 col-form-label">Grupo Empresarial</label>
-                <div class="col-sm-10">
-                  <select class="form-select" aria-label="Default select example" name="groupEmp">
-                    <option value="{{empresa.idgrupoem.id}}">{{empresa.idgrupoem.nombre}}</option>
-                    {% for emp in grpEmp %}
-                      {% if emp.id != empresa.idgrupoem.id %}
-                        <option value="{{emp.id}}">{{emp.nombre}}</option>  
-                      {% endif %}
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-              <div class="row mb-3">
                 <label for="descrip" class="col-sm-2 col-form-label">Sector</label>
-                <div class="col-sm-10">
+                <div class="col-sm-4">
                   <select class="form-select" aria-label="Default select example" name="sector">
                     <option value="{{empresa.idsector.id}}">{{empresa.idsector.nombre}}</option>
                     {% for sc in sector %}
@@ -91,10 +102,8 @@
                     {% endfor %}
                   </select>
                 </div>
-              </div>
-              <div class="row mb-3">
-                <label for="descrip" class="col-sm-2 col-form-label">Tamaño de la empresa</label>
-                <div class="col-sm-10">
+                <label for="descrip" class="col-sm-2 col-form-label">Tamaño empresa</label>
+                <div class="col-sm-4">
                     <select class="form-select" aria-label="Default select example" name="tamanioEmp">
                       <option value="{{empresa.idtam.id}}">{{empresa.idtam.descrip}}</option>
                       {% for tam in tamempresa %}
@@ -105,11 +114,11 @@
               </div>
               </div>
             </div>
-              <div class="text-center">
+            <div class="container">
+              <div class="text-end mb-3">
                 <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Actualizar </button>
-                <a type="button" class="btn btn-success" href="{% url 'listarempresa' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
-                <button type="reset" class="btn btn-secondary">Cancelar</button>
               </div>
+            </div>
             </form>
            
           </div>

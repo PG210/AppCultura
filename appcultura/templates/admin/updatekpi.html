@@ -1,5 +1,6 @@
 {% extends 'admin/inicio.html' %}
 {% block content %}
+{% load static%}
 <!-- detalle_curso.html -->
 <main id="main" class="main">
 
@@ -20,19 +21,34 @@
       
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">
-              Actualizar KPI
-            </h5>
+            <div class="row">
+             <div class="col-lg-6">
+              <h5 class="card-title">
+                Actualizar KPI empresa: {{principal.nombre}}
+              </h5>
+             </div>
+             <div class="col-lg-6 text-end">
+              <a href="/administracion/kpis/list/" class="btn btn-warning mt-2"><i class="bi bi-box-arrow-left"></i> | Volver</a>
+             </div>
+            </div>
               <!--alertar-->
-              {% if msj %}
+              {% if mensajeUp %}
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <strong>{{msj}}</strong>
+                <strong>{{mensajeUp}}</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               {% endif %}
+              {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+               {% endif %}
               <!--end alertar-->
             <!-- Horizontal Form -->
-            <form action="#" method="post">
+            <form action="{% url 'editarkpi' idkpi=infokpis.id %}" method="post">
               {% csrf_token %}
               <div class="form-control">
               <div class="row mb-3">
@@ -51,54 +67,50 @@
               <div class="row mb-3">
                 <label for="fecini" class="col-sm-2 col-form-label">Fecha inicial</label>
                 <div class="col-sm-4">
-                  <input type="date" class="form-control" id="fecini" name="fecini" rows="5" value="{{ infokpis.fechaini |date:"Y-m-d" }}" required>
+                  <input type="date" class="form-control" id="fecini" name="fecini" rows="5"  min="{{fecha|date:'Y-m-d'}}"  value="{{ infokpis.fechaini |date:"Y-m-d" }}" required>
                 </div>
                 <label for="fecfin" class="col-sm-2 col-form-label">Fecha inicial</label>
                 <div class="col-sm-4">
-                  <input type="date" class="form-control" id="fecfin" name="fecfin" rows="5" value="{{ infokpis.fechafin |date:"Y-m-d" }}" required>
+                  <input type="date" class="form-control" id="fecfin" name="fecfin" rows="5"  min="{{fecha|date:'Y-m-d'}}" value="{{ infokpis.fechafin |date:"Y-m-d" }}" required>
                 </div>
               </div>
               <!--end fechas-->
               <div class="row mb-3">
                 <label for="valor" class="col-sm-2 col-form-label">Valor</label>
                 <div class="col-sm-4">
-                  <input type="number" class="form-control" id="valor" name="valor" value="{{ infokpis.valor }}" required>
+                  <input type="number" class="form-control" id="valor" name="valor" value="{{ infokpis.valor }}" min="0" required>
                 </div>
-                <label for="estado" class="col-sm-2 col-form-label">Estado</label>
+                <label for="empresa" class="col-sm-2 col-form-label">Empresa</label>
                 <div class="col-sm-4">
-                <select id="estado" name="estado" class="form-select" required>
-                  {% if infokpis.estado %}
-                    <option value="{{infokpis.estado}}" selected>Activo</option>
-                    <option value="False">Inactivo</option>
-                  {% else %}
-                    <option value="{{infokpis.estado}}" selected>Inactivo</option>
-                    <option value="True">Activo</option>
-                  {% endif %}
+                <select id="emp" name="emp" class="form-select" required>
+                    <option value="">Elegir ...</option>
+                    {% for emp in empresa %}
+                       <option value="{{emp.id}}">{{emp.nombre}}</option>  
+                    {% endfor %}
                  </select>
                 </div>
               </div>
               <div class="row mb-3">
                 <label for="area" class="col-sm-2 col-form-label">Area</label>
                 <div class="col-sm-4">
-                    <select id="area" name="area" class="form-select" required>
-                    <option value=" {{infokpis.idemparea.idarea.id}}" selected> {{infokpis.idemparea.idarea.nombre}}</option>
-                    {% for ar in area %}
-                        {% if  infokpis.idemparea.idarea.id != ar.id  %}
-                         <option value="{{ar.id}}">{{ar.nombre}}</option>
-                        {% endif %}
-                    {% endfor %}
-                      </select>
+                  <select id="area" name="area" class="form-select">
+                    <option value="{{infokpis.idarea.id}}" selected> {% if infokpis.idarea.nombre %} {{infokpis.idarea.nombre}} {% else %} Kpi aplicado a departamento {% endif %}</option>
+                  </select>
+                    <input type="checkbox" id="botonCheck"> <span><small> KPI exclusivamente al area.</small></span>
                 </div>
-                <label for="depar" class="col-sm-2 col-form-label">Departamento</label>
+                <label for="depar" class="col-sm-2 col-form-label">
+                  <div id="elementoOcultoDos" style="display: block;">
+                  Departamento&nbsp;<a type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Al seleccionar 'Sin departamentos' el KPI se registra solamnete para el area.">
+                    <i class="bi bi-info-circle"></i>
+                  </a> 
+                  </div>
+                </label>
                 <div class="col-sm-4">
-                    <select id="depar" name="depar" class="form-select" required>
-                    <option value=" {{infokpis.idemparea.idepar.id}}" selected> {{infokpis.idemparea.idepar.nombre}}</option>
-                     {% for dep in depart %}
-                        {% if  infokpis.idemparea.idepar.id != dep.id  %}
-                        <option value="{{dep.id}}">{{dep.nombre}}</option>
-                        {% endif %}
-                     {% endfor %}
-                      </select>
+                  <div id="elementoOculto" style="display: block;">
+                    <select id="depar" name="depar" class="form-select">
+                      <option value="{{infokpis.idepar.id}}" selected> {{infokpis.idepar.nombre}}</option>
+                    </select>
+                     </div>
                 </div>
               </div>
             </div>
@@ -144,10 +156,8 @@
               </div>
             </div><!-- End Default Accordion Example -->
               <!--end check-->
-              <div class="text-center">
-                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
-                <a type="button" class="btn btn-warning" href="{% url 'listarcursos' %}">Cancelar</a>
+              <div class=" text-end">
+                <button type="submit" class="btn btn-outline-primary"> <i class="bi bi-floppy2-fill"></i> | Actualizar </button>
               </div>
             </form><!-- End Horizontal Form -->
            
@@ -159,4 +169,5 @@
       </div>
     </section>
 </main><!-- End #main -->
+<script src="/static/admin/assets/js/savearea.js"></script>
 {% endblock %} 

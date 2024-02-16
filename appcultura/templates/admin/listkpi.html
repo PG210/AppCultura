@@ -22,7 +22,7 @@
               <!--alertar-->
               <div class="row">
                 <div class="col-2 mt-3">
-                  <a type="button" class="btn btn-primary" href="{% url 'kpiarea' %}"  data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Crear Nuevos KPIs"> Nuevo KPI </a>
+                  <a type="button" class="btn btn-outline-primary" href="{% url 'kpiarea' %}"  data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Crear Nuevos KPIs"> Agregar KPI </a>
               </div>
               <div class="mt-3 col-10 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
               </div>
@@ -43,47 +43,79 @@
                  <thead>
                    <tr>
                      <th>Nombre</th>
-                     <th>Fecha inicial</th>
-                     <th>Fecha final</th>
-                     <th>Valor</th>
-                     <th>Estado</th>
-                     <th>Descripción</th>
-                     <th>Eliminar</th>
-                     <th>Editar</th>
+                     <th>Empresa</th>
+                     <th>Area</th>
+                     <th>Departamento</th>
+                     <th></th>
+                     <th>Acciones</th>
                    </tr>
                  </thead>
                  <tbody>
                   {% for kparea in kpareas %}
                    <tr>
-                     <td>{{ kparea.nombre }}</td>
-                     <td>{{ kparea.fechaini |date:"Y-m-d" }}</td>
-                     <td>{{ kparea.fechafin |date:"Y-m-d" }}</td>
-                     <td>{{ kparea.valor }}</td>
+                     <td><small>{{ kparea.nombre }}</small></td>
                      <td>
-                     {% if kparea.estado %}
-                        Activo 
-                     {% else %}
-                        Inactivo 
-                     {% endif %} 
+                      {% if kparea.idarea  %}
+                        <small>{{kparea.idarea.idempresa.nombre}}</small>
+                      {% else %}
+                         <small>{{kparea.idepar.idarea.idempresa.nombre}}</small>
+                      {% endif %}
+                     </td>
+                     <td>
+                      {% if kparea.idarea.nombre %}
+                      <p><small>{{ kparea.idarea.nombre }}</small></p>
+                      {% else %}
+                        <p><small>Kpi aplicado al departamento </small></p>
+                      {% endif %}
+                     </td>
+                     <td>
+                      {% if kparea.idepar.nombre %}
+                        <p><small>{{ kparea.idepar.nombre }}</small></p>
+                      {% else %}
+                        <p><small>Kpi aplicada al area </small></p>
+                      {% endif %}
                      </td>  
                       <!--================== Descripción ===============-->
-                      <td class="text-center">
+                      <td>
                            <!-- Modal Dialog Scrollable -->
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalListaKPI{{kparea.id}}">
-                          Detalles
+                        <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalListaKPI{{kparea.id}}">
+                          <b>Ver mas</b>
                          </button>
                          <div class="modal fade" id="modalListaKPI{{kparea.id}}" tabindex="-1">
                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
                              <div class="modal-content">
                                <div class="modal-header">
-                                 <h5 class="modal-title">Descripción de KPI</h5>
+                                 <h5 class="modal-title">Información adicional del KPI: {{kparea.nombre}}</h5>
                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                </div>
                                <div class="modal-body">
                                  <div class="container">
-                                   {{ kparea.descrip }}
-                                 </div>
-                                 <br>
+                                  <!--contenedor de descripcion-->
+                                    <div class="row">
+                                      <label class="col-sm-2 col-form-label"><b>Descripción:</b></label>
+                                      <div class="col-sm-6 col-form-label">
+                                        {{ kparea.descrip }}
+                                      </div>
+                                      <label class="col-sm-2 col-form-label"><b>Valor:</b></label>
+                                      <div class="col-sm-2 col-form-label">
+                                       {{ kparea.valor | floatformat:0 }}
+                                      </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                      <label class="col-sm-3 col-form-label"><b>Fecha Inicial:</b></label>
+                                      <div class="col-sm-3 col-form-label">
+                                        {{ kparea.fechaini |date:"Y-m-d" }} 
+                                      </div>
+                                      <label class="col-sm-3 col-form-label"><b>Fecha Final:</b></label>
+                                      <div class="col-sm-3 col-form-label">
+                                        {{ kparea.fechafin |date:"Y-m-d" }} 
+                                      </div>
+                                    </div>
+                                    <hr>
+                                  <!--===================-->
+                                  </div>
+                                 <div class="table-responsive">
                                  <table>
                                      <thead>
                                        <tr>
@@ -104,6 +136,7 @@
                                    {% endfor %}
                                      </tbody>
                                  </table>
+                                </div>
                                </div>
                                <div class="modal-footer">
                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
@@ -113,9 +146,15 @@
                          </div><!-- End Modal Dialog Scrollable-->
                       </td>
                       <!--===================== end descripcion ===========-->
-                     <td class="text-end">
+                     <td>
                       <!---botones-->
-                      <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#borrarKPI{{kparea.id}}"><i class="bi bi-trash3-fill"></i></a>
+                      <!--end validacion-->
+                      <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <a type="button" class="btn {% if kparea.estado  %} btn-outline-success {% else %}  btn-outline-warning {% endif %}" data-bs-toggle="modal" data-bs-target="#EstadoKPI{{kparea.id}}">{% if kparea.estado %}<i class="bi bi-toggle2-on" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Cambiar el estado del KPI: {{ kparea.nombre }}"></i> {% else %} <i class="bi bi-toggle2-off" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Cambiar el estado del KPI: {{ kparea.nombre }}"></i> {% endif %}</a>
+                        <a type="button" class="btn btn-outline-primary" href="{% url 'editarkpi' idkpi=kparea.id %}"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el KPI de {{ kparea.nombre }}"><i class="bi bi-pencil-square"></i></a>
+                        <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#borrarKPI{{kparea.id}}"><i class="bi bi-trash3-fill" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar el KPI: {{ kparea.nombre }}"></i></a>
+                      </div>
+                      <!--end botones-->
                       <div class="modal fade" id="borrarKPI{{kparea.id}}" tabindex="-1">
                         <div class="modal-dialog modal-dialog-centered">
                           <div class="modal-content">
@@ -127,17 +166,32 @@
                               ¿Estás seguro de que deseas eliminar este KPI?
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                               <a class="btn btn-primary" href="{% url 'eliminarkpi' idkpi=kparea.id %}">Si</a>
+                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </td> 
-                    <td>
-                    <!--end validacion-->
-                      <a type="button" class="btn btn-info"  href="{% url 'editarkpi' idkpi=kparea.id %}"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el KPI de {{ kparea.nombre }}"><i class="bi bi-pencil-square"></i></a>
-                      <!--end botones-->
+                     <!--=============================-->
+                     <!--================= desactivar kpi ========================-->
+                     <div class="modal fade" id="EstadoKPI{{kparea.id}}" tabindex="-1">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Confirmar</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            ¿Está seguro que desea {% if kparea.estado %} desactivar  {% else %} activar {% endif %} este KPI?
+                          </div>
+                          <div class="modal-footer">
+                            <a class="btn btn-primary" href="{% url 'desactivarkpi' idkpi=kparea.id %}">Si</a>
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                     <!--====================desactivar kpi ======================-->
                     </td>      
                    </tr>
                    {% endfor %} 

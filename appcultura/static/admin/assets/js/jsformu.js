@@ -68,9 +68,8 @@ function agregarCampo() {
         { value: 0, text: 'Tipo de formulario' },
         { value: 1, text: 'Respuesta corta' },
         { value: 2, text: 'Párrafo' },
-        { value: 3, text: 'Opciones multiples'},
-        { value: 4, text: 'Opciones multiples con una verdadera'},
-        { value: 5, text: 'Opciones multiples con varias verdaderas'},
+        { value: 3, text: 'Encuesta'},
+        { value: 5, text: 'Opciones multiples'},
         { value: 6, text: 'Compromiso'},
     ];
 

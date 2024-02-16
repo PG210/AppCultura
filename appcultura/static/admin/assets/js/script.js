@@ -296,7 +296,7 @@ function agregarObjetivo() {
       // Botón para eliminar el campo
       var btnDelete = document.createElement('button');
       btnDelete.innerHTML = 'X';
-      btnDelete.classList.add('col-sm-1', 'btn', 'btn-danger', 'mt-2', 'float-end');
+      btnDelete.classList.add('col-sm-1', 'btn', 'btn-outline-danger', 'btn-sm', 'mt-2', 'float-end');
       btnDelete.onclick = function() {
       kpiContainer.removeChild(kpiGrupo);
     };

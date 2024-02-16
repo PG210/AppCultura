@@ -20,10 +20,14 @@
       <div class="row">
        <!--registro de cursos forms-->   
        <div class="col-lg-12">
-      
         <div class="card">
           <div class="card-body">
             <br>
+            <div class="row mb-2">
+              <div class="col-lg-12 text-end">
+               <a href="/administracion/kpis/list/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a>
+              </div>
+             </div>
               <!--alertar-->
               {% if messages %}
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -34,6 +38,7 @@
                 </div>
                {% endif %}
               <!--end alertar-->
+
             <!-- Horizontal Form -->
             <form action="{% url 'kpiarea' %}" method="post">
               {% csrf_token %}
@@ -53,49 +58,52 @@
               <div class="row mb-3">
                 <label for="precio" class="col-sm-2 col-form-label">Fecha inicial</label>
                 <div class="col-sm-4">
-                  <input type="date" class="form-control" id="fechaini" name="fechaini" required>
+                  <input type="date" class="form-control" id="fechaini" name="fechaini" min="{{fecha|date:'Y-m-d'}}" required>
                 </div>
                 <!--fecha final-->
                 <label for="precio" class="col-sm-2 col-form-label">Fecha Final</label>
                 <div class="col-sm-4">
-                  <input type="date" class="form-control" id="fechafin" name="fechafin" required>
+                  <input type="date" class="form-control" id="fechafin" name="fechafin" min="{{fecha|date:'Y-m-d'}}" required>
                 </div>
               </div>
               <!--elegir empresa-->
               <div class="row mb-3">
                 <label for="valor" class="col-sm-2 col-form-label">Valor</label>
                 <div class="col-sm-4">
-                  <input type="number" class="form-control" id="valor" name="valor" required>
+                  <input type="number" class="form-control" id="valor" name="valor" min="0" required>
                 </div>
                 <label for="descrip" class="col-sm-2 col-form-label">Empresa</label>
                 <div class="col-sm-4">
-                  <input type="text" class="form-control" id="emp" name="emp" value="Evolución" readonly>
+                  <!--<input type="text" class="form-control" id="emp" name="emp" value="Evolución" readonly>-->
+                  <select id="emp" name="emp" class="form-select" required>
+                    {% for empresa in empresas %}
+                    <option value="{{empresa.id}}">{{empresa.nombre}}</option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
               <!--elegir empresa-->
               <div class="row mb-3">
                 <label for="area" class="col-sm-2 col-form-label">Area</label>
                 <div class="col-sm-4">
-                    <select id="area" name="area" class="form-select" required>
-                        {% for ar in area %}
-                        <option value="{{ar.id}}">{{ar.nombre}}</option>
-                        {% endfor %}
-                      </select>
+                      <select id="area" name="area" class="form-select" required></select>
+                      <input type="checkbox" id="botonCheck"> Aplicar KPI exclusivamente al area.
                 </div>
+                <!--inicio de departamento-->
                 <label for="depar" class="col-sm-2 col-form-label">
+                  <div id="elementoOcultoDos" style="display: block;">
                   Departamento&nbsp; 
                   <a type="button" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Al seleccionar 'Sin departamentos' el KPI se registra solamnete para el area.">
                     <i class="bi bi-info-circle"></i>
                   </a> 
+                </div>
                 </label>
                 <div class="col-sm-4">
-                  <select id="depar" name="depar" class="form-select">
-                    <option value="none" selected>Sin departamentos</option>
-                    {% for dep in depart %}
-                      <option value="{{dep.id}}">{{dep.nombre}}</option>
-                     {% endfor %}
-                    </select>
-              </div>
+                  <div id="elementoOculto" style="display: block;">
+                  <select id="depar" name="depar" class="form-select"></select>
+                  </div>
+                </div>
+                <!--end departamento-->
               </div>
             </div>
               <!--objetivos del curso-->
@@ -103,27 +111,25 @@
             <div class="accordion" id="accordionExample">
               <div class="accordion-item">
                 <p class="accordion-header" id="headingThree">
-                  <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacordion3" aria-expanded="false" aria-controls="idacordion3">
+                  <a  style="background-color: rgb(224, 221, 221);" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacordion3" aria-expanded="false" aria-controls="idacordion3">
                     Registrar objetivos
                   </a>
                 </p>
                 <div id="idacordion3" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
                   <div class="accordion-body">
                     <!-- Contenedor para los campos del formulario -->
-                    <div id="contenedor-obj-kpi" class="row mb-3 mt-2">
+                    <div id="contenedor-obj-kpi" class="row mb-1">
                     </div>
                     <!--crear objetivos-->
-                     <a class="btn btn-primary" onclick="funcionkpi()">Agregar objetivo</a>
+                     <a class="btn btn-outline-info btn-sm" onclick="funcionkpi()"><b>Agregar objetivo</b></a>
                     <!--end objetivos-->
                   </div>
                 </div>
               </div>
             </div><!-- End Default Accordion Example -->
               <!--end check-->
-              <div class="text-center">
-                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                <!--<a type="button" class="btn btn-success" href="{% url 'listarkpiarea' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>-->
-                <a type="button" class="btn btn-warning" href="/administracion/kpis/list/">Cancelar</a>
+              <div class="text-end">
+                <button type="submit" class="btn btn-outline-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
               </div>
             </form><!-- End Horizontal Form -->
            
@@ -138,6 +144,7 @@
 
 <!-- Aqui se encuentran las instrucciones para formularios -->
 <script src="/static/admin/assets/js/script.js"></script>
+<script src="/static/admin/assets/js/savearea.js"></script>
 <script>
   funcionkpi();
 </script>

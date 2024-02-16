@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.contrib import messages
 
 from appcultura.modelos.sesionasistencia import SesionAsistencia #mensajes para la vista
-from ..models import UserPerfil, Formulario, Preguntas, Opciones, Curso, Sesioncurso, SesionFormulario, GruposCursos, RespuestaForm
+from ..models import UserPerfil, Formulario, Preguntas, Opciones, Curso, Sesioncurso, SesionFormulario, GruposCursos, RespuestaForm, FormadorEmpresa, Empresa
 from django.http import Http404
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
@@ -20,11 +20,17 @@ from appcultura.viewfile.fadmin.functionadmin import generar_qr
 @login_required #proteger la ruta
 def listarformu(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    formu = Formulario.objects.filter()
     preg = Preguntas.objects.filter()
     agregados = SesionFormulario.objects.filter()
-    #============================= aqui sesiones de cursos =======
-    cursos = Curso.objects.all()
+    #==================================================
+    if perfil_usuario.idrol.id == 4:
+        empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
+        formu = Formulario.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+        cursos = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+    else:  
+        formu = Formulario.objects.filter()
+        cursos = Curso.objects.all()
+
     # Crear un diccionario para almacenar los cursos y sus sesiones respectivas
     cursos_sesiones = {}
     for curso in cursos:
@@ -71,11 +77,13 @@ def addsesionform(request, idform):
 @login_required #proteger la ruta
 def crearformu(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
+    formadores = UserPerfil.objects.filter(idrol=4)
     if request.method == 'POST':
-        print(request.POST)
         # Acceder a los datos principales del formulario
         nomform = request.POST.get('nomform')
         desform = request.POST.get('desform')
+        empresa_select = request.POST.get('empresa')
+        formador_select = request.POST.get('formador')
         
         # Validar que el nombre no se repita
         if Formulario.objects.filter(nombre=nomform).exists():
@@ -84,7 +92,21 @@ def crearformu(request):
         # Crear y guardar el formulario principal
         fecha_actual_utc = timezone.now()
         fecha_actual_local = timezone.localtime(fecha_actual_utc)
-        datosformu = Formulario(nombre=nomform, descrip=desform, fecha=fecha_actual_local)
+        #========== validar quien crea el formulario =====================
+        if perfil_usuario.idrol.id == 4:
+           formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+           id_usuario = formador.idusu
+           id_empresa = formador.idempresa
+        else:
+            if formador_select and empresa_select:
+                perfil_formador = UserPerfil.objects.get(id=formador_select)
+                empresa_sel = Empresa.objects.get(id=empresa_select)   
+                id_usuario = perfil_formador
+                id_empresa = empresa_sel 
+            else:
+                id_usuario = None
+                id_empresa = None
+        datosformu = Formulario(nombre=nomform, descrip=desform, fecha=fecha_actual_local, idempresa=id_empresa, idusu=id_usuario)
         datosformu.save()
 
         # Procesar preguntas y tipos de formulario
@@ -149,17 +171,18 @@ def crearformu(request):
           
 
         msjsuccess= 'Los datos se han guardado correctamente.'
-        return render(request, 'formularios/crearformu.html', {'usu':perfil_usuario, 'msjsuc':msjsuccess})
+        return render(request, 'formularios/crearformu.html', {'usu':perfil_usuario, 'msjsuc':msjsuccess, 'formadores':formadores})
     else:
-        return render(request, 'formularios/crearformu.html', {'usu':perfil_usuario})
+        return render(request, 'formularios/crearformu.html', {'usu':perfil_usuario, 'formadores':formadores})
     # Resto de tu vista...
 
 @login_required #proteger la ruta
 def editarform(request, idform):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
+    formadores = UserPerfil.objects.filter(idrol=4)
     formu = Formulario.objects.get(id=idform)
     preguntas = Preguntas.objects.filter(idform=formu)
-    return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntas})
+    return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntas, 'formadores':formadores})
 
 @login_required #proteger la ruta
 def eliminarPregunta(request, idpreg, idformu):
@@ -176,6 +199,7 @@ def addNewPreguntas(request, idform):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     formu = Formulario.objects.get(id=idform)
     preguntasnew = Preguntas.objects.filter(idform=formu)
+    formadores = UserPerfil.objects.filter(idrol=4)
     if request.method == 'POST':
         formu = Formulario.objects.get(id=idform) #aqui encuentra el id del formulario
         # Procesar preguntas y tipos de formulario
@@ -238,30 +262,48 @@ def addNewPreguntas(request, idform):
 
                     gcheck.save()
         seccionform = 'seccionCampos'
-        return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'seccionform':seccionform})
+        return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'seccionform':seccionform, 'formadores':formadores})
 
 @login_required #proteger la ruta
 def eliminarRespuesta(request, idres, idform):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     formu = Formulario.objects.get(id=idform)
     preguntasnew = Preguntas.objects.filter(idform=formu)
+    formadores = UserPerfil.objects.filter(idrol=4)
     try:
         opt = Opciones.objects.get(id=idres)
         opt.delete()
         pregunta_id = opt.idpreg.id
-        return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'nseccion':pregunta_id})
+        return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'nseccion':pregunta_id, 'formadores':formadores})
     except Opciones.DoesNotExist:
          return redirect(editarform, idform=idform)
    
 @login_required #proteger la ruta
 def savePreguntas(request, idform):
      perfil_usuario = UserPerfil.objects.get(user=request.user)
+     formadores = UserPerfil.objects.filter(idrol=4)
      if request.method == 'POST':
         # Acceder a los datos del formulario
         nombre_formulario = request.POST.get('nombre', '')
         descripcion_formulario = request.POST.get('descrip', '')
+        empresa_select = request.POST.get('empresa')
+        formador_select = request.POST.get('formador')
         # Crear el formulario
-        Formulario.objects.filter(id=idform).update(nombre=nombre_formulario, descrip=descripcion_formulario) 
+        #========== validar quien crea el formulario =====================
+        if perfil_usuario.idrol.id == 4:
+           formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+           id_usuario = formador.idusu
+           id_empresa = formador.idempresa
+        else:
+            if formador_select and empresa_select:
+                perfil_formador = UserPerfil.objects.get(id=formador_select)
+                empresa_sel = Empresa.objects.get(id=empresa_select)   
+                id_usuario = perfil_formador
+                id_empresa = empresa_sel 
+            else:
+                id_usuario = None
+                id_empresa = None
+        Formulario.objects.filter(id=idform).update(nombre=nombre_formulario, descrip=descripcion_formulario, idempresa=id_empresa, idusu=id_usuario) 
         # Iterar sobre los datos del formulario
         pregunta_id = None  # Inicializa la variable fuera del bucle
         if request.POST.items():
@@ -320,7 +362,7 @@ def savePreguntas(request, idform):
                     # si la pregunta no existe
         formu = Formulario.objects.get(id=idform)
         preguntasnew = Preguntas.objects.filter(idform=formu)
-        return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'nseccion':pregunta_id})
+        return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntasnew, 'nseccion':pregunta_id, 'formadores':formadores})
 
 @login_required #proteger la ruta
 def copiarform(request, idform): #copiar o duplicar el formulario con todos los atributos
@@ -354,20 +396,40 @@ def copiarform(request, idform): #copiar o duplicar el formulario con todos los 
 @login_required #proteger la ruta
 def eliminarForm(request, idform):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    formu = Formulario.objects.filter()
     try:
         formudelete = Formulario.objects.get(id=idform)
         formudelete.delete()
         newmensaje = "Formulario eliminado de manera exitosa."
     except Formulario.DoesNotExist:
         newmensaje = "Error al eliminar el formulario."
-    return render(request, 'formularios/listarformu.html', {'usu':perfil_usuario, 'formu':formu, 'newmensaje':newmensaje})
+    #==================== validar =========================
+    if perfil_usuario.idrol.id == 4:
+        empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
+        formu = Formulario.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+        cursos = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+    else:  
+        formu = Formulario.objects.filter()
+        cursos = Curso.objects.all()
+    #==============================================================
+    cursos_sesiones = {}
+    for curso in cursos:
+        sesiones = Sesioncurso.objects.filter(idcurso=curso)
+        # Almacenar el curso y sus sesiones en el diccionario
+        cursos_sesiones[curso] = sesiones
+    #=====================================
+    preg = Preguntas.objects.filter()
+    agregados = SesionFormulario.objects.filter()
+    return render(request, 'formularios/listarformu.html', {'usu':perfil_usuario, 'formu':formu, 'newmensaje':newmensaje, 'cursos_sesiones': cursos_sesiones, 'preg':preg, 'agregados':agregados})
 
 #listar los formularios completados de los usuarios
 @login_required #proteger la ruta
 def usersFomularios(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    cursosvin = Curso.objects.all()
+    if perfil_usuario.idrol.id == 4:
+          empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
+          cursosvin = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+    else:  
+          cursosvin = Curso.objects.all()
     return render(request, 'formularios/listcurso.html', {'usu':perfil_usuario, 'cursosvin':cursosvin })
 
 @login_required #proteger la ruta

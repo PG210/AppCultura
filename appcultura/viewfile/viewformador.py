@@ -3,51 +3,54 @@ from django.http import HttpResponse #sirve para hacer las peticiones
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate #crea la sesion de un usuario al registrarse
 from django.contrib.auth.decorators import login_required # proteger las rutas de accesos
-from django.db import IntegrityError #errores de la base de datos
+from django.db import IntegrityError
+from appcultura.modelos.empresa import Empresa
+
+from appcultura.modelos.formador_empresa import FormadorEmpresa #errores de la base de datos
 
 from ..models import UserPerfil, Formulario, Preguntas, Opciones, Curso, Sesioncurso, SesionFormulario, GruposCursos, RespuestaForm
 from django.http import Http404
+from django.http import JsonResponse
 
 def viewhome(request):
     if request.method == 'POST':
-        email = request.POST['username']
-        if 'password' in request.POST:
-            estado = 1
-            passw = request.POST['password']
-            user = authenticate(request, username=email, password=passw)
-            usercom  = get_object_or_404(User, username=user)
-            perfilusu = get_object_or_404(UserPerfil, user=usercom)
-            if user is None:
-                return render(request, 'formador/home.html', {
-                    'error': 'Tu usuario ya esta registrado, te invitamos a iniciar sesión.',
-                    'estado': estado
-                })
-            else:
-                if perfilusu.idrol.id == 4:
-                   login(request, user) #crear la sesion
-                   return redirect('administracion') # redirecciona a otra vista
-                else:
-                   return render(request, 'formador/home.html', {
-                          'error': 'Tu usuario no es formador.',
-                          'estado': estado  })
-        else:
-            buscar = User.objects.filter(username=email).exists()
-            estado = ''
-            if buscar:
-                estado = 1
-                return render(request, 'formador/home.html', {
-                    'error': "Tu usuario ya esta registrado, te invitamos a iniciar sesión.",
-                    'estado': estado
-                    })  
-            else:
-                estado = 0
-                return render(request, 'formador/home.html', {
-                        'error': "El formador no esta registrado, te invitamos a crear tu cuenta.",
-                        'estado': estado
-                        })  
-        #user = authenticate(request, username=request.POST['username'], password=request.POST['pass'])
-        #password=request.POST['password']
+        print(request.POST)  
     return render(request, 'formador/home.html')
 
 def registerTrainer(request):
     print('nueva vista')
+
+#==== vista para elegir la empresa actual ===========
+@login_required
+def empresasmodal(request):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    data = list(FormadorEmpresa.objects.filter(idusu=perfil_usuario.id).select_related('idempresa').values('id', 'idempresa', 'idempresa__nombre', 'idusu', 'estado'))
+    return JsonResponse({'data': data})
+
+@login_required
+def consultarEmpresa(request):
+    idformador = request.GET.get('opcion')
+    if idformador:
+     perfil_usuario = UserPerfil.objects.get(id=idformador)
+     data = list(FormadorEmpresa.objects.filter(idusu=perfil_usuario.id).select_related('idempresa').values('id', 'idempresa', 'idempresa__nombre', 'idusu', 'estado'))
+    else:
+        data = ''
+    return JsonResponse({'data': data})
+#==============
+@login_required
+def cambiarEmpresa(request):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    if request.method == 'POST':
+        print(request.POST)
+        id_empresa =request.POST.get('selectEmpresa')
+        empresa = Empresa.objects.get(id=id_empresa)
+        formadores = FormadorEmpresa.objects.filter(idusu=perfil_usuario)
+        for formador in formadores:
+            formador.estado = False
+            formador.save()
+        #========== buscar la que desea activar ==============
+        updateselec = FormadorEmpresa.objects.get(idempresa=empresa, idusu=perfil_usuario)
+        updateselec.estado = True
+        updateselec.save()
+        return redirect('administracion') # redirecciona a la vista principal
+   

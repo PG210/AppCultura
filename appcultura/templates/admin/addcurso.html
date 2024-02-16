@@ -90,31 +90,44 @@
                 <h5 class="mb-4">Información básica del curso</h5>
                 <div class="row mb-3">
                   <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
-                  <div class="col-sm-10">
+                  <div class="col-sm-5">
                     <input type="text" class="form-control" id="nombre" name="nombre" required>
                   </div>
+                  <!---=================== aqui precio =============-->
+                  <label for="precio" class="col-sm-1 col-form-label">Precio</label>
+                  <div class="col-sm-4">
+                    <input type="number" class="form-control" id="precio" name="precio" required>
+                  </div>
+                  <!--=============================================0-->
                 </div>
                 <div class="row mb-3">
                   <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
                   <div class="col-sm-10">
-                    <textarea type="text" class="form-control" id="descrip" name="descrip" rows="5" required></textarea>
+                    <textarea type="text" class="form-control" id="descrip" name="descrip" rows="3" required></textarea>
                   </div>
                 </div>
+                {% if usu.idrol.id != 4 %}
                 <div class="row mb-3">
-                  <label for="precio" class="col-sm-2 col-form-label">Precio</label>
-                  <div class="col-sm-4">
-                    <input type="number" class="form-control" id="precio" name="precio" required>
-                  </div>
                   <!--formador-->
                   <label for="formador" class="col-sm-2 col-form-label">Formador</label>
-                  <div class="col-sm-4">
+                  <div class="col-sm-5">
                       <select id="formador" name="formador" class="form-select" required>
-                          <option selected>Elegir formador</option>
-                          <option>Manuel Castrillón</option>
+                          <option value="" selected>Elegir formador</option>
+                        {% for formador in formadores %}
+                          <option value="{{formador.id}}">{{formador.nombre}} {{formador.apellido}}</option>
+                         {% endfor %}
                         </select>
                   </div>
                   <!--end formador-->
+                  <!---======== empresa ========= -->
+                  <label for="empresa" class="col-sm-2 col-form-label">Empresa</label>
+                  <div class="col-sm-3">
+                    <select id="empresa" name="empresa" class="form-select" required>
+                    </select>
+                  </div>
+                  <!---==========================-->
                 </div>
+                {% endif %}
               <!--aqui debe ir las competencias a fortalecer-->
                 <div class="row mb-3">
                   <label for="precio" class="col-sm-2 col-form-label">Competencias</label>
@@ -205,6 +218,7 @@
   </main><!-- End #main -->
   <!-- Aqui se encuentran las instrucciones para formularios -->
   <script src="{% static 'admin/assets/js/script.js' %} "></script>
+  <script src="{% static 'admin/assets/js/buscarempresa.js' %} "></script>
   <script>
     agregarObjetivo();
     agregarCampo()

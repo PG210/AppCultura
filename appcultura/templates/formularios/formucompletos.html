@@ -52,7 +52,7 @@
                          <!-- Modal Dialog Scrollable -->
                          {% for asistencia in usuarios_asistencia %}
                           {% if asistencia.idusuario.id == user.id %}
-                          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#userFormu{{user.id}}">
+                          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#userFormu{{user.id}}">
                             Ver
                           </button>
                           {% endif %}

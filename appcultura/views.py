@@ -6,8 +6,8 @@ from django.contrib.auth import login, logout, authenticate #crea la sesion de u
 from django.contrib.auth.decorators import login_required # proteger las rutas de accesos
 from django.db import IntegrityError #errores de la base de datos
 from .models import UserPerfil
-from .models import Cargo
-from .models import EmpresaAreas
+
+
 
 
 # Create your views here.
@@ -59,11 +59,10 @@ def reguser(request):
               user_n = User.objects.get(id=user_id)
               id_rol = request.POST['rol']
               rol_user = RolUser.objects.get(id=id_rol)
-              id_cargo = request.POST['cargo']
-              cargo_user = Cargo.objects.get(id=id_cargo)
+              cargo_em = request.POST.get('cargo', '')
               id_empresa =  request.POST['empresa']
-              empresa_user = EmpresaAreas.objects.get(id=id_empresa)
-              userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, idcargo=cargo_user, idempresa=empresa_user, user=user_n )
+              #empresa_user = EmpresaAreas.objects.get(id=id_empresa)
+              userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['ape'], cedula=request.POST['ced'], idrol=rol_user, cargo=cargo_em, idepart=None, user=user_n )
               userper.save()
               return redirect('administracion') # redirecciona a otra vista
           except IntegrityError:
@@ -78,7 +77,7 @@ def reguser(request):
 def administracion(request):
   #usuario_logeado = request.user #obtener el usuario logeado
   perfil_usuario = UserPerfil.objects.get(user=request.user)
-  nombre_cargo = perfil_usuario.idcargo.nombre
+  nombre_cargo = perfil_usuario.cargo
   return render(request, 'admin/inicio.html', {'usu':perfil_usuario, 'cargo':nombre_cargo})
 
 

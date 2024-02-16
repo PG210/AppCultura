@@ -1,5 +1,6 @@
 from django.db import models
-from .empresa_areas import EmpresaAreas
+from appcultura.modelos.departamento import Departamento
+from .area import Area
 
 class Kpiarea(models.Model):
     nombre =  models.TextField() 
@@ -8,6 +9,6 @@ class Kpiarea(models.Model):
     fechafin = models.DateTimeField()
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     estado = models.BooleanField(default=True)
-    idemparea = models.ForeignKey(EmpresaAreas, on_delete=models.CASCADE)
-    
+    idarea = models.ForeignKey(Area, on_delete=models.CASCADE, null=True)
+    idepar = models.ForeignKey(Departamento, on_delete=models.CASCADE, null=True)
 

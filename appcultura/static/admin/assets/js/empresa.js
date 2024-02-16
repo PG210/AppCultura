@@ -6,107 +6,141 @@ function agregarSucursal() {
   let sucursalContainer = document.getElementById('contenedor-sucursals');
 
   let sucursalGrupo = document.createElement('div');
-  sucursalGrupo.classList.add('mt-3', 'form-control');
+  sucursalGrupo.classList.add('mt-2');
 
-  //Nombre de la sucursal
+  //==================================================
+  var divsucursalCom = document.createElement('div');
+  divsucursalCom.classList.add('row');
+
+  var divSucur = document.createElement('div');
+  divSucur.classList.add('col-12');
+
+  //================================================
+  var divcompleto = document.createElement('div');
+  divcompleto.classList.add('row');
+
+  var divdir = document.createElement('div');
+  divdir.classList.add('col-6');
+
+  var divnit = document.createElement('div');
+  divnit.classList.add('col-6')
+  // ========================para correo y telefono ========
+  var divcompleto2 = document.createElement('div');
+  divcompleto2.classList.add('row');
+
+  var divemail = document.createElement('div');
+  divemail.classList.add('col-6');
+
+  var divtel = document.createElement('div');
+  divtel.classList.add('col-6')
+  // ========================para sector y tamanio ========
+  var divcompleto3 = document.createElement('div');
+  divcompleto3.classList.add('row');
+
+  var divsector = document.createElement('div');
+  divsector.classList.add('col-6');
+
+  var divtamanio = document.createElement('div');
+  divtamanio.classList.add('col-6')
+
+  //=========================Nombre de la sucursal
   let labelNombre = document.createElement('label');
   labelNombre.innerHTML = 'Nombre Sucursal:';
-  labelNombre.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelNombre);
-
+  labelNombre.classList.add('col-form-label');
+  divSucur.appendChild(labelNombre);
+  
   //Input Nombre de la sucursal
   let inputNombre = document.createElement('input');
   inputNombre.type = 'text';
   inputNombre.name = 'nameSucursal[]';
-  inputNombre.classList.add('col-sm-10');
+  inputNombre.classList.add('form-control');
   inputNombre.setAttribute('required', 'required');
-  sucursalGrupo.appendChild(inputNombre);
+  divSucur.appendChild(inputNombre);
+
+  divsucursalCom.appendChild(divSucur);
+  sucursalGrupo.appendChild(divsucursalCom);
   
   //NIT de la sucursal
   let labelNit = document.createElement('label');
   labelNit.innerHTML = 'NIT:';
-  labelNit.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelNit);
+  labelNit.classList.add('col-form-label');
+  divnit.appendChild(labelNit);
 
   //Input NIT de la sucursal
   let inputNit = document.createElement('input');
   inputNit.type = 'text';
   inputNit.name = 'nameNit[]';
-  inputNit.classList.add('col-sm-10');
-  inputNit.setAttribute('required', 'required');
-  sucursalGrupo.appendChild(inputNit);
-	
+  inputNit.classList.add('form-control');
+	divnit.appendChild(inputNit);
+
   //Direccion de la sucursal
   let labelDireccion = document.createElement('label');
   labelDireccion.innerHTML = 'Direccion:';
-  labelDireccion.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelDireccion);
+  labelDireccion.classList.add('col-form-label');
+  divdir.appendChild(labelDireccion);
+  //sucursalGrupo.appendChild(labelDireccion);
 
   //Input Direccion de la sucursal
   let inputDireccion = document.createElement('input');
   inputDireccion.type = 'text';
   inputDireccion.name = 'nameDireccion[]';
-  inputDireccion.classList.add('col-sm-10');
+  inputDireccion.classList.add('form-control');
   inputDireccion.setAttribute('required', 'required');
-  sucursalGrupo.appendChild(inputDireccion);
+  divdir.appendChild(inputDireccion);
+
+  //agregar
+  divcompleto.appendChild(divnit);
+  divcompleto.appendChild(divdir);
+  sucursalGrupo.appendChild(divcompleto);
 
   //Correo de la sucursal
   let labelCorreo = document.createElement('label');
   labelCorreo.innerHTML = 'Correo:';
-  labelCorreo.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelCorreo);
+  labelCorreo.classList.add('col-form-label');
+  divemail.appendChild(labelCorreo);
+  //sucursalGrupo.appendChild(labelCorreo);
 
   //Input Correo de la sucursal
   let inputCorreo = document.createElement('input');
   inputCorreo.type = 'text';
   inputCorreo.name = 'nameCorreo[]';
-  inputCorreo.classList.add('col-sm-10');
+  inputCorreo.classList.add('form-control');
   inputCorreo.setAttribute('required', 'required');
-  sucursalGrupo.appendChild(inputCorreo);
+  divemail.appendChild(inputCorreo);
+  //sucursalGrupo.appendChild(inputCorreo);
 
   //Telefono de la sucursal
   let labelTelefono = document.createElement('label');
   labelTelefono.innerHTML = 'Telefono:';
-  labelTelefono.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelTelefono);
+  labelTelefono.classList.add('col-form-label');
+  divtel.appendChild(labelTelefono);
 
   //Input Telefono de la sucursal
   let inputTelefono = document.createElement('input');
   inputTelefono.type = 'text';
   inputTelefono.name = 'nameTelefono[]';
-  inputTelefono.classList.add('col-sm-10');
+  inputTelefono.classList.add('form-control');
   inputTelefono.setAttribute('required', 'required');
-  sucursalGrupo.appendChild(inputTelefono);
+  divtel.appendChild(inputTelefono);
 
-  /*
-  //Grupo Empresarial de la sucursal
-  let labelGrpEmp = document.createElement('label');
-  labelGrpEmp.innerHTML = 'Grupo Empresarial:';
-  labelGrpEmp.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelGrpEmp);
-
-  //Input Grupo empresarial de la sucursal
-  let inputGrpEmp = document.createElement('input');
-  inputGrpEmp.type = 'text';
-  inputGrpEmp.name = 'nameGrpEmp[]';
-  inputGrpEmp.classList.add('col-sm-10');
-  inputGrpEmp.setAttribute('required', 'required');
-  sucursalGrupo.appendChild(inputGrpEmp);
-	*/
+  divcompleto2.appendChild(divemail);
+  divcompleto2.appendChild(divtel);
+  sucursalGrupo.appendChild(divcompleto2);
 
   //Sector de la sucursal
+  
   let labelSector = document.createElement('label');
   labelSector.innerHTML = 'Sector:';
-  labelSector.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelSector);
+  labelSector.classList.add('col-form-label');
+  divsector.appendChild(labelSector);
 
   //Input Sector de la sucursal
   let selectSector = document.createElement('select');
-  selectSector.classList.add('col-sm-10');
+  selectSector.classList.add('form-control');
   selectSector.name = 'nameSector[]';
   selectSector.setAttribute('required', 'required');
+  divsector.appendChild(selectSector);
   //options
-  sucursalGrupo.appendChild(selectSector);
 
   let datos = [
   { value: '1', label: 'Comercio'},
@@ -127,16 +161,16 @@ function agregarSucursal() {
   //Tamaño de la sucursal
   let labelTamanio = document.createElement('label');
   labelTamanio.innerHTML = 'Tamaño:';
-  labelTamanio.classList.add('col-sm-2', 'col-form-label');
-  sucursalGrupo.appendChild(labelTamanio);
-
+  labelTamanio.classList.add('col-form-label');
+  divtamanio.appendChild(labelTamanio);
+  
   //Input Tamaño de la sucursal
   let selectTamanio = document.createElement('select');
-  selectTamanio.classList.add('col-sm-10');
+  selectTamanio.classList.add('form-control');
   selectTamanio.name = 'nameTamanio[]';
   selectTamanio.setAttribute('required', 'required');
+  divtamanio.appendChild(selectTamanio);
   //options
-  sucursalGrupo.appendChild(selectTamanio);
 
   let datostam = [
   { value: '1', label: '1 - 10 Empleados' },
@@ -151,12 +185,14 @@ function agregarSucursal() {
 	  selectTamanio.add(option);
 	});
 
-  
+  divcompleto3.appendChild(divsector);
+  divcompleto3.appendChild(divtamanio);
+  sucursalGrupo.appendChild(divcompleto3);
 
   // Botón para eliminar el campo
   let btnDelete = document.createElement('button');
   btnDelete.innerHTML = 'X';
-  btnDelete.classList.add('col-sm-1', 'btn', 'btn-danger', 'mt-2', 'float-end');
+  btnDelete.classList.add('btn', 'btn-danger', 'btn-sm', 'mt-2', 'float-end');
   btnDelete.onclick = function () {
     sucursalContainer.removeChild(sucursalGrupo);
   };
