@@ -4,7 +4,7 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Lista de sesiones</h1>
+      <h1>Lista de cursos</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
@@ -32,13 +32,10 @@
                <!--end alertar-->
                <!-- Table with stripped rows -->
                <div class="row">
-                  <div class="mt-2 col-6">
+                  <div class="col-12 alert alert-primary" role="alert">
                     <h5>Lista de cursos y sesiones</h5>
-                    <p><small>Aquí encuentra las respuestas de los formularios en cada sesión del curso.</small></p>
                   </div>
-                  <div class="mt-2 col-6 text-end">
-                   <a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a>
-                  </div>
+                  <small>En esta sección, encontrarás las respuestas a los formularios de cada sesión del curso.</small>
                </div><br>
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
@@ -67,7 +64,7 @@
                           <div class="modal-dialog modal-dialog-scrollable modal-lg ">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title">Lista de sesiones de curso</h5>
+                                <h6 class="modal-title">Lista de sesiones de curso: <b>{{curso.nombre}}</b></h6>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body table-responsive">

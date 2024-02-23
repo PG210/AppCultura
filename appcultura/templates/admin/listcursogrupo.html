@@ -9,7 +9,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
           <li class="breadcrumb-item"><a href="/administracion/grupos/list/">Grupos</a></li>
-          <li class="breadcrumb-item active">Usuarios</li>
+          <li class="breadcrumb-item active">Cursos</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -32,7 +32,10 @@
              {% endif %}
               <!--end alertar-->
               <!----=======================================-->
-              <h4 class="text-center">Grupo: {{gruponame.nombre}}</h4>
+              <div class="alert alert-primary" role="alert">
+                <h5 class="text-center"><b>Grupo:</b> {{gruponame.nombre}}</h5>
+              </div>
+              <small><b>Nota:</b> En este apartado puede agregar nuevos cursos al grupo seleccionado.</small>
               <div class="table-responsive mt-4">
                 <form action="{% url 'cursosgrupo' idgrupo=idgrupo %}" method="post">
                 {% csrf_token %}
@@ -61,9 +64,9 @@
                      {% endfor %}
                   </tbody>
                 </table>
-                <div class="container text-center">
-                   <button type="submit" class="btn btn-primary">Guardar</button>
-                   <a type="button" class="btn btn-warning" href="/administracion/grupos/list/">Volver</a>
+                <div class="container text-end mt-3">
+                   <button type="submit" class="btn btn-outline-primary"><i class="bi bi-floppy2-fill"></i> | Guardar</button>
+                   <a type="button" class="btn btn-warning" href="/administracion/grupos/list/"><i class="bi bi-box-arrow-left"></i> | Cancelar</a>
                 </div>
                 </form><!--end finalizar formularios -->
                </div>

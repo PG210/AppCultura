@@ -1,0 +1,220 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Calificaciones</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/usuarios/curso/listar/">Listado</a></li>
+          <li class="breadcrumb-item active">Calificaciones</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+              <br>
+               <!--alertar-->
+               {% if messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+               {% endif %}
+               <!--end alertar-->
+               <!-- Table with stripped rows -->
+               <div class="row">
+                <div class="col-6">
+                    <p><small>Calificaciones para el curso: <b> {{curso.nombre}} </b> </small></p>
+                </div>
+                <div class="col-6 text-end"><a href="/usuarios/curso/listar/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+               </div><br>
+               <div class="form-control">
+                {% for rescur in rescurso %}
+                <div class="card">
+                  <h6 class="text-center mt-2">Calificación de la Sesión No. {{ forloop.counter }} </h6>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                      <div class="row">
+                        <div class="col-6">
+                           <small>Relevancia del contenido:</small>
+                        </div>
+                        <div class="col-6">
+                         {% if rescur.relevancia == 1 %}
+                         <span class="star">&#9733;</span>
+                         {% elif rescur.relevancia == 2 %}
+                             <span class="star">&#9733;&#9733;</span>
+                         {% elif rescur.relevancia == 3 %}
+                             <span class="star">&#9733;&#9733;&#9733;</span>
+                         {% elif rescur.relevancia == 4 %}
+                             <span class="star">&#9733;&#9733;&#9733;&#9733;</span>
+                         {% elif rescur.relevancia == 5 %}
+                             <span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                         {% endif %}
+                        </div>
+                      </div>
+                    </li>
+                    <li class="list-group-item"> 
+                      <div class="row">
+                      <div class="col-6">
+                         <small>Claridad de la presentación</small>
+                      </div>
+                      <div class="col-6">
+                          {% if rescur.claridad == 1 %}
+                             <span class="star">&#9733;</span>
+                          {% elif rescur.claridad == 2 %}
+                             <span class="star">&#9733;&#9733;</span>
+                          {% elif rescur.claridad == 3 %}
+                             <span class="star">&#9733;&#9733;&#9733;</span>
+                          {% elif rescur.claridad == 4 %}
+                             <span class="star">&#9733;&#9733;&#9733;&#9733;</span>
+                          {% elif rescur.claridad == 5 %}
+                             <span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                          {% endif %}
+                      </div>
+                    </div>
+                    </li>
+                    <li class="list-group-item">
+                      <div class="row">
+                        <div class="col-6">
+                           <small>Aplicabilidad de los conceptos</small>
+                        </div>
+                        <div class="col-6">
+                          {% if rescur.aplicabilidad == 1 %}
+                             <span class="star">&#9733;</span>
+                          {% elif rescur.aplicabilidad == 2 %}
+                             <span class="star">&#9733;&#9733;</span>
+                          {% elif rescur.aplicabilidad == 3 %}
+                             <span class="star">&#9733;&#9733;&#9733;</span>
+                          {% elif rescur.aplicabilidad == 4 %}
+                             <span class="star">&#9733;&#9733;&#9733;&#9733;</span>
+                          {% elif rescur.aplicabilidad == 5 %}
+                             <span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </li>
+                    <li class="list-group-item">
+                      <div class="row">
+                        <div class="col-6">
+                           <small>Fortalezas del curso:</small>
+                        </div>
+                        <div class="col-6">
+                         <small>{{rescur.fortalezas}}</small>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="list-group-item">
+                      <div class="row">
+                        <div class="col-6">
+                           <small>Áreas de mejora sugeridas:</small>
+                        </div>
+                        <div class="col-6">
+                        <small>{{rescur.areasmejora}}</small> 
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                  </div>
+                   {% endfor %}
+                   <!--=================================================-->
+                   {% for resfor in resformador %}
+                   <div class="card">
+                     <h6 class="text-center mt-2">Calificación del formador <b>{{resfor.formador.nombre}} {{resfor.formador.apellido}}</b>  Sesión No. {{ forloop.counter }} </h6>
+                     <ul class="list-group list-group-flush">
+                       <li class="list-group-item">
+                         <div class="row">
+                           <div class="col-6">
+                              <small>Claridad en la explicación</small>
+                           </div>
+                           <div class="col-6">
+                            {% if resfor.claridad == 1 %}
+                            <span class="star">&#9733;</span>
+                            {% elif resfor.claridad == 2 %}
+                                <span class="star">&#9733;&#9733;</span>
+                            {% elif resfor.claridad == 3 %}
+                                <span class="star">&#9733;&#9733;&#9733;</span>
+                            {% elif resfor.claridad == 4 %}
+                                <span class="star">&#9733;&#9733;&#9733;&#9733;</span>
+                            {% elif resfor.claridad == 5 %}
+                                <span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                            {% endif %}
+                           </div>
+                         </div>
+                       </li>
+                       <li class="list-group-item"> 
+                         <div class="row">
+                         <div class="col-6">
+                            <small>Capacidad para fomentar la participación</small>
+                         </div>
+                         <div class="col-6">
+                             {% if resfor.capacidad == 1 %}
+                                <span class="star">&#9733;</span>
+                             {% elif resfor.capacidad == 2 %}
+                                <span class="star">&#9733;&#9733;</span>
+                             {% elif resfor.capacidad == 3 %}
+                                <span class="star">&#9733;&#9733;&#9733;</span>
+                             {% elif resfor.capacidad == 4 %}
+                                <span class="star">&#9733;&#9733;&#9733;&#9733;</span>
+                             {% elif resfor.capacidad == 5 %}
+                                <span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                             {% endif %}
+                         </div>
+                       </div>
+                       </li>
+                       <li class="list-group-item">
+                         <div class="row">
+                           <div class="col-6">
+                              <small>Dominio del contenido</small>
+                           </div>
+                           <div class="col-6">
+                             {% if resfor.dominio == 1 %}
+                                <span class="star">&#9733;</span>
+                             {% elif resfor.dominio == 2 %}
+                                <span class="star">&#9733;&#9733;</span>
+                             {% elif resfor.dominio == 3 %}
+                                <span class="star">&#9733;&#9733;&#9733;</span>
+                             {% elif resfor.dominio == 4 %}
+                                <span class="star">&#9733;&#9733;&#9733;&#9733;</span>
+                             {% elif resfor.dominio == 5 %}
+                                <span class="star">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                             {% endif %}
+                           </div>
+                         </div>
+                       </li>
+                       <li class="list-group-item">
+                         <div class="row">
+                           <div class="col-6">
+                              <small>Aspectos a rescatar:</small>
+                           </div>
+                           <div class="col-6">
+                            <small>{{resfor.aspectosrescatar}}</small>
+                           </div>
+                         </div>
+                       </li>
+                     </ul>
+                     </div>
+                      {% endfor %}
+                   <!--=================================================-->
+               </div>
+                  
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+  <style>
+    .star{
+      color:#FFC107;
+    }
+  </style>
+  {% endblock %} 

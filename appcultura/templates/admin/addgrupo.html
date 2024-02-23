@@ -20,6 +20,9 @@
        <div class="col-lg-12">
         <div class="card">
           <div class="card-body mt-3">
+            <div class="row">
+              <div class="col-12 text-end" style="padding-right: 20px;"><a href="/administracion/grupos/list/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+             </div>
               <!--alertar-->
             {% if messages %}
             <br>
@@ -117,10 +120,10 @@
                                   <td>
                                       <span class="editable" data-field="descrip" data-id="{{ nb.id }}">{{ nb.descrip }}</span>
                                   </td>
-                                  <td>
-                                      <a type="button" class="btn btn-danger" href="{% url 'eliminargrupo' idgrupo=nb.id %}">Eliminar</a>
-                                      <a type="button" class="btn btn-primary btn-edit" data-id="{{ nb.id }}">Editar</a>
-                                      <a type="button" class="btn btn-success btn-save" data-id="{{ nb.id }}" style="display: none;">Guardar</a>
+                                  <td> 
+                                      <a type="button" class="btn btn-outline-primary btn-edit" data-id="{{ nb.id }}"><i class="bi bi-pencil-square"></i></a>
+                                      <a type="button" class="btn btn-outline-success btn-save" data-id="{{ nb.id }}" style="display: none;">Guardar</a>
+                                      <a type="button" class="btn btn-outline-danger" href="{% url 'eliminargrupo' idgrupo=nb.id %}"><i class="bi bi-trash3-fill"></i></a>
                                   </td>
                               </tr> 
                           {% endfor %}
@@ -151,15 +154,15 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        <div class="col-sm-3">
+                        <div class="col-sm-3 text-end">
                         <!--================modal =================-->
                         <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Crear un Nuevo Grupo de formación">
-                          <a type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#registrarGrupo">
+                          <a type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registrarGrupo">
                             Registrar
                         </a>
                         </span>
                         <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar los Grupos de formación vacios">
-                          <a type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#visualizarGrupo">
+                          <a type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#visualizarGrupo">
                             Listar
                           </a>
                         </span>
@@ -219,7 +222,7 @@
                         <div class="accordion-body">
                           <!--crear nuevo usuario-->
                              <div class="text-end">
-                               <button class="btn btn-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#nuevoUsuario" aria-controls="offcanvasRight">Nuevo usuario</button>
+                               <button class="btn btn-outline-primary mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#nuevoUsuario" aria-controls="offcanvasRight">Nuevo usuario</button>
                               </div>
                           <!--tabla responsiva-->
                           <div class="table-responsive">
@@ -250,10 +253,9 @@
                     </div>
                   </div>
                   <!--=============end acordion 01============-->
-                  <div class="text-center mt-2">
-                    <button type="submit" class="btn btn-primary"> Guardar </button>
-                    <!--<a type="button" class="btn btn-success" href="{% url 'listGrupos' %}"> Visualizar </a>-->
-                    <a type="button" class="btn btn-warning" href="/administracion/grupos/list/"> Volver </a>
+                  <div class="text-end mt-2">
+                    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-floppy2-fill"></i> | Guardar </button>
+                    <a type="button" class="btn btn-outline-warning" href="/administracion/grupos/list/" style="color: black;"> <i class="bi bi-box-arrow-left"></i> | Cancelar </a>
                   </div>
               </div>
                </form>

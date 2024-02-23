@@ -1,0 +1,196 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Metricas del curso</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/curso/list/">Listado</a></li>
+          <li class="breadcrumb-item active">Métricas</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+              <br>
+               <!--alertar-->
+               <div class="row">
+                <div class="col-12 text-end"><a href="/administracion/curso/list/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+               </div>
+               <!--Barra de aceptacion-->
+               <h6>Aceptación del curso: {{curso.nombre}} </h6>
+               <br>
+              <!--================================ grafica ====================-->
+              <div class="row">
+              <div class="col-lg-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title"><br></h5>
+                    <!-- Bar Chart -->
+                    <canvas id="barCurso" style="max-height: 400px;"></canvas>
+                    <!-- End Bar CHart -->
+                  </div>
+                </div>
+              </div>
+               <!--====================================== end grafica ===================-->
+               <!--==================== grafica de torta ================================-->
+               <div class="col-lg-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title"></h5>
+                    <!-- Pie Chart -->
+                    <canvas id="pieCurso" style="max-height: 230px;"></canvas>
+                    <!-- End Pie CHart -->
+                  </div>
+                </div>
+              </div>
+              </div>
+               <!--======================end grafico ===================================-->
+               
+               <h6>Aceptación del formador: {{curso.idusu.nombre}} {{curso.idusu.apellido}} </h6>
+               <hr> 
+               <br>
+               <div class="row">
+                <div class="col-lg-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title"><br></h5>
+                      <!-- Bar Chart -->
+                      <canvas id="barFormadores" style="max-height: 400px;"></canvas>
+                      <!-- End Bar CHart -->
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="card">
+                    <p></p>
+                    <div class="card-body">
+                      <!-- Bar Chart -->
+                      <canvas id="pieFormadores" style="max-height: 250px;"></canvas>
+                      <!-- End Bar CHart -->
+                    </div>
+                  </div>
+                </div>
+                </div>
+               <!-- Table with stripped rows -->
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      new Chart(document.querySelector('#barCurso'), {
+        type: 'bar',
+        data: {
+          labels: ['Relevancia del contenido', 'Claridad de la presentación', 'Aplicabilidad de los conceptos'],
+          datasets: [{
+            label: 'Calificación',
+            data: ['{{ barras.relevancia }}', '{{barras.claridad}}', '{{barras.aplicacion}}'],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)'
+            ],
+            borderColor: [
+              'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+      //===========<!--grafico torta--> ============
+      new Chart(document.querySelector('#pieCurso'), {
+      type: 'pie',
+      data: {
+        labels: [
+          'Relevancia del contenido',
+          'Claridad de la presentación',
+          'Aplicabilidad de los conceptos'
+        ],
+        datasets: [{
+          label: 'Calificación %',
+          data: ['{{ valorescurso.valorc1 }}', '{{ valorescurso.valorc2 }}', '{{ valorescurso.valorc3 }}'],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ],
+          hoverOffset: 4
+        }]
+      }
+    });
+      //====================<!--grafico del formador -->==========================
+      new Chart(document.querySelector('#barFormadores'), {
+      type: 'bar',
+      data: {
+        labels: ['Claridad en la explicación', 'Fomentar la participación', 'Dominio del contenido'],
+        datasets: [{
+          label: 'Calificación',
+          data: ['{{ barraform.valorb1 }}', '{{ barraform.valorb2 }}', '{{ barraform.valorb3 }}'],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(255, 205, 86, 0.2)'
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 205, 86)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+      //=====================<!--grafico de torta formador -->========================
+      new Chart(document.querySelector('#pieFormadores'), {
+      type: 'pie',
+      data: {
+        labels: [
+          'Claridad en la explicación',
+          'Fomentar la participación',
+          'Dominio del contenido'
+        ],
+        datasets: [{
+          label: 'Calificación %',
+          data: ['{{ valores.valor1 }}', '{{ valores.valor2 }}', '{{ valores.valor3 }}'],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ],
+          hoverOffset: 4
+        }]
+      }
+    });
+      //============================================
+    });
+</script>
+  {% endblock %} 

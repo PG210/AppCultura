@@ -11,7 +11,7 @@ from appcultura.modelos.grupouser import GruposUser
 from appcultura.modelos.opcionform import Opciones
 from appcultura.modelos.sesionasistencia import SesionAsistencia
 from appcultura.modelos.sesioncurso import Sesioncurso # proteger las rutas de accesos
-from ..models import UserPerfil, SesionFormulario, RolUser, Preguntas, RespuestaForm, RespuestaOpciones, PersonasCompromisos, Formulario
+from ..models import UserPerfil, SesionFormulario, RolUser, Preguntas, RespuestaForm, RespuestaOpciones, PersonasCompromisos, Formulario, CalificacionFormador, TemasSesion
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
@@ -31,30 +31,57 @@ def listar_cursos_usuario(request):
                 sesiones = Sesioncurso.objects.filter(idcurso=grupo_curso.idcurso)
                 for sesion in sesiones:
                     calificaciones=CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
-    
-    return render(request, 'user/listcursos.html',{'usu':perfil_usuario, 'cursos':grupocurso, 'sesiones':sesiones, 'calificacion':calificaciones, 'asistencias':asistencias})
 
+    #========= verificar si existe una calificacion ========================
+    vercalif = CalificacionUsuarios.objects.filter(idusuario=perfil_usuario)
+    tematicas = TemasSesion.objects.all()
+    return render(request, 'user/listcursos.html',{'usu':perfil_usuario, 'cursos':grupocurso, 'sesiones':sesiones, 'calificacion':calificaciones, 'asistencias':asistencias, 'vercalif':vercalif, 'tematicas':tematicas})
+
+#================ guardar informacioncalificaciones al curso y formador =================
 @login_required
 def add_calificacion(request, idsesion):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     if request.method == 'POST':
-        calificacion = request.POST.get('estrellas')
-        sugerencias = request.POST.get('textareasugerencias')
-        comentarios = request.POST.get('textareacomentarios')
-        valor_curso = request.POST.get('textareavalorcurso')
-        sesion = Sesioncurso.objects.get(id=idsesion)
-
-        if CalificacionUsuarios.objects.filter( id_usuario=perfil_usuario, id_sesiones_curso=sesion ):
+        #============== datos de la sesion del curso =================
+        relevancia_curso = request.POST.get('relevancia')
+        claridadpres_curso = request.POST.get('claridadpres')
+        aplicabilidad_curso = request.POST.get('aplicabilidad')
+        fortalezasesion_curso = request.POST.get('fortalezasesion')
+        mejorasesion_curso = request.POST.get('mejorasesion')
+        sesion_curso = Sesioncurso.objects.get(id=idsesion)
+        idcur = sesion_curso.idcurso.id
+        #=================== datos del formador =========================
+        claridad_formador = request.POST.get('claridad')
+        capacidad_formador = request.POST.get('capacidad')
+        dominio_formador = request.POST.get('dominio')
+        aspectos_formador = request.POST.get('aspectos')
+        #=========== guardar la info =====================================
+        if CalificacionUsuarios.objects.filter( idusuario=perfil_usuario, id_sesiones_curso=sesion_curso):
             mensaje="Tu Calificacion ya se encuentra registrada"
         else:
-            dbcalificacion = CalificacionUsuarios(comentario=comentarios, valoracion=calificacion, sugerencia=sugerencias, id_usuario=perfil_usuario, id_sesiones_curso=sesion, estado=False , comentario_valor_curso=valor_curso)
+            dbcalificacion = CalificacionUsuarios(relevancia=relevancia_curso, claridad=claridadpres_curso, aplicabilidad=aplicabilidad_curso, fortalezas=fortalezasesion_curso, areasmejora=mejorasesion_curso,  idusuario=perfil_usuario, id_sesiones_curso=sesion_curso, estado=False)
             dbcalificacion.save()
+            #========= guardar la info del formador ==================
+            dbformador = CalificacionFormador(claridad=claridad_formador, capacidad=capacidad_formador, dominio=dominio_formador, aspectosrescatar=aspectos_formador, usuario=perfil_usuario, formador=sesion_curso.idcurso.idusu, sesion_curso=sesion_curso, estado=False)
+            dbformador.save()
             mensaje = "Gracias por calificar nuestro servicio"
-        
-        return render(request, 'user/calificacion.html', {'usu':perfil_usuario, 'idsesion':idsesion, 'mensaje':mensaje})
+        return redirect('calificacionCurso', idcurso=idcur)
     else:
         return render(request, 'user/calificacion.html', {'usu':perfil_usuario, 'idsesion':idsesion})
-
+#===========================================
+#==============listar las respuestas de la calificacion ==========
+@login_required
+def calificacionCurso(request, idcurso):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    curso = Curso.objects.get(id=idcurso)
+    sesiones = Sesioncurso.objects.filter(idcurso=curso)
+    #=== buscar todas las respuestas ==============
+    for sesion in sesiones:
+        rescurso = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion, idusuario=perfil_usuario)
+    #=========== buscar las calificaciones del formador ===============
+    for ses in sesiones:
+        resformador = CalificacionFormador.objects.filter(sesion_curso=ses, usuario=perfil_usuario)
+    return render(request, 'user/sesioncalif.html', {'usu':perfil_usuario, 'idcurso':idcurso, 'rescurso':rescurso, 'resformador':resformador, 'curso':curso})
 #============== ver formularios de la sesion =====
 @login_required
 def verformusesion(request, idsesion):
@@ -219,7 +246,7 @@ def saveRespuestas(request, idsesion, idformu):
 @login_required
 def agregar_compromiso(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    compromises = Compromisos.objects.all()
+    compromises = Compromisos.objects.filter(id_usuario=perfil_usuario) #=== aqui retorna los compromisos del user logueado
     grupo_user = GruposUser.objects.filter(iduser=perfil_usuario)
     user_all = UserPerfil.objects.filter(idrol=2).exclude(id=perfil_usuario.id)
     fecha_actual = date.today()
@@ -244,7 +271,7 @@ def agregar_compromiso(request):
 
         add_compromiso = Compromisos(id_curso=curso, compromiso=compromiso, prioridad=prioridad, fecha_final=fecha_final, con_quien=con_quien_user, id_usuario=perfil_usuario)
         add_compromiso.save()
-        message ="Compromiso agragado correctamente"
+        message ="Compromiso agregado correctamente"
         return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message, 'compromisos':compromises})
     else:
         return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises, 'fechamin':fecha_actual})
@@ -501,3 +528,7 @@ def saveRespuestasFormu(request, idsesion, idformu, idusu):
        puntaje_total = puntaje_total if puntaje_total is not None else 0
     return render(request, 'user/listformuqr.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'fecha_actual':fecha_actual, 'usuarios':usuarios})
 
+#==================== mostrar todos los formularios pertenecientes a un curso ==================
+@login_required
+def formulariosCurso(request, idcurso):
+    print(idcurso)

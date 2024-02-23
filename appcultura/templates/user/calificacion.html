@@ -21,10 +21,7 @@
        <div class="col-lg-12">
       
         <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">
-              Calificar Sesión
-            </h5>
+          <div class="card-body mt-3">
               <!--alertar-->
               {% if mensaje %}
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -37,46 +34,176 @@
             <form action="{% url 'addcalificacion' idsesion=idsesion %}" method="post">
               {% csrf_token %}
               <div class="form-control">
-                <div class="row mb-3">
-                    <label for="nombre" class="col-sm-2 col-form-label">Calificación</label>
-                    <div class="col-sm-10" style="text-align:left;">
-                      <h4 class="clasificacion">
-                        <input class="inputradio" id="radio1" type="radio" name="estrellas" value="5"><!--
-                        --><label class="labelradio" for="radio1">★</label><!--
-                        --><input class="inputradio" id="radio2" type="radio" name="estrellas" value="4"><!--
-                        --><label class="labelradio" for="radio2">★</label><!--
-                        --><input class="inputradio" id="radio3" type="radio" name="estrellas" value="3"><!--
-                        --><label class="labelradio" for="radio3">★</label><!--
-                        --><input class="inputradio" id="radio4" type="radio" name="estrellas" value="2"><!--
-                        --><label class="labelradio" for="radio4">★</label><!--
-                        --><input class="inputradio" id="radio5" type="radio" name="estrellas" value="1"><!--
-                        --><label class="labelradio" for="radio5">★</label>
-                      </h4>
-                    </div>
+                <h5 class="text-center"><b>Calificar al formador</b></h5>
+                <p><small>En el siguiente apartado se evaluarán las habilidades del formador.
+                  <ul>
+                    <li><span style="color: rgb(240, 198, 12);">★</span> Muy bajo </li>
+                    <li><span style="color: rgb(240, 198, 12);">★★</span> Regular </li> 
+                    <li><span style="color: rgb(240, 198, 12);">★★★</span> Bueno</li>
+                    <li><span style="color: rgb(240, 198, 12);">★★★★</span> Muy bueno</li>
+                     <li><span style="color: rgb(240, 198, 12);">★★★★★</span> Sobre saliente</li>
+                  </ul>
+                </small></p>
+                <hr>
+                <div class="row">
+                   <div class="col-sm-6" style="text-align: justify;">
+                      <b>1. Claridad en la explicación:&nbsp;</b>¿Qué tan claro y comprensible fue el formador al explicar los conceptos durante la sesión de formación?
+                   </div>
+                   <div class="col-sm-6 text-center">
+                    <div class="clasificacion">
+                      <input class="inputradio" id="radio1" type="radio" name="claridad" value="5">
+                      <label class="labelradio" for="radio1"><h4>★</h4></label>
+                      <input class="inputradio" id="radio2" type="radio" name="claridad" value="4">
+                      <label class="labelradio" for="radio2"><h4>★</h4></label>
+                      <input class="inputradio" id="radio3" type="radio" name="claridad" value="3">
+                      <label class="labelradio" for="radio3"><h4>★</h4></label>
+                      <input class="inputradio" id="radio4" type="radio" name="claridad" value="2">
+                      <label class="labelradio" for="radio4"><h4>★</h4></label>
+                      <input class="inputradio" id="radio5" type="radio" name="claridad" value="1">
+                      <label class="labelradio" for="radio5"><h4>★</h4></label>
                   </div>
-                  <div class="row mb-3">
-                    <label for="textAreacomentarios" class="col-sm-2 col-form-label">¿Como aplicar lo aprendido?</label>
-                    <div class="col-sm-10">
-                      <textarea class="form-control" id="textareacomentarios" rows="3" name="textareacomentarios"></textarea>
-                    </div> 
+                   </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-6" style="text-align: justify;">
+                     <b>2. Capacidad para fomentar la participación:&nbsp;</b>¿Cómo valoraría la habilidad del formador para involucrar a los participantes y fomentar su participación durante la sesión?
                   </div>
-
-                  <div class="row mb-3">
-                    <label for="textAreacomentarios" class="col-sm-2 col-form-label">¿Que valoras del curso?</label>
-                    <div class="col-sm-10">
-                      <textarea class="form-control" id="textareacomentarios" rows="3" name="textareavalorcurso"></textarea>
-                    </div> 
+                  <div class="col-sm-6 text-center text-center">
+                    <div class="clasificacion">
+                      <input class="inputradio" id="radio6" type="radio" name="capacidad" value="5">
+                      <label class="labelradio" for="radio6"><h4>★</h4></label>
+                      <input class="inputradio" id="radio7" type="radio" name="capacidad" value="4">
+                      <label class="labelradio" for="radio7"><h4>★</h4></label>
+                      <input class="inputradio" id="radio8" type="radio" name="capacidad" value="3">
+                      <label class="labelradio" for="radio8"><h4>★</h4></label>
+                      <input class="inputradio" id="radio9" type="radio" name="capacidad" value="2">
+                      <label class="labelradio" for="radio9"><h4>★</h4></label>
+                      <input class="inputradio" id="radio10" type="radio" name="capacidad" value="1">
+                      <label class="labelradio" for="radio10"><h4>★</h4></label>
                   </div>
-                  <div class="row mb-3">
-                    <label for="textAreasugerencias" class="col-sm-2 col-form-label">Sugerencias de mejora</label>
-                    <div class="col-sm-10">
-                      <textarea class="form-control" id="textareasugerencias" rows="3" name="textareasugerencias"></textarea>
-                    </div> 
+                  
                   </div>
+               </div>
+               <hr>
+               <div class="row">
+                <div class="col-sm-6" style="text-align: justify;">
+                   <b>3. Dominio del contenido:&nbsp;</b>¿En qué medida demostró el formador un dominio sólido del tema impartido durante la sesión de formación?
+                </div>
+                <div class="col-sm-6 text-center">
+                  <div class="clasificacion">
+                    <input class="inputradio" id="radio11" type="radio" name="dominio" value="5">
+                    <label class="labelradio" for="radio11"><h4>★</h4></label>
+                    <input class="inputradio" id="radio12" type="radio" name="dominio" value="4">
+                    <label class="labelradio" for="radio12"><h4>★</h4></label>
+                    <input class="inputradio" id="radio13" type="radio" name="dominio" value="3">
+                    <label class="labelradio" for="radio13"><h4>★</h4></label>
+                    <input class="inputradio" id="radio14" type="radio" name="dominio" value="2">
+                    <label class="labelradio" for="radio14"><h4>★</h4></label>
+                    <input class="inputradio" id="radio15" type="radio" name="dominio" value="1">
+                    <label class="labelradio" for="radio15"><h4>★</h4></label>
+                </div>
+                </div>
+             </div>
+             <hr>
+             <div class="row">
+                <div class="col-sm-6" style="text-align: justify;">
+                  <b>4. Aspectos a rescatar:&nbsp;</b>¿Cuáles fueron los aspectos más destacados del formador? ¿Cuáles podrían ser aspectos a fortalecer?
+                </div>
+                <div class="col-sm-6">
+                  <textarea class="form-control" type="text" name="aspectos" rows="3" required></textarea>
+                </div>
             </div>
-              <div class="text-center">
-                <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Enviar </button>
-                <a class="btn btn-warning" href="/usuarios/curso/listar/" role="button">Cancelar</a>
+             <!--=================-->
+              </div>
+              <!--calificar curso-->
+              <div class="form-control mt-2">
+                <h5 class="text-center"><b>Calificar sesión del curso:</b></h5>
+                <p><small>En el siguiente apartado se evaluará la sesión del curso.</small></p>
+                <hr>
+                <div class="row">
+                   <div class="col-sm-6" style="text-align: justify;">
+                      <b>1. Relevancia del contenido:&nbsp;</b>¿cómo calificarías la relevancia del contenido del curso para tus necesidades o expectativas?
+                   </div>
+                   <div class="col-sm-6 text-center">
+                    <div class="clasificacion">
+                      <input class="inputradio" id="radio16" type="radio" name="relevancia" value="5">
+                      <label class="labelradio" for="radio16"><h4>★</h4></label>
+                      <input class="inputradio" id="radio17" type="radio" name="relevancia" value="4">
+                      <label class="labelradio" for="radio17"><h4>★</h4></label>
+                      <input class="inputradio" id="radio18" type="radio" name="relevancia" value="3">
+                      <label class="labelradio" for="radio18"><h4>★</h4></label>
+                      <input class="inputradio" id="radio19" type="radio" name="relevancia" value="2">
+                      <label class="labelradio" for="radio19"><h4>★</h4></label>
+                      <input class="inputradio" id="radio20" type="radio" name="relevancia" value="1">
+                      <label class="labelradio" for="radio20"><h4>★</h4></label>
+                  </div>
+                   </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-6" style="text-align: justify;">
+                     <b>2. Claridad de la presentación:&nbsp;</b>¿Qué tan claro y comprensible fue el material presentado durante el curso?
+                  </div>
+                  <div class="col-sm-6 text-center">
+                    <div class="clasificacion">
+                      <input class="inputradio" id="radio21" type="radio" name="claridadpres" value="5">
+                      <label class="labelradio" for="radio21"><h4>★</h4></label>
+                      <input class="inputradio" id="radio22" type="radio" name="claridadpres" value="4">
+                      <label class="labelradio" for="radio22"><h4>★</h4></label>
+                      <input class="inputradio" id="radio23" type="radio" name="claridadpres" value="3">
+                      <label class="labelradio" for="radio23"><h4>★</h4></label>
+                      <input class="inputradio" id="radio24" type="radio" name="claridadpres" value="2">
+                      <label class="labelradio" for="radio24"><h4>★</h4></label>
+                      <input class="inputradio" id="radio25" type="radio" name="claridadpres" value="1">
+                      <label class="labelradio" for="radio25"><h4>★</h4></label>
+                  </div>
+                  </div>
+               </div>
+               <hr>
+               <div class="row">
+                <div class="col-sm-6" style="text-align: justify;">
+                   <b>3. Aplicabilidad de los conceptos:&nbsp;</b>¿En qué medida sientes que los conceptos y habilidades aprendidos en el curso son aplicables a situaciones reales o a tu trabajo?
+                </div>
+                <div class="col-sm-6 text-center">
+                  <div class="clasificacion text-center">
+                    <input class="inputradio" id="radio26" type="radio" name="aplicabilidad" value="5">
+                    <label class="labelradio" for="radio26"><h4>★</h4></label>
+                    <input class="inputradio" id="radio27" type="radio" name="aplicabilidad" value="4">
+                    <label class="labelradio" for="radio27"><h4>★</h4></label>
+                    <input class="inputradio" id="radio28" type="radio" name="aplicabilidad" value="3">
+                    <label class="labelradio" for="radio28"><h4>★</h4></label>
+                    <input class="inputradio" id="radio29" type="radio" name="aplicabilidad" value="2">
+                    <label class="labelradio" for="radio29"><h4>★</h4></label>
+                    <input class="inputradio" id="radio30" type="radio" name="aplicabilidad" value="1">
+                    <label class="labelradio" for="radio30"><h4>★</h4></label>
+                </div>
+                </div>
+             </div>
+             <hr>
+             <div class="row">
+                <div class="col-sm-6" style="text-align: justify;">
+                  <b>4. Fortalezas del curso:&nbsp;</b>¿Cuáles crees que fueron las principales fortalezas de este curso? Por favor, proporciona detalles específicos sobre aspectos que encontraste especialmente útiles o efectivos.
+                </div>
+                <div class="col-sm-6">
+                  <textarea class="form-control" type="text" name="fortalezasesion" rows="3" required></textarea>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-6" style="text-align: justify;">
+                  <b>5. Áreas de mejora sugeridas:&nbsp;</b>¿Hay áreas específicas en las que crees que este curso podría mejorar? Por favor, comparte cualquier sugerencia o recomendación que tengas para futuras iteraciones del curso.
+                </div>
+                <div class="col-sm-6">
+                  <textarea class="form-control" type="text" name="mejorasesion" rows="3" required></textarea>
+                </div>
+            </div>
+             <!--=================-->
+              </div>
+              <!---=================================================-->
+              <div class="text-end mt-3">
+                <button type="submit" class="btn btn-outline-primary"> <i class="bi bi-floppy2-fill"></i> | Enviar </button>
+                <a class="btn btn-outline-warning" href="/usuarios/curso/listar/" role="button" style="color: black;">Cancelar</a>
               </div>
             </form>
            
@@ -89,9 +216,9 @@
     </section>
   </main> 
   <!-- Aqui se encuentran las instrucciones para formularios -->
-  <script type="text/javascript" src="{% static 'admin/assets/js/empresa.js' %}"></script>
-  <script src="{% static 'admin/assets/js/script.js' %} "></script>
+  <!--<script type="text/javascript" src="{% static 'admin/assets/js/empresa.js' %}"></script>
+  <script src="{% static 'admin/assets/js/script.js' %} "></script>-->
 {% endblock content%}
 {% block js %}
-<script src="{% static 'admin/assets/js/calificacionusuario.js' %} "></script>
+<!--<script src="{% static 'admin/assets/js/calificacionusuario.js' %} "></script>-->
 {% endblock js %}

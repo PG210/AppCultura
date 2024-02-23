@@ -20,7 +20,10 @@
        <div class="col-lg-12">
         <div class="card">
           <div class="card-body mt-3">
-            <h4 class="text-center">Grupo: {{gruponame.nombre}}</h4>
+            <div class="alert alert-primary" role="alert">
+              <h5 class="text-center"><b>Grupo:</b> {{gruponame.nombre}}</h5>
+            </div>
+            <small><b>Nota:</b> En este apartado puede agregar nuevos colaboradores al grupo seleccionado.</small>
               <!--alertar-->
             {% if messages %}
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -38,8 +41,7 @@
                 <table class="table" id="tablareactiva">
                     <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
+                        <th>Nombres</th>
                         <th>Usuario</th>
                         <th>Cedula</th>
                         <th>Estado</th>
@@ -50,9 +52,8 @@
                   <tbody>
                     {% for reg in regusu %}
                        <tr>
-                          <td>{{ reg.iduser.nombre }}</td>
-                          <td> {{ reg.iduser.apellido }} </td>
-                          <td> {{ reg.iduser.user.username }} </td>
+                          <td>{{ reg.iduser.nombre }} {{ reg.iduser.apellido }}</td>
+                          <td> {{ reg.iduser.user.username }}</td>
                           <td> {{ reg.iduser.cedula }} </td>
                           <td>
                           {% if reg.iduser.estado == 1 %}
@@ -67,8 +68,7 @@
                     {% endfor %} 
                     {% for us in usuarios %}
                         <tr>
-                            <td>{{ us.nombre }}</td>
-                            <td>{{ us.apellido }}</td>
+                            <td>{{ us.nombre }} {{ us.apellido }}</td>
                             <td>{{ us.user.username }}</td>
                             <td>{{ us.cedula }}</td>
                             <td>
@@ -84,9 +84,9 @@
                    {% endfor %}  
                   </tbody>
                 </table>
-                <div class="container text-center">
-                   <button type="submit" class="btn btn-primary">Guardar</button>
-                   <a type="button" class="btn btn-warning" href="/administracion/grupos/list/">Volver</a>
+                <div class="container text-end mt-3">
+                   <button type="submit" class="btn btn-outline-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar</button>
+                   <a type="button" class="btn btn-warning" href="/administracion/grupos/list/"><i class="bi bi-box-arrow-left"></i> | Cancelar</a>
                 </div>
                 </form><!--end finalizar formularios -->
                </div>

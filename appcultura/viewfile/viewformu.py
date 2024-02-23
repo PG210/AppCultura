@@ -469,13 +469,13 @@ def qr_formulario(request, idsesion):
     relative_path = generar_qr(data,idsesion)
     return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion, 'data':data})
 
-#============== cambiar pendiente desde los formularios ===============00
+#============== cambiar pendiente desde los formularios ===============
 login_required    
-def cambiar_pendiente_formulario(request, iduser, idsesion):
+def cambiar_pendiente_formulario(request, idsesion, iduser):
     usuario = UserPerfil.objects.get(id=iduser)
     usuario.pendiente = False
     usuario.save()
-    asistencia = SesionAsistencia.objects.get(idusuario=usuario)
+    asistencia = SesionAsistencia.objects.get(idusuario=usuario, idsesioncurso=idsesion)
     asistencia.asistencia_pendiente = False
     asistencia.save()
     return redirect('verFomrsesion', idsesion=idsesion)

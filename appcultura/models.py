@@ -35,3 +35,4 @@ from .modelos.competencias import Competencias
 from .modelos.comptenciascursos import CompetenciaCurso
 from .modelos.formador_empresa import FormadorEmpresa
 
+from .modelos.calificacionformador import CalificacionFormador

@@ -5,7 +5,7 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Listado de cursos</h1>
+      <h1>Cursos</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
@@ -32,15 +32,16 @@
                {% endif %}
                <!--end alertar-->
                <!-- Table with stripped rows -->
-               <div class="row">
-                <div class="col-12 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
-               </div><br>
+               <div class="alert alert-primary" role="alert">
+                 Lista de cursos de formación.
+               </div>
+               <p><small><b>Nota:</b> En esta sección, tienes la oportunidad de evaluar tanto el curso como al formador.</small></p>
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
                 <thead>
                   <tr>
                     <th>Curso</th>
-                    <th>Grupos</th>
+                    <th>Grupo</th>
                     <th>Sesiones</th>
                   </tr>
                 </thead>
@@ -48,15 +49,19 @@
                   {% for curso in cursos %}
                   <tr>
                     <td>{{ curso.idcurso.nombre }}</td>
-                    <td>{{curso.idgrupo.nombre}}</td>
-                    <td>
+                    <td>{{ curso.idgrupo.nombre}}</td>
+                    <td class="text-center">
                       <!--aqui modal-->
                          <!-- Modal Dialog Scrollable -->
-                         <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar las sesiones del curso {{curso.idcurso.nombre}}">
-                          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
-                            Ver
-                          </button>
-                         </span>
+                          <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar las sesiones del curso {{curso.idcurso.nombre}}">
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
+                              Ver
+                            </button></span>
+                            {% for cal in vercalif %}
+                               {% if cal.id_sesiones_curso.idcurso.id == curso.idcurso.id %}
+                              <a type="button" class="btn btn-outline-success" href="{% url 'calificacionCurso' idcurso=curso.idcurso.id %}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver calificaciones de formador y curso"><i class="bi bi-list-columns-reverse"></i></a>
+                              {% endif %}
+                            {% endfor %}
                         
                         <div class="modal fade" id="modallistarsesiones{{curso.id}}" tabindex="-1">
                           <div class="modal-dialog modal-dialog-scrollable modal-xl ">
@@ -69,9 +74,8 @@
                                 <table class="table">
                                     <thead>
                                       <tr>
-                                        <th>Id sesion</th>
-                                        <th>Fecha inicio</th>
-                                        <th>Fecha final</th>
+                                        <td></td>
+                                        <th>Fecha</th>
                                         <th>Lugar</th>
                                         <th>Asistencia</th>
                                         <th>Calificar</th>
@@ -80,38 +84,74 @@
                                     </thead>
                                   <tbody>
                                   {% for sesion in sesiones %}
-                                  {% if sesion.idcurso == curso.idcurso %}
+                                  {% if sesion.idcurso.id == curso.idcurso.id %}
                                   <tr>
-                                    <td>{{sesion.id}}</td>
-                                    <td>{{ sesion.fechainicio }}</td>
-                                    <td>{{ sesion.fechafin }}</td>
-                                    <td>{{ sesion.lugar }}</td>
                                     <td>
-                                    {% for asistencia in asistencias %}
-                                      {% if asistencia.idsesioncurso != sesion %}
-                                        No asistió
-                                      {% else %}
-                                        Asistió
-                                      {% endif %}
-                                    {% endfor %}
+                                      <a class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" href="#verDetalles{{sesion.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                        <i class="bi bi-plus-circle-fill" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver mas ..."></i>
+                                      </a>
                                     </td>
-                                    <td>
+                                    <td>{{ sesion.fechainicio}} </td>
+                                    <td>{{ sesion.lugar }}</td>
+                                    <td class="text-center">
+                                    <!---=================-->
+                                    {% if usu.sesionasistencia_set.all %}
+                                    {% for asis in usu.sesionasistencia_set.all %}
+                                       {% if asis.idsesioncurso.id == sesion.id and asis.asistencia_pendiente == False %}
+                                       <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>Asistió</small></p>
+                                       {% elif asis.idsesioncurso.id == sesion.id and asis.asistencia_pendiente == True %}
+                                          <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>No asistió</small></p>
+                                       {% endif %}
+                                    {% endfor %}
+                                    {% else %}
+                                        <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>No asistió</small></p>
+                                    {% endif %}
+                                    </td>
+                                    <td class="text-center">
                                     {% if calificacion %}
                                       {% for cali in calificacion %}
                                         {% if cali.estado is False %}
-                                          <a class="btn btn-success disabled" role="button" aria-disabled="true" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} ya se ha realizado.">calificar</a></td>
+                                          <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>Completado</small></p>
                                         {% endif %}
                                       {% endfor %}
                                     {% else %}
-                                    <a class="btn btn-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} esta habilitada">calificar</a>
+                                    <a class="btn btn-outline-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} esta habilitada">Calificar</a>
                                     {% endif %}
                                     </td>
                                     <!--aqui boton de evaluar formulario-->
                                      <td>
-                                      <a href="{% url 'verformusesion' idsesion=sesion.id %}" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ingrese al formulario de evaluacion de la sesión {{sesion.id}}">Evaluar</a>
+                                      <a href="{% url 'verformusesion' idsesion=sesion.id %}" class="btn btn-outline-success" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ingrese al formulario de evaluacion de la sesión {{sesion.id}}">Evaluar</a>
                                      </td>
                                     <!--end evaluar-->
                                   </tr>
+                                  <!--====================================-->
+                                  <tr>
+                                    <td colspan="6" class="text-start"> 
+                                      <div class="collapse" id="verDetalles{{sesion.id}}">
+                                       <div class="card card-body">
+                                         <!--===============================-->
+                                         {% for tematica in tematicas %}
+                                         {% if tematica.idsesion.id == sesion.id %}
+                                          <label class="col-form-label"><small>Temáticas:</small></label>
+                                          <p class="form-control"><small>{{ tematica.descrip }}</small></p>
+                                          <label class="col-form-label"><small>Descripción: </small></label>
+                                          <p class="form-control"><small>{{ tematica.competencias }}</small></p>
+                                          <label class="col-form-label"><small>Recursos: </small></label>
+                                          <p class="form-control"><small> {{ tematica.recursos }}</small></p>
+                                         <div class="mb-1">
+                                          <label class="col-form-label"><small>Archivo: </small></label>
+                                           <a class="btn btn-outline-primary btn-sm" href="{% url 'download' ruta=tematica.ruta %}" download data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Descarga los archivos que corresponden a la tematica {{tematica.descrip}}">
+                                            <i class="bi bi-cloud-arrow-down-fill"></i>
+                                           </a>
+                                          </div>
+                                         {% endif %}
+                                         {% endfor %}
+                                         <!--================================-->
+                                       </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <!--========================================-->
                                   {% endif %}
                                   
                                   {% endfor %}

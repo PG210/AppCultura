@@ -4,7 +4,7 @@
 <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Listado de formularios completos</h1>
+      <h1>Usuarios</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Inicio</a></li>
@@ -20,6 +20,19 @@
        <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
+               <div class="row mt-2">
+                <div class="col-12 alert alert-primary" role="alert">
+                  <div class="row">
+                      <div class="col-8">
+                        <h5>Listado de usuarios con formularios completados</h5>
+                      </div>
+                      <div class="col-4 text-end">
+                        <a href="/administracion/formu/list/cursos/" class="btn btn-warning btn-sm "><i class="bi bi-box-arrow-left"></i> | Volver</a>
+                      </div>
+                  </div>
+                </div>
+                <small>En esta sección, encontrarás la lista de usuarios que han completado los formularios, ademas puedes agregar retroalimentación a sus respuestas.</small>
+               </div>
               <br>
                <!--alertar-->
                {% if mensajeExito %}
@@ -29,9 +42,6 @@
                 </div>
                {% endif %}
                <!--end alertar-->
-               <div class="row">
-                <div class="col-12 text-end"><a href="/administracion/formu/list/cursos/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
-               </div>
                <!-- Table with stripped rows -->
                <div class="table-responsive mt-3">
                <table class="table" id="tablareactiva">
@@ -39,7 +49,8 @@
                   <tr>
                     <th>Nombre</th>
                     <th>Usuario</th>
-                    <th>Sesiones</th>
+                    <th>Empresa</th>
+                    <th>Formulario</th>
                   </tr>
                 </thead>
                 <tbody>  
@@ -47,20 +58,21 @@
                   <tr>
                     <td>{{ user.nombre }} {{ user.apellido }}</td>
                     <td>{{ user.user.username}}</td>
+                    <td>{{ user.idarea.idempresa.nombre }} {{ user.idepart.idearea.idempresa.nombre }}</td>
                     <td>
                       <!--aqui modal-->
                          <!-- Modal Dialog Scrollable -->
                          {% for asistencia in usuarios_asistencia %}
                           {% if asistencia.idusuario.id == user.id %}
-                          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#userFormu{{user.id}}">
-                            Ver
+                          <button type="button" class="btn btn-outline-primary text-center" data-bs-toggle="modal" data-bs-target="#userFormu{{user.id}}">
+                            <i class="bi bi-ui-checks" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver formularios completados."></i>
                           </button>
                           {% endif %}
                          {% endfor %}
                          <!-----usuarios pendientes-->
                          {% for confirmar in usuarios_confirmar %} 
                             {% if confirmar.idusuario.id == user.id %}
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAsistencia{{user.id}}">
+                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalAsistencia{{user.id}}">
                               Confirmar asistencia 
                             </button>
                             {% endif %}
@@ -70,15 +82,15 @@
                           <div class="modal-dialog">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Confirmación</h1>
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de confirmación</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
                                 <p style="text-align: justify;">Para ver las respuestas de los formularios debe confirmar la asistencia.</p>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                                 <a type="button" class="btn btn-primary" href="{% url 'cambiar_pendiente_formulario' idsesion=idsesion iduser=user.id %}">Confirmar</a>
+                                <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                               </div>
                             </div>
                           </div>
@@ -87,11 +99,12 @@
                         <div class="modal fade" id="userFormu{{user.id}}" tabindex="-1">
                           <div class="modal-dialog modal-dialog-scrollable modal-xl ">
                             <div class="modal-content">
-                              <div class="modal-header">
+                              <div class="modal-header alert alert-warning" role="alert">
                                 <h5 class="modal-title">Formularios completados por: <b>{{ user.nombre }} {{ user.apellido }}</b></h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
+                                <p><small>En esta sección, puedes revisar las respuestas de cada usuario y además agregar retroalimentación en el campo 'Comentario'.</small></p>
                                <!--acordion -->
                                <form action="{% url 'verFomrsesion' idsesion=idsesion %}" method="post">
                                 {% csrf_token %}
@@ -116,13 +129,13 @@
                                                      <h5 class="text-center"><b>Información del Formulario</b></h5>
                                                      <div class="container form-control">
                                                       <div class="row">
-                                                        <div class="col-12">
+                                                        <div class="col-lg-12 col-md-12">
                                                           <b>Nombre:</b> {{ formu.nombre }}
                                                         </div>  
                                                     </div>
                                                     <hr>
                                                     <div class="row mt-2">
-                                                      <div class="col-12">
+                                                      <div class="col-lg-12 col-md-12">
                                                           <b>Descripción:</b> {{ formu.descrip }}
                                                           <!--==================================================-->
                                                           <!--===============================================================-->
@@ -138,7 +151,7 @@
                                                            <!--=========================================================-->
                                                          <div class="container form-control mt-2">
                                                             <div class="row">
-                                                                <div class="col-6">
+                                                                <div class="col-lg-6 col-md-12">
                                                                   <p><b>Pregunta: </b> {{ preguntas.idpreg.descrip }}</p>
                                                                   <input type="text" id="pregunta{{preguntas.idpreg.id}}" name="pregunta{{preguntas.idpreg.id}}" aria-label="Sizing example input" value="{{ preguntas.idpreg.id }}" required hidden><!--no borrar este contrala todas las llegadas-->
                                                                   {% if preguntas.idpreg.tipo != '6' %}
@@ -146,7 +159,7 @@
                                                                   {% endif %}
                                                                   <p><b>Comentario: </b> <textarea class="form-control mt-2" id="comentario_{{preguntas.id}}" name="comentario_{{preguntas.id}}" placeholder="Ingrese comentario" required>{% if preguntas.comentario != 'None' %} {{preguntas.comentario}} {% endif %}</textarea></p>
                                                                 </div>
-                                                              <div class="col-6">
+                                                              <div class="col-lg-6 col-md-12">
                                                             <!-- Aquí puedes agregar más detalles según el tipo de pregunta -->
                                                             {% if preguntas.idpreg.tipo == '1' %}  {# Pregunta de respuesta corta #}
                                                               <p><b>Respuesta Corta:</b></p>
@@ -209,8 +222,6 @@
                                                                   {% for seluser in preguntas.respuestaopciones_set.all %}
                                                                     {% if seluser.idopcion.id == respuestasopc.id %}
                                                                     <input class="form-check-input" type="checkbox" value="" id="mulver{{respuestasopc.id}}" checked >
-                                                                    {% else %}
-                                                                    <input class="form-check-input" type="checkbox" value="" id="mulver{{respuestasopc.id}}" >
                                                                     {% endif %}
                                                                   {% endfor %}
                                                                   {% if respuestasopc.correcta  %}
@@ -232,21 +243,21 @@
                                                                   <p><b>Compromiso:</b></p>
                                                                   <p class="form-control"> {{comp.compromiso}} </p> 
                                                                     <div class="row">
-                                                                        <div class="col-6">
+                                                                        <div class="col-lg-6 col-md-12">
                                                                             <p><b>Fecha compromiso:</b></p>
                                                                             <p class="form-control"> {{comp.fecha_final|date:'Y-m-d'}} </p> 
                                                                           </div>
-                                                                        <div class="col-6">
+                                                                        <div class="col-lg-6 col-md-12">
                                                                             <p><b>Prioridad:</b></p>
                                                                             <p class="form-control"> {{comp.prioridad}} </p> 
                                                                         </div>
                                                                     </div>
                                                                     <div class="row">
-                                                                          <div class="col-6">
+                                                                          <div class="col-lg-6 col-md-12">
                                                                             <p><b>Estado revisión:</b></p>
                                                                               <p class="form-control"> {{comp.id_estado.descripcion}}</p> 
                                                                           </div>
-                                                                          <div class="col-6">
+                                                                          <div class="col-lg-6 col-md-12">
                                                                             <p><b>Calificación:</b></p>
                                                                             <p class="form-control"> {{comp.puntaje}} </p> 
                                                                           </div>
@@ -281,8 +292,8 @@
                                <!--end acordion-->
                               </div>
                               <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary mt-2">Enviar</button>
                                 <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
-                                <button type="submit" class="btn btn-info mt-2">Guardar Comentarios</button>
                               </div>
                             </form> <!--final del formulario-->
                             </div>

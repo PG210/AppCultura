@@ -12,24 +12,23 @@
           <li class="breadcrumb-item active">Listado</li>
         </ol>
       </nav>
-    </div><!-- End Page Title -->
-    {% if mensaje %}
-      <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <strong>{{mensaje}}</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    {% endif %}
-    
+    </div><!-- End Page Title -->  
     <section class="section dashboard">
       <div class="row">
        <!--registro de cursos forms-->   
-       <div class="col-lg-12">
+       <div class="col-lg-12 col-md-12">
         <div class="card">
             <div class="card-body">
-              <div class="row">
-                <div class="mt-3 col-12 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
-               </div>
-               <br>
+              <div class="alert alert-primary mt-2" role="alert">
+                Lista de compromisos
+              </div>
+              <p><small>Nota:</small>En esta sección, puedes editar un compromiso y revisar la retroalimentación recibida. </p>
+              {% if mensaje %}
+              <div class="alert alert-warning alert-dismissible fade show mt-2 mb-1" role="alert">
+                <strong>{{mensaje}}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endif %}
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
                 <thead>
@@ -100,7 +99,7 @@
                           
                             <!-- Modal -->
                             <div class="modal fade" id="modaleditarcompromiso{{comp.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                              <div class="modal-dialog modal-lg">
+                              <div class="modal-dialog modal-lg modal-dialog-scrollable">
                                 <div class="modal-content">
                                   <div class="modal-header">
                                     <h1 class="modal-title fs-5" id="exampleModalLabel">Editar Compromiso</h1>
@@ -111,22 +110,22 @@
                                       {% csrf_token %}
                                       <div class="form-control">
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-sm-2 col-form-label"><b>Compromiso</b></label>
-                                            <div class="col-sm-10">
+                                            <label for="nombre" class="col-lg-3 col-md-12 col-form-label"><b>Compromiso</b></label>
+                                            <div class="col-lg-9 col-md-12">
                                                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="textCompromiso" required>{{comp.compromiso}}</textarea>
                                             </div>
                                         </div>
                         
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-sm-2 col-form-label"><b>Fecha Final</b></label>
-                                            <div class="col-sm-10">
+                                            <label for="nombre" class="col-lg-3 col-md-12 col-form-label"><b>Fecha Final</b></label>
+                                            <div class="col-lg-9 col-md-12">
                                                 <input type="date" class="form-control" min="{{ fechamin|date:'Y-m-d' }}" name="fechafinal" value="{{comp.fecha_final|date:'Y-m-d'}}" required>
                                             </div>
                                         </div>
                                         
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-2 col-form-label"><b>Personas elegidas</b></label>
-                                            <div class="col-10">
+                                            <label for="nombre" class="col-lg-3  col-md-12 col-form-label"><b>Personas elegidas</b></label>
+                                            <div class="col-lg-9 col-md-12">
                                              <!--tabla usuarios-->
                                              <div class="table-responsive mt-2">
                                               <table class="table" id="tablareactiva_02">
@@ -150,8 +149,8 @@
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                                           <input class="btn btn-primary" type="submit" value="Actualizar" >
+                                          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                                         </div>
                                     </form>
                                   </div>
@@ -174,7 +173,4 @@
       </div>
     </section>
 </main><!-- End #main -->
-  <!-- Aqui se encuentran las instrucciones para formularios -->
-  <!--<script type="text/javascript" src="{% static 'admin/assets/js/bootstrap-datepicker.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'admin/assets/js/functionUser.js' %}"></script>-->
   {% endblock %} 

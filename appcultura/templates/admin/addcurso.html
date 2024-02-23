@@ -19,7 +19,7 @@
   {% load static %}
 
     <div class="pagetitle">
-      <h1>Registrar nuevo curso</h1>
+      <h1>Registrar</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
@@ -35,6 +35,16 @@
        <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
+             <!--==========================descripcion ========================-->
+             <div class="row mt-2 alert alert-primary" role="alert">
+              <div class="col-8" >
+                  <h5>Registrar información del curso</h5>
+              </div>
+              <div class="col-4 text-end">
+                <a type="button" class="btn btn-warning btn-sm" href="{% url 'listarcursos' %}"> <i class="bi bi-box-arrow-left"></i> | Cancelar </a>
+              </div>
+            </div>
+             <!--======================end descripcion==========================-->
               <!--alertar-->
               {% if msj %}
               <br>
@@ -74,8 +84,8 @@
                         </div>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                         <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                       </div>
                     </form>
                     </div>
@@ -85,9 +95,10 @@
             <!-- Horizontal Form -->
             <form action="{% url 'registroCursos' %}" method="post" enctype="multipart/form-data">
               {% csrf_token %}
-              <div class="form-control">
+              <div class="container">
               <div class="seccion active" id="seccion1">
-                <h5 class="mb-4">Información básica del curso</h5>
+                <h5>Información básica del curso</h5>
+                <hr>
                 <div class="row mb-3">
                   <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
                   <div class="col-sm-5">
@@ -158,51 +169,40 @@
               <!--objetivos del curso-->
             <!-- Default Accordion -->
             <div class="seccion" id="seccion2">
-              <h5 class="mb-4">Objetivos del curso</h5>
-              <div class="accordion" id="accordionExample">
-                <div class="accordion-item">
-                  <p class="accordion-header" id="headingThree">
-                   <!-- <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#idacordion3" aria-expanded="false" aria-controls="idacordion3">
-                      Registrar objetivos
-                    </a>-->
-                  </p>
-                  <div id="idacordion3" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                      <!-- Contenedor para los campos del formulario -->
-                      <div id="contenedor-objetivos" class="row mb-3 mt-3">
-                      </div>
-                      <!--crear objetivos-->
-                      <a class="btn btn-primary" onclick="agregarObjetivo()">Agregar objetivo</a>
-                      <!--end objetivos-->
-                    </div>
-                  </div>
-                </div>
-              </div><!-- End Default Accordion Example -->
+              <h5>Objetivos del curso</h5>
+              <hr>
+               <!-- Contenedor para los campos del formulario -->
+               <div id="contenedor-objetivos" class="row mb-3"></div>
+              <!--crear objetivos-->
+              <a class="btn btn-outline-primary btn-sm" onclick="agregarObjetivo()"><i class="bi bi-plus-circle-fill"></i> Agregar objetivo</a>
+              <!--end objetivos-->
             </div>
               <!--end objetivos del curso-->
               <div class="seccion" id="seccion3">
-                <h5 class="mb-4">Sesiones del curso</h5>
-                <div class="form-control">
+                <h5>Sesiones del curso</h5>
+                <hr>
                   <!-- Contenedor para los campos del formulario -->
-                  <div id="formulario-container" class="row mb-3 mt-3">
-                  </div>
+                  <div id="formulario-container" class="row mb-3"></div>
                   <!--si marca check-->
-                    <a class="btn btn-primary" onclick="agregarCampo()">Agregar sesión</a>
-                </div>
+                    <a class="btn btn-outline-primary btn-sm" onclick="agregarCampo()"><i class="bi bi-plus-circle-fill"></i> Agregar sesión</a>
               </div>
               <!--end check-->
-              <div class="text-center mt-3 mb-3">
+              <hr>
+              <div class="mt-3 mb-3">
                 <div class="row">
-                  <div class="col-6 text-end">
-                    <a type="button" class="btn btn-info" onclick="prevSection()">Atrás</a>
-                    <a type="button" class="btn btn-warning" onclick="nextSection()">Siguiente</a>
+                  <div class="col-3 text-start">
+                    <a type="button" class="btn btn-outline-success btn-sm" onclick="prevSection()"><i class="bi bi-rewind-btn"></i> Atrás</a>
                   </div>
-                  <div class="col-6 text-start">
+                  <div class="col-6 text-center">
                     <div id="extra-buttons">
-                      <button type="submit" class="btn btn-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
-                      <a type="button" class="btn btn-success" href="{% url 'listarcursos' %}"> <i class="bi bi-card-checklist"></i> | Visualizar </a>
+                      <button type="submit" class="btn btn-outline-primary"> <i class="bi bi-floppy2-fill"></i> | Guardar </button>
                     </div>
                   </div>
+                  <!---==================================-->
+                  <div class="col-3 text-end">
+                    <a type="button" class="btn btn-outline-success btn-sm" onclick="nextSection()"><i class="bi bi-fast-forward-btn"></i> Siguiente</a>
+                  </div>
+                  <!--==================================-->
                 </div>
                 <!--end botones-->
               </div>

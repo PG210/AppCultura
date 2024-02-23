@@ -189,10 +189,10 @@
                       </div>
                       <!--botones---->
                       <div class="mt-4 mb-3 row">
-                        <div class="col-sm-12 text-center">
+                        <div class="col-sm-12 text-end">
                           <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                            <button type="submit" class="btn btn-outline-primary">Guardar</button>
                             <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar</button>
                           </div>
                         </div>
                       </div>
@@ -403,10 +403,10 @@
                               </div>
                               <!--botones---->
                               <div class="mt-4 mb-3 row">
-                                <div class="col-sm-12 text-center">
+                                <div class="col-sm-12 text-end mb-3">
                                   <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                                    <button type="submit" class="btn btn-outline-primary">Actualizar</button>
                                     <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
-                                    <button type="submit" class="btn btn-primary">Actualizar</button>
                                   </div>
                                 </div>
                               </div>
@@ -437,8 +437,8 @@
                            <!--end info-->
                         </div>
                         <div class="modal-footer">
+                          <a type="button" class="btn btn-primary" href="{% url 'lockaccess' idusu=usu.id %}">Si</a>
                           <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
-                          <a type="button" class="btn btn-info" href="{% url 'lockaccess' idusu=usu.id %}">Si</a>
                         </div>
                       </div>
                     </div>

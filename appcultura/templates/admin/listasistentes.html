@@ -84,12 +84,11 @@
                                     <select class="form-select" aria-label="Default select example" name="selectpendiente">
                                       <option value="True" selected>Pendiente</option>
                                       <option value="False">Aceptado</option>
-                                      
                                     </select>
                                   </div>
                                   <div class="modal-footer">
-                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Cerrar</button>
-                                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                                   </div>
                                 </div>
                               </div>
@@ -111,8 +110,8 @@
                                 </div>
                                 <div class="modal-body">¿Estás seguro de que deseas eliminar este asistente?</div>
                                 <div class="modal-footer">
-                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                   <a class="btn btn-primary" href="{% url 'eliminarasistente' idasis=usu.id %}">Si</a>
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                 </div>
                               </div>
                             </div>

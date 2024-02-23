@@ -1,66 +1,114 @@
 {% extends 'layoutsinicio/app.html' %}
 
 {% block content %}
-<main>
-  <div class="container">
+{% load static %}
+<style>
+  @media screen and (min-width: 768px) {
+    #nokey {
+      display: block;
+      /* Mostrar el canvas */
+    }
 
-    <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
-      <div class="container">
-        <div class="row justify-content-center">
-          <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
-            <div class="card mb-3">
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color: #d1cccc;
+      overflow: hidden;
+    }
 
-              <div class="card-body">
+    canvas {
+      width: auto;
+      background-color: #051a3b;
+      z-index: 0;
+    }
 
-                <div class="pt-4 pb-2">
-                  <h5 class="card-title text-center pb-0 fs-4">Verificación de cuenta</h5>
-                  <p class="text-center small">Ingrese su correo electrónico</p>
-                </div>
-                {% if error %}
+    .elementos {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    #nokey {
+      display: none;
+      /* Ocultar el canvas */
+    }
+
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background-color:#051a3b;
+    }
+    
+  }
+</style>
+<canvas id="nokey"></canvas>
+<div class="elementos mt-4">
+  <main>
+      <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4 mt-3">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-6 d-flex flex-column align-items-center justify-content-center">
+              <div class="card mb-3">
+
+                <div class="card-body" style="background-color: #E5E5E5;">
+
+                  <div class="pt-4 pb-2">
+                    <h5 class="card-title text-center pb-0 fs-4">Verificación de cuenta</h5>
+                    <p class="text-center small">Ingrese su correo electrónico</p>
+                  </div>
+                  {% if error %}
                   <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     {{ error }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                   </div>
-                {% endif %}
-                <form class="row g-3" action="{% url 'loginuser' %}" method="post">
-                  {% csrf_token %}
-                  <div class="col-12">
-                    <label for="yourUsername" class="form-label">Email</label>
-                    <div class="input-group">
-                      <span class="input-group-text" id="inputGroupPrepend">@</span>
-                      <input type="email" name="username" class="form-control" id="yourUsername" required>
+                  {% endif %}
+                  <form class="row g-3" action="{% url 'loginuser' %}" method="post">
+                    {% csrf_token %}
+                    <div class="col-12">
+                      <label for="yourUsername" class="form-label">Email</label>
+                      <div class="input-group">
+                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                        <input type="email" name="username" class="form-control" id="yourUsername" required>
+                      </div>
                     </div>
-                  </div>
-                 <div class="col-12">
-                    <label for="yourPassword" class="form-label">Contraseña</label>
-                    <input type="password" name="password" class="form-control" id="password" required>
-                  </div>
-                  <div class="col-12">
+                    <div class="col-12">
+                      <label for="yourPassword" class="form-label">Contraseña</label>
+                      <input type="password" name="password" class="form-control" id="password" required>
+                    </div>
+                    <div class="col-12">
                       <input type="checkbox" id="showPassword" onchange="togglePassword()"> Mostrar contraseña
-                  </div>
-                  <div class="col-12">
-                    <button class="btn btn-primary w-100" type="submit">Iniciar</button>
-                  </div>
-                </form>
-                <!--======================-->
+                    </div>
+                    <div class="col-12">
+                      <button class="btn w-100" type="submit" style="background-color: #3f45a3; color: white;"><b>Iniciar</b></button>
+                    </div>
+                  </form>
+                  <!--======================-->
+                </div>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
-      </div>
 
-    </section>
-
-  </div>
-</main><!-- End #main -->
+      </section>
+  </main>
+</div>
+<!-- End #main -->
+<script src="{% static 'admin/assets/js/canvasinicio.js' %} "></script>
 <script>
-    function togglePassword() {
+  function togglePassword() {
     var passwordInput = document.getElementById('password');
     var showPasswordCheckbox = document.getElementById('showPassword');
     // Cambiar el tipo de input basado en la casilla de verificación
     passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
-}
+  }
 </script>
 
-{% endblock %} 
+{% endblock %}

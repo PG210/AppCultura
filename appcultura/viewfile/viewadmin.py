@@ -19,6 +19,7 @@ from django.urls import reverse
 from django.db import transaction
 from django.utils import timezone
 import pandas as pd
+from appcultura.modelos.calificacionformador import CalificacionFormador
 
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
@@ -249,24 +250,40 @@ def editarcurso(request, idcurso):
     sesiones = Sesioncurso.objects.filter(idcurso=curso)
     objetivos = ObjetivosCurso.objects.filter(idcurso=curso)
     tematicas = TemasSesion.objects.all()
+    formadores = UserPerfil.objects.filter(idrol=4)
     if request.method == 'POST':
-        print(request.POST)
+        #=== tomar las variables de empresa y formador ==========
+        formador_select = request.POST.get('formador', '')
+        empresa_select = request.POST.get('empresa', '')
+        if formador_select and empresa_select:
+           perfil_formador = UserPerfil.objects.get(id=formador_select)
+           empresa_sel = Empresa.objects.get(id=empresa_select)
+        #===================================================
         curso.nombre = request.POST.get('nombre')
         curso.descrip = request.POST.get('descrip')
         curso.precio = request.POST.get('precio')
+        if formador_select and empresa_select:
+           curso.idempresa = empresa_sel
+           curso.idusu = perfil_formador
         curso.save()
      
         for objetivo in objetivos:
             # Obtener los valores actualizados del formulario
             descripobj = request.POST.get(f'descripobj_{objetivo.id}')
             competencias = request.POST.get(f'competencias_{objetivo.id}')
-
             # Aplicar los cambios a la sesión actual
             objetivo.descrip = descripobj
             objetivo.competencias = competencias
             objetivo.save()
         #Recibe los objetivos en caso de que existan
-        
+        #======= guardar los nuevos objetivos =========
+        if 'desobj[]' in request.POST and 'competencias[]' in request.POST:
+            descripcionesob = request.POST.getlist('desobj[]')
+            competenciasob = request.POST.getlist('competencias[]')
+            for descripob, compobj in zip(descripcionesob, competenciasob):
+                regnewobj = ObjetivosCurso(descrip=descripob, competencias=compobj, idcurso=curso)
+                regnewobj.save()
+        #=========================================================
         for sesion in sesiones:
             # Obtener los valores actualizados del formulario
             nueva_fecha_inicio = request.POST.get(f'fechainicio_{sesion.id}')
@@ -295,15 +312,39 @@ def editarcurso(request, idcurso):
                 fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
                 nombre_archivo = fs.save(archivo.name, archivo)
                 ruta_destino = fs.url(nombre_archivo)
-            else:
-               ruta_destino = temasesion.ruta
-            temasesion.ruta = ruta_destino
+                temasesion.ruta = ruta_destino
             temasesion.save()
-
+        #================ guardar las nuevas sesiones ==================================
+        contador=1
+        if 'fecha_inicio[]' in request.POST and 'fecha_final[]' in request.POST and 'lugar[]' in request.POST:
+            fechas_inicio_new = request.POST.getlist('fecha_inicio[]')
+            fechas_final_new = request.POST.getlist('fecha_final[]')
+            lugares_new = request.POST.getlist('lugar[]')
+            for fecha_inicio_new, fecha_final_new, lugar_new in zip(fechas_inicio_new, fechas_final_new, lugares_new):
+                #obtener las variables
+                tema_new = request.POST.get(f'tematicaInput_{contador}')
+                destema_new = request.POST.get(f'desInput_{contador}')
+                recur_new = request.POST.get(f'recur_{contador}')
+                archivo_new = request.FILES.get(f'archivo_{contador}')
+                #guardar la sesion
+                regsesionnew = Sesioncurso(fechainicio=fecha_inicio_new, fechafin=fecha_final_new, lugar=lugar_new, estado=1, idcurso=curso)
+                regsesionnew.save()
+                #=========guarda el archivo
+                if archivo_new:
+                    fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
+                    nombre_archivo_new = fs.save(archivo_new.name, archivo_new)
+                    ruta_destino_new = fs.url(nombre_archivo_new)
+                else:
+                    ruta_destino_new = None
+                #========guarda los temas
+                regtema_new = TemasSesion(descrip=tema_new, competencias=destema_new, recursos=recur_new, ruta=ruta_destino_new, idsesion=regsesionnew)
+                regtema_new.save()
+                contador = contador+1
+        #========================= aqui finaliza las nuevas sesiones =========================
         messages.success(request, 'Curso actualizado exitosamente.')
         return redirect('listarcursos')
     else:
-        return render(request, 'admin/updatecurso.html', {'usu':perfil_usuario, 'curso': curso, 'sesiones': sesiones, 'objetivos': objetivos, 'temas':tematicas})
+        return render(request, 'admin/updatecurso.html', {'usu':perfil_usuario, 'curso': curso, 'sesiones': sesiones, 'objetivos': objetivos, 'temas':tematicas, 'formadores':formadores})
      
 #crear funcion para crear kpi de area o departamento  
 @login_required #proteger la ruta
@@ -1040,31 +1081,118 @@ def eliminarasistente(request, idasis):
 #Fin codigo Jhon
 
 @login_required
-def listarcalificacion(request,idsesion):
+def listarcalificacion(request, idsesion):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=idsesion)
-    suma=0
-    promedio=0
+    sesion = Sesioncurso.objects.get(id=idsesion) #==== listar el curso ===
+    formador = CalificacionFormador.objects.filter(sesion_curso=idsesion) #== calificacion de los formadores
+    totaplicabilidad, totalclaridad, totrelevancia, promaplicabilidad, promclaridad, promrlevancia  = 0, 0, 0, 0, 0, 0
+    
+    #==== variables ==
+    totclaridad, totcapacidad, totdominio = 0, 0, 0
+    formclaridad, formcapacidad,  formdominio = 0, 0, 0
+    valoresformador = ''
     if datos:
-        
         for dat in datos:
-            suma=suma+dat.valoracion
-            grupouser = GruposUser.objects.filter(iduser=dat.id_usuario)
-        promedio = (suma/(5*len(datos)))*100
-    else:
-        grupouser = "Sin grupo"
+            totaplicabilidad += dat.aplicabilidad  # Sumar aplicabilidad
+            totalclaridad += dat.claridad # sumar el total de claridad
+            totrelevancia += dat.relevancia # sumar relevancia
+           
+        promaplicabilidad = (totaplicabilidad/(5*len(datos)))*100
+        promclaridad = (totalclaridad/(5*len(datos)))*100
+        promrlevancia = (totrelevancia/(5*len(datos)))*100
+        #=========== calcular los valores para torta de curso =====
+        totcurso = promaplicabilidad + promclaridad + promrlevancia
+        valorc1 = (promrlevancia/totcurso)*100
+        valorc2 = (promclaridad/totcurso)*100
+        valorc3 = (promaplicabilidad/totcurso)*100
+        valorescurso = {'valorc1': valorc1, 'valorc2': valorc2, 'valorc3': valorc3}
+    
+    #========= sacar los datos de la calificacion del fomador
+    if formador: 
+        for cap in formador:
+            totclaridad += cap.claridad
+            totcapacidad += cap.capacidad
+            totdominio += cap.dominio
+        #======== completar los promedios ================= 
+        formclaridad = (totclaridad/(5*len(formador)))*100
+        formcapacidad = (totcapacidad/(5*len(formador)))*100
+        formdominio = (totdominio/(5*len(formador)))*100
+        #========= calcular los valores para la torta formador ==================
+        totsum = formclaridad + formcapacidad + formdominio 
+        valor1 = (formclaridad/totsum)*100
+        valor2 = (formcapacidad/totsum)*100
+        valor3 = (formdominio/totsum)*100
+        valoresformador = {'valor1': valor1, 'valor2': valor2, 'valor3': valor3}
+    return render(request, 'admin/liscalificacionuser.html',{'usu':perfil_usuario, 'datos':datos, 'sesion':sesion, 'formador':formador, 'promaplicabilidad':promaplicabilidad, 'promclaridad':promclaridad, 'promrlevancia':promrlevancia, 'formclaridad':formclaridad, 'formcapacidad':formcapacidad, 'formdominio':formdominio, 'valores':valoresformador, 'valorescurso':valorescurso })
 
-    return render(request, 'admin/liscalificacionuser.html',{'usu':perfil_usuario, 'datos':datos, 'grupos':grupouser, 'promedio':promedio})
+#==================== aqui imprimir la información de graficas del total de curso =============
+@login_required
+def metricasCurso(request, idcurso):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    totalsesiones = Sesioncurso.objects.filter(idcurso=idcurso)
+    curso = Curso.objects.get(id=idcurso)#==consultar la informacion del curso
+    sumaplicabilidad, sumclaridad, sumrelevancia = 0, 0, 0
+    sumclaridadfor, sumcapacidad, sumdominio = 0, 0, 0
+    valorescurso, barras, valoresformador, barraform = '', '', '', ''
+
+    #=== obtener el total de calificaciones por sesion =========
+    for sesion in totalsesiones:
+        datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
+    #====== obtener  el total de calificacion de formador =======
+    for ses in totalsesiones:
+        formador = CalificacionFormador.objects.filter(sesion_curso=ses) 
+    #========= calcular los datos de porcentaje ===============
+    if datos:
+        for dat in datos:  
+            sumaplicabilidad += dat.aplicabilidad  # Sumar aplicabilidad
+            sumclaridad += dat.claridad # sumar el total de claridad
+            sumrelevancia += dat.relevancia # sumar relevancia
+        num_sesiones = (5*len(datos))
+        promaplicabilidad = (sumaplicabilidad/num_sesiones)*100
+        promclaridad = (sumclaridad/num_sesiones)*100
+        promrlevancia = (sumrelevancia/num_sesiones)*100
+        #====== calcular valores de porcentaje =======
+        totcurso = promaplicabilidad + promclaridad + promrlevancia
+        valorc1 = (promrlevancia/totcurso)*100
+        valorc2 = (promclaridad/totcurso)*100
+        valorc3 = (promaplicabilidad/totcurso)*100
+        valorescurso = {'valorc1': valorc1, 'valorc2': valorc2, 'valorc3': valorc3}
+        barras = {'relevancia':promrlevancia, 'claridad':promclaridad, 'aplicacion':promaplicabilidad}
+    #============= calcular los datos para porcentaje de formador =======
+    if formador:
+        for cap in formador: 
+            sumclaridadfor += cap.claridad
+            sumcapacidad += cap.capacidad
+            sumdominio += cap.dominio
+        #======== completar los promedios ================= 
+        num_formadores = (5*len(formador))
+        formclaridad = (sumclaridadfor/num_formadores)*100
+        formcapacidad = (sumcapacidad/num_formadores)*100
+        formdominio = (sumcapacidad/num_formadores)*100
+        #========= calcular los valores para la torta formador ==================
+        totsum = formclaridad + formcapacidad + formdominio 
+        valor1 = (formclaridad/totsum)*100
+        valor2 = (formcapacidad/totsum)*100
+        valor3 = (formdominio/totsum)*100
+        valoresformador = {'valor1': valor1, 'valor2': valor2, 'valor3': valor3}
+        barraform = {'valorb1': formclaridad, 'valorb2':formcapacidad, 'valorb3':formdominio}
+    return render(request, 'admin/metricascurso.html',{'usu':perfil_usuario, 'curso':curso, 'valorescurso':valorescurso, 'barras':barras, 'valores':valoresformador, 'barraform':barraform })
+   
 
 @login_required
 def borrarcalificacion(request, idcali):
     try:
         calificacion = CalificacionUsuarios.objects.get(id=idcali)
-        sesion = calificacion.id_sesiones_curso.id
         calificacion.delete()
+        sesion = calificacion.id_sesiones_curso.id
+        bsesion = calificacion.id_sesiones_curso
+        buser = calificacion.idusuario
+        calformador = CalificacionFormador.objects.get(sesion_curso=bsesion, usuario=buser)
+        calformador.delete()
         messages.success(request, 'Calificacion eliminada exitosamente.')
     except:
-        messages.success(request, "No se pudo ingresar a la base de datos")
+        messages.success(request, "Lo sentimos, ocurrio un error en la eliminación.")
     return redirect('listarcalificacion', idsesion=sesion)
 
 @login_required # aqui permite retornar el listado de usuarios para elegir y ver los compromisos
@@ -1084,7 +1212,7 @@ def  vercompromisos(request, iduser):
      usu = UserPerfil.objects.get(id=iduser)
      compromisos = Compromisos.objects.filter(id_usuario=usu)
      estados = EstadoCompromisos.objects.all()
-     return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'estados':estados})
+     return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'estados':estados, 'usuario':usu})
 
 #aqui actualiza el compromiso de cada usuario
 @login_required
@@ -1105,7 +1233,7 @@ def savecompromiso(request, idcom):
         compromisos = Compromisos.objects.filter(id_usuario=usu)
         estados = EstadoCompromisos.objects.all()
         mensaje = "Información ingresada de manera exitosa"
-        return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados})
+        return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados, 'usuario':usu})
 
 
 @login_required
@@ -1132,7 +1260,7 @@ def delete_compromiso(request, idcomp):
     usu = UserPerfil.objects.get(id=comActu.id_usuario.id)
     compromisos = Compromisos.objects.filter(id_usuario=usu)
     estados = EstadoCompromisos.objects.all()
-    return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados})
+    return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados, 'usuario':usu})
 
 def inscribir_asistente(request, idsesion):
     if request.method == 'POST':
@@ -1166,13 +1294,13 @@ def inscribir_asistente(request, idsesion):
         return redirect('validarasistencia', idsesion=idsesion)
 
 @login_required    
-def cambiar_pendiente(request, iduser, idsesion):
+def cambiar_pendiente(request, idsesion, iduser):
     if request.method == 'POST':
         usuario = UserPerfil.objects.get(id=iduser)
         pendiente = request.POST.get('selectpendiente')
         usuario.pendiente = pendiente
         usuario.save()
-        asistencia = SesionAsistencia.objects.get(idusuario=usuario)
+        asistencia = SesionAsistencia.objects.get(idusuario=usuario, idsesioncurso=idsesion)
         asistencia.asistencia_pendiente = pendiente
         asistencia.save()
         messages.success(request,"Cambio de estado realizado satisfactoriamente")

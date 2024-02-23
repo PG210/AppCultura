@@ -18,10 +18,9 @@
         <div class="card">
             <div class="card-body">
               <div class="row">
-                <div class="mt-3 col-4">
+                <div class="mt-3 col-12">
                   <a type="button" class="btn btn-outline-primary" href="{% url 'crearformu' %}" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Crear Nuevos formularios"> Nuevo Formulario </a>
                 </div>
-                <div class="mt-3 col-8 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
               </div>
               
               <br>
@@ -61,18 +60,22 @@
                       </span>
                       <!-- Modal -->
                       <div class="modal fade" id="vincularModal{{f.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
+                        <div class="modal-dialog modal-lg modal-dialog-scrollable">
                           <div class="modal-content">
-                            <div class="modal-header">
-                              <h1 class="modal-title fs-5" id="exampleModalLabel">Vincular {{f.nombre}} a sesiones de curso</h1>
+                            <div class="modal-header alert alert-primary" role="alert">
+                              <h5 class="modal-title" id="exampleModalLabel">Vincular <b> {{f.nombre}}</b> a sesiones de curso</h5>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                               <!--codigo para ver las sesiones-->
                               <!--=========================-->
                               <div class="row">
-                                <div class="col-6"></div>
-                                <div class="col-6">
+                                 <div class="col-12">
+                                  <p><small>En esta sección, puedes agregar un formulario a diferentes sesiones de los cursos.</small></p>
+                                 </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-12 text-end">
                                   <input type="text" class="form-control" id="searchInput{{f.id}}" placeholder="Buscar..." name="table{{f.id}}">
                                 </div>
                               </div>
@@ -96,22 +99,22 @@
                                           {% for sesion in sesiones %}
                                               <tr>
                                                   {% if forloop.first %}  <!-- Para la primera fila del curso -->
-                                                  <td rowspan="{{ sesiones|length }}">{{ curso.nombre }}</td>
+                                                  <td rowspan="{{ sesiones|length }}"><small>{{ curso.nombre }}</small></td>
                                                   {% endif %}  
-                                                  <td>{{ forloop.counter }}</td>  <!-- Número de sesión -->
-                                                  <td>{{ sesion.fechainicio|date:"d/m/Y g:iA" }}</td>
-                                                  <td>{{ sesion.lugar }}</td>
+                                                  <td><small>{{ forloop.counter }}</small></td>  <!-- Número de sesión -->
+                                                  <td><small>{{ sesion.fechainicio|date:"d/m/Y g:iA" }}</small></td>
+                                                  <td><small>{{ sesion.lugar }}</small></td>
                                                   <td>
                                                   <div class="text-center">
                                                       <input class="form-check-input" type="checkbox" id="sesionCurso[]" name="sesionCurso[]" value="{{sesion.id}}" style="border: 1px solid rgb(20, 20, 20);"  {% for agregado in agregados %}{% if agregado.idform.id == f.id %} {% if agregado.idsesion.id == sesion.id %} checked {% endif %} {% endif %} {% endfor %}>
                                                   </div>
                                                     <!--end botones-->
                                                   </td>
-                                                  <td>
+                                                  <td class="text-center">
                                                     {% for agregado in agregados %}
                                                         {% if agregado.idform.id == f.id %}
                                                           {% if agregado.idsesion.id == sesion.id %}
-                                                            <a class="btn btn-primary" href="{% url 'qrformu' idsesion=sesion.id %}" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Compartir acceso mediante QR o enlace url"><i class="bi bi-share-fill"></i></a>
+                                                            <a class="btn btn-outline-success btn-sm" href="{% url 'qrformu' idsesion=sesion.id %}" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Compartir acceso mediante QR o enlace url"><i class="bi bi-share-fill"></i></a>
                                                           {% endif %} 
                                                         {% endif %} 
                                                       {% endfor %}
@@ -125,8 +128,8 @@
                             <!--end codigo sesiones-->
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                               <button type="submit" class="btn btn-primary">Guardar</button>
+                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                             </div>
                           </form>
                           </div>
@@ -147,15 +150,15 @@
                           <div class="modal-dialog">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Alerta</h1>
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Mensaje de confirmación</h1>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
                                 ¿Esta seguro que desea eliminar este formulario?
                               </div>
                               <div class="modal-footer">
+                                <a type="button" class="btn btn-primary"  href="{% url 'eliminarForm' idform=f.id %}">Si</a>
                                 <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
-                                <a type="button" class="btn btn-danger"  href="{% url 'eliminarForm' idform=f.id %}">Si</a>
                               </div>
                             </div>
                           </div>

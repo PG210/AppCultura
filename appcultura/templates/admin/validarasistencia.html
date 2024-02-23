@@ -29,10 +29,10 @@
   <div class="row">
     <div class="col-3 d-none d-sm-block"></div>
     <div class="col-12 col-lg-6 ">
-      <h1 style="text-align: center;">Validar Asistencia</h1>
+      <h2 class="text-center" style="color: white;">Registrar asistencia</h2>
+      <p style="color: white;"><small>Por favor, ingrese su correo electrónico o número de cedula para registrar su asistencia. ¡Gracias!</small></p>
       <br>
       <!--formulario-->
-
       <div class="container shadow-lg border border-dark" style="background-color:white; border-radius: 10px;">
         <br>
         <form action="{% url 'validarasistencia' idsesion=idsesion %}" method="post">
@@ -50,7 +50,7 @@
           </div>
           <div class="container">
             <div class="mb-3 row">
-              <button class="btn btn-info">Registrar asistencia</button>
+                <button class="btn" style="background-color: #3f45a3; color: white;">Registrar asistencia</button>
             </div>
           </div>
         </form>
@@ -118,8 +118,8 @@
                     
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Cerrar</button>
                     <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                    <button type="button" class="btn btn-warning btn-sm" data-bs-dismiss="modal">Cerrar</button>
                   </div>
                 </form>
                 </div>
@@ -138,5 +138,5 @@
   </div>
 </div>
   
-<script src="{% static 'admin/assets/js/functionUser.js' %}"></script>
+<!--<script src="{% static 'admin/assets/js/functionuser.js' %}"></script>-->
 {% endblock %}

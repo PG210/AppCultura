@@ -8,7 +8,7 @@
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
-          <li class="breadcrumb-item">Curso</li>
+          <li class="breadcrumb-item"><a href="/usuarios/curso/listar/">Listado</a></li>
           <li class="breadcrumb-item active">Formulario</li>
         </ol>
       </nav>
@@ -17,7 +17,7 @@
     <section class="section dashboard">
       <div class="row">
        <!--registro de cursos forms-->   
-       <div class="col-lg-12">
+       <div class="col-lg-12 col-md-12">
         <div class="card">
             <div class="card-body" style="border: 2px solid">
               <br>
@@ -59,13 +59,13 @@
                        <h5 class="text-center"><b>Información del Formulario</b></h5>
                        <div class="container form-control">
                         <div class="row">
-                          <div class="col-12">
+                          <div class="col-lg-12 col-md-12">
                             <b>Nombre:</b> {{ formu.idform.nombre }}
                           </div>  
                       </div>
                       <hr>
                       <div class="row mt-2">
-                        <div class="col-12">
+                        <div class="col-lg-12 col-md-12">
                             <b>Descripción:</b> {{ formu.idform.descrip }}
                         </div>  
                       </div>
@@ -76,14 +76,14 @@
                   {% for pregunta in preguntas %}
                           {% if pregunta.idform.id == formu.idform.id %}
                           <div class="row">
-                              <div class="col-6">
+                              <div class="col-lg-6 col-md-12">
                                 <p><b>Pregunta: </b> {{ pregunta.descrip }}</p>
                                 <input type="text" id="pregunta{{pregunta.id}}" name="pregunta{{pregunta.id}}" aria-label="Sizing example input" value="{{ pregunta.id }}" required hidden><!--no borrar este contrala todas las llegadas-->
                                 {% if pregunta.tipo != '6' %}
                                 <p><b>Puntos: {{pregunta.valor}}</b></p>
                                 {% endif %}
                               </div>
-                            <div class="col-6">
+                            <div class="col-lg-6 col-md-12">
                           <!-- Aquí puedes agregar más detalles según el tipo de pregunta -->
     
                           {% if pregunta.tipo == '1' %}  {# Pregunta de respuesta corta #}
@@ -133,12 +133,12 @@
                               <p><b>Compromiso</b></p>
                               <div class="form-control">
                                 <div class="row mt-2">
-                                  <div class="col-4">Descripción</div>
-                                  <div class="col-8"><textarea type="text" class="form-control" id="compromiso{{pregunta.id}}" name="compromiso{{pregunta.id}}" required></textarea></div>
+                                  <div class="col-lg-4 col-md-12">Descripción</div>
+                                  <div class="col-lg-8 col-md-12"><textarea type="text" class="form-control" id="compromiso{{pregunta.id}}" name="compromiso{{pregunta.id}}" required></textarea></div>
                                 </div>
                                 <div class="row mt-2">
-                                <div class="col-4">Prioridad</div>
-                                <div class="col-8">
+                                <div class="col-lg-4 col-md-12">Prioridad</div>
+                                <div class="col-lg-8 col-md-12">
                                   <!--seleccionar prioridad-->
                                   <select  class="form-select" id="prioridad{{pregunta.id}}" name="prioridad{{pregunta.id}}" aria-label="Default select example">
                                     <option value="Nada urgente">Nada urgente </option>
@@ -149,8 +149,8 @@
                               </div>
                               </div>
                               <div class="row mt-2">
-                                <div class="col-4">Fecha final</div>
-                                <div class="col-8"><input type="date" class="form-control" id="fecha{{pregunta.id}}" name="fecha{{pregunta.id}}" min="{{ fecha_actual|date:'Y-m-d' }}" required></div>
+                                <div class="col-lg-4 col-md-12">Fecha final</div>
+                                <div class="col-lg-8 col-md-12"><input type="date" class="form-control" id="fecha{{pregunta.id}}" name="fecha{{pregunta.id}}" min="{{ fecha_actual|date:'Y-m-d' }}" required></div>
                               </div>
                               <div class="row mt-2">
                                 <!--acordion para elegir con quien hace el compromiso-->
@@ -259,7 +259,7 @@
                                           
                                            {% if datosform.id == formudes.idpreg.idform.id %}
                                               <div class="row">
-                                                  <div class="col-6">
+                                                  <div class="col-lg-6 col-md-12">
                                                     <p><b>Pregunta: </b> {{ formudes.idpreg.descrip }}</p>
                                                     {% if formudes.idpreg.tipo != '6' %}
                                                     <p><b>Valor de pregunta: </b> {{ formudes.idpreg.valor }}</p>
@@ -268,7 +268,7 @@
                                                     <p><b>Comentario: </b>{% if formudes.comentario %} {{ formudes.comentario }} {% endif %}</p>
                                                      
                                                    </div>
-                                                <div class="col-6">
+                                                <div class="col-lg-6 col-md-12">
                                               <!-- Aquí puedes agregar más detalles según el tipo de pregunta -->
                                               {% if formudes.idpreg.tipo == '1' %}  {# Pregunta de respuesta corta #}
                                               <p><b>Respuesta Corta:</b></p>
@@ -350,21 +350,21 @@
                                                 <p><b>Compromiso:</b></p>
                                                 <p class="form-control"> {{comp.compromiso}} </p> 
                                                   <div class="row">
-                                                       <div class="col-6">
+                                                       <div class="col-lg-6 col-md-12">
                                                           <p><b>Fecha compromiso:</b></p>
                                                            <p class="form-control"> {{comp.fecha_final|date:'Y-m-d'}} </p> 
                                                         </div>
-                                                       <div class="col-6">
+                                                       <div class="col-lg-6 col-md-12">
                                                           <p><b>Prioridad:</b></p>
                                                           <p class="form-control"> {{comp.prioridad}} </p> 
                                                        </div>
                                                   </div>
                                                   <div class="row">
-                                                        <div class="col-6">
+                                                        <div class="col-lg-6 col-md-12">
                                                           <p><b>Estado revisión:</b></p>
                                                             <p class="form-control"> {{comp.id_estado.descripcion}}</p> 
                                                         </div>
-                                                        <div class="col-6">
+                                                        <div class="col-lg-6 col-md-12">
                                                           <p><b>Calificación:</b></p>
                                                           <p class="form-control"> {{comp.puntaje}} </p> 
                                                         </div>
@@ -376,7 +376,7 @@
                                                   {% endfor %}
                                                 </ul>
                                                 <div class="row">
-                                                  <div class="col-12 text-end">
+                                                  <div class="col-lg-12 col-md-12 text-end">
                                                     <a href="/usuarios/compromisos/" style="text-decoration: double; color: blue;"><i class="bi bi-hand-index-thumb"></i> Ver todos los compromisos</a>
                                                   </div>
                                                 </div>

@@ -1,14 +1,16 @@
 {% extends 'admin/inicio.html' %}
 {% block content %}
 
+
 <main id="main" class="main">
 
     <div class="pagetitle">
       <h1>Listado de comentarios</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
-          <li class="breadcrumb-item active">Listado</li>
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/curso/list/">Listado</a></li>
+          <li class="breadcrumb-item active">Calificación</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -19,7 +21,6 @@
        <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-              
               <br>
                <!--alertar-->
                {% if messages %}
@@ -30,110 +31,141 @@
                   {% endfor %}
                 </div>
                {% endif %}
-
+               <div class="row">
+                <div class="col-12 text-end"><a href="/administracion/curso/list/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+               </div>
                <!--Barra de aceptacion-->
-               <h5>Aceptación del curso</h5>
-               <div class="progress" role="progressbar" aria-label="Example with label" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                <div class="progress-bar" style="width: {{promedio}}%">{{promedio}}%</div>
-              </div><br>
-               <!--end alertar-->
+               <h6>Aceptación del curso: {{sesion.idcurso.nombre}}, sesión del dia: {{sesion.fechainicio|date:"M. d, Y" }}</h6>
+               <br>
+              <!--================================ grafica ====================-->
+              <div class="row">
+              <div class="col-lg-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title"><br></h5>
+                    <!-- Bar Chart -->
+                    <canvas id="barChart" style="max-height: 400px;"></canvas>
+                    <!-- End Bar CHart -->
+                  </div>
+                </div>
+              </div>
+               <!--====================================== end grafica ===================-->
+               <!--==================== grafica de torta ================================-->
+               <div class="col-lg-6">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title"></h5>
+                    <!-- Pie Chart -->
+                    <canvas id="pieChart" style="max-height: 230px;"></canvas>
+                    <!-- End Pie CHart -->
+                  </div>
+                </div>
+              </div>
+              </div>
+               <!--======================end grafico ===================================-->
+               
+               <h6>Aceptación del formador: {{sesion.idcurso.idusu.nombre}} {{sesion.idcurso.idusu.apellido}}, sesión del dia: {{sesion.fechainicio|date:"M. d, Y" }}</h6>
+               <hr> 
+               <br>
+               <div class="row">
+                <div class="col-lg-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h5 class="card-title"><br></h5>
+                      <!-- Bar Chart -->
+                      <canvas id="barFormador" style="max-height: 400px;"></canvas>
+                      <!-- End Bar CHart -->
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="card">
+                    <p></p>
+                    <div class="card-body">
+                      <!-- Bar Chart -->
+                      <canvas id="pieFormador" style="max-height: 250px;"></canvas>
+                      <!-- End Bar CHart -->
+                    </div>
+                  </div>
+                </div>
+                </div>
                <!-- Table with stripped rows -->
-               <div class="table-responsive" style="text-align: center;">
+               <h6>Respuestas de preguntas abiertas.</h6>
+               <hr>
+               <div class="table-responsive">
                <table class="table" id="tablareactiva">
                 <thead>
                   <tr>
                     <th>Usuario</th>
-                    <th>Grupo</th>
-                    <th>Cargo</th>
                     <th>Empresa</th>
-                    <th>Valoracion</th>
+                    <th>Cargo</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {% for data in datos %}
                   <tr>
-                    <td>{{ data.id_usuario.nombre }} {{data.id_usuario.apellido}}</td>
-                    {% if grupos %}
-                    <td>
-                      {% for grupo in grupos %}
-                        {{grupo.idgrupo.nombre}}<br>
-                      {% endfor %}
-                    </td> 
-                    {% else %}
-                      <td>Sin Grupo</td>
-                    {% endif %}
-                    <td>{{ data.id_usuario.idcargo.nombre }}</td>
-                    <td>{{ data.id_usuario.idempresa.idempresa.nombre }}</td>
-                    <td >
-                      <!-- Button trigger modal -->
-                        <button  type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modallistarcalificacion">
-                            ver
-                        </button>
-                        
-                        <!-- Modal -->
-                        <div class="modal fade" id="modallistarcalificacion" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-scrollable">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Valoraciones</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <!--Card de Valoración-->
-                                
-
-                                  <div class="modal-body" style="text-align: left;">
-                                    <div class="card" style="width: 29rem;">
-                                      <div class="card-body">
-                                        <h5 class="card-title">Valoración</h5>
-                                        <h6 class="card-subtitle mb-2 text-body-secondary">Cantidad de puntos asignados</h6>
-                                        <p class="card-text">{{data.valoracion}} estrellas</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  
-                                  <!--Card de Aplicar lo aprendido-->
-                                  <div class="modal-body" style="text-align: left;">
-                                    <div class="card" style="width: 29rem;">
-                                      <div class="card-body">
-                                        <h5 class="card-title">¿Como aplicar lo aprendido?</h5>
-                                        <p class="card-text">{{data.comentario}}</p>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                    <!--Card de Que valoras del curso-->
-                                    <div class="modal-body" style="text-align: left;">
-                                      <div class="card" style="width: 29rem;">
-                                        <div class="card-body">
-                                          <h5 class="card-title">¿Que valoras del curso?</h5>
-                                          <p class="card-text">{{data.comentario_valor_curso}} </p>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <!--Card de sugerencias de mejora-->
-                                    <div class="modal-body" style="text-align: left;">
-                                      <div class="card" style="width: 29rem;">
-                                        <div class="card-body">
-                                          <h5 class="card-title">Sugerencias de mejora</h5>
-                                          <p class="card-text">{{data.sugerencia}} </p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                      </div>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                    </td>
+                    <td>{{ data.idusuario.nombre }} {{data.idusuario.apellido}}</td>
+                    <td>{{ data.idusuario.idarea.idempresa.nombre }} {{ data.idusuario.idepart.idarea.idempresa.nombre }}</td>
+                    <td>{{ data.idusuario.cargo }}</td>
                     <!--botones de acciones-->
                     <td>
-                      <div class="modal-footer">
+                      <a type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#vermas{{data.id}}"><i class="bi bi-list-task"></i></a>
+                      <div class="modal fade" id="vermas{{data.id}}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Respuestas de calificaciones</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                               <!--respuestas-->
+                               <div class="alert alert-primary" role="alert">
+                                Calificación al formador 
+                              </div>
+                               <div class="form-control">
+                                {% for cap in formador %}
+                                <div class="mb-3">
+                                  <small>
+                                  <label for="message-text" class="col-form-label">
+                                    <b>Aspectos a rescatar:&nbsp;</b>¿Cuáles fueron los aspectos más destacados del formador? ¿Cuáles podrían ser aspectos a fortalecer?
+                                  </label></small>
+                                  {% if cap.usuario.id == data.idusuario.id %}
+                                  <p class="form-control"><small>{{cap.aspectosrescatar}} </small></p>
+                                  {% endif %}
+                                </div>
+                                {% endfor %}
+                              </div>
+                               <!--============================-->
+                               <div class="alert alert-primary mt-2" role="alert">
+                                Calificación a la sesión del curso
+                              </div>
+                               <div class="form-control">
+                                <div class="mb-3">
+                                  <small>
+                                  <label for="message-text" class="col-form-label">
+                                    <b>Fortalezas del curso:&nbsp;</b> ¿Cuáles crees que fueron las principales fortalezas de este curso? Por favor, proporciona detalles específicos sobre aspectos que encontraste especialmente útiles o efectivos.
+                                  </label></small>
+                                  <p class="form-control"><small> {{data.fortalezas}} </small></p>
+                                </div>
+                                <div class="mb-3">
+                                  <small>
+                                  <label for="message-text" class="col-form-label">
+                                    <b>Áreas de mejora sugeridas:&nbsp;</b> ¿Hay áreas específicas en las que crees que este curso podría mejorar? Por favor, comparte cualquier sugerencia o recomendación que tengas para futuras iteraciones del curso.
+                                  </label></small>
+                                  <p class="form-control"><small> {{data.areasmejora}} </small></p>
+                                </div>
+                              </div>
+                               <!---respuestas-->
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                         <!--modal de validación-->
-                          <a type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{data.id}}"><i class="bi bi-trash3-fill"></i></a>
+                          <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{data.id}}"><i class="bi bi-trash3-fill"></i></a>
                           <div class="modal fade" id="confirmarDelete{{data.id}}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                               <div class="modal-content">
@@ -142,17 +174,16 @@
                                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                  ¿Estás seguro de que deseas eliminar este curso?
+                                  ¿Estás seguro de que deseas eliminar esta calificación.?
                                 </div>
                                 <div class="modal-footer">
-                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                   <a class="btn btn-primary" href="{% url 'borrarcalificacion' idcali=data.id %}">Si</a>
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                 </div>
                               </div>
                             </div>
                           </div>
                         <!--end validacion-->
-                      </div>
                     </td>
                   </tr>
                   {% endfor %} 
@@ -166,5 +197,120 @@
       </div>
     </section>
 </main><!-- End #main -->
-  <!-- Aqui se encuentran las instrucciones para formularios -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      new Chart(document.querySelector('#barChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Relevancia del contenido', 'Claridad de la presentación', 'Aplicabilidad de los conceptos'],
+          datasets: [{
+            label: 'Calificación',
+            data: ['{{ promrlevancia }}', '{{promclaridad}}', '{{promaplicabilidad}}'],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 205, 86, 0.2)'
+            ],
+            borderColor: [
+              'rgb(255, 99, 132)',
+              'rgb(255, 159, 64)',
+              'rgb(255, 205, 86)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    });
+</script>
+<!--grafico torta-->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    new Chart(document.querySelector('#pieChart'), {
+      type: 'pie',
+      data: {
+        labels: [
+          'Relevancia del contenido',
+          'Claridad de la presentación',
+          'Aplicabilidad de los conceptos'
+        ],
+        datasets: [{
+          label: 'Calificación %',
+          data: ['{{ valorescurso.valorc1 }}', '{{ valorescurso.valorc2 }}', '{{ valorescurso.valorc3 }}'],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ],
+          hoverOffset: 4
+        }]
+      }
+    });
+  });
+</script>
+<!--grafico del formador -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    new Chart(document.querySelector('#barFormador'), {
+      type: 'bar',
+      data: {
+        labels: ['Claridad en la explicación', 'Fomentar la participación', 'Dominio del contenido'],
+        datasets: [{
+          label: 'Calificación',
+          data: ['{{ formclaridad }}', '{{formcapacidad}}', '{{formdominio}}'],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(255, 205, 86, 0.2)'
+          ],
+          borderColor: [
+            'rgb(255, 99, 132)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 205, 86)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  });
+</script>
+<!--grafico de torta formador -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    new Chart(document.querySelector('#pieFormador'), {
+      type: 'pie',
+      data: {
+        labels: [
+          'Claridad en la explicación',
+          'Fomentar la participación',
+          'Dominio del contenido'
+        ],
+        datasets: [{
+          label: 'Calificación %',
+          data: ['{{ valores.valor1 }}', '{{ valores.valor2 }}', '{{ valores.valor3 }}'],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ],
+          hoverOffset: 4
+        }]
+      }
+    });
+  });
+</script>
   {% endblock %} 

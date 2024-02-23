@@ -21,6 +21,11 @@
         <div class="card">
           <div class="card-body mt-3">
               <!--alertar-->
+            <!----=======================================-->
+            <div class="row mb-2">
+              <div class="col-12 text-end"><a href="/administracion/compromisos/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+              </div>
+              <!---====================================-->
             {% if mensaje %}
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
                   <strong>{{ mensaje }}</strong>
@@ -28,11 +33,10 @@
               </div>
              {% endif %}
               <!--end alertar-->
-              <!----=======================================-->
-              <div class="row">
-               <div class="col-12 text-end"><a href="/administracion/compromisos/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
+              <div class="alert alert-primary" role="alert">
+                <h5 class="text-center">Compromisos registrados por el usuario: {{usuario.nombre}} {{usuario.apellido}} </h5>
               </div>
-              <!---====================================-->
+              <small><b>Nota:</b> En este apartado puede enviar retroalimentación a los compromisos del usuario seleccionado.</small>
               <div class="table-responsive mt-4">
                 <table class="table" id="tablareactiva">
                     <thead>
@@ -56,11 +60,11 @@
                         <td>{{ com.id_estado.descripcion }}</td>
                         <td>
                             <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalCompromiso{{com.id}}">
-                                Ver mas
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#ModalCompromiso{{com.id}}">
+                              <i class="bi bi-plus-circle-fill" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver compromiso"></i>
                             </button>
                             <!---boton eliminar -->
-                            <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#ModalConfirmarDelete{{com.id}}"><i class="bi bi-trash3"></i></a>
+                            <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#ModalConfirmarDelete{{com.id}}"><i class="bi bi-trash3"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar compromiso"></i></a>
                             <div class="modal fade" id="ModalConfirmarDelete{{com.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                 <div class="modal-content">
@@ -71,8 +75,8 @@
                                        <h6>¿En realidad desea eliminar este compromiso asociado al usuario <b> {{ com.id_usuario.nombre }}  {{ com.id_usuario.apellido }} </b> ?</h6>
                                     </div>
                                     <div class="modal-footer">
-                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                     <a href="{% url 'deletecompromiso' idcomp=com.id %}" type="button" class="btn btn-primary">Si</a>
+                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                     </div>
                                 </div>
                                 </div>
@@ -156,8 +160,8 @@
                                     <!--end informacion-->
                                     </div>
                                     <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
                                     <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
-                                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
                                     </div>
                                     </form>
                                 </div>

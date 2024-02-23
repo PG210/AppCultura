@@ -40,10 +40,9 @@
               <!--end alertar-->
               <!--=======================================-->
               <div class="row">
-                <div class="col-3">
+                <div class="col-12">
                   <a type="button" class="btn btn-outline-primary" href="/administracion/grupos/crear/" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Agregar Grupos de Formación"> Nuevo Grupo </a>
                 </div>
-                <div class="col-9 text-end"><a href="/administracion/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
               </div>
               <div class="table-responsive mt-4">
                 <table class="table" id="tablareactiva">
@@ -98,7 +97,7 @@
                                     </div>
                                     <div class="text-end">
                                       <input value="{{gr.id}}" name="idgrupo" id="idgrupo" hidden>
-                                      <button type="submit" class="btn btn-primary">Actualizar</button>
+                                      <button type="submit" class="btn btn-outline-primary">Actualizar</button>
                                     </div>
                                   </div>
                                   </form>
@@ -119,8 +118,8 @@
                                       <h5>¿Estás seguro de que deseas eliminar este grupo?</h5>
                                     </div>
                                     <div class="modal-footer">
-                                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No</button>
-                                      <a type="button" class="btn btn-warning" href="{% url 'deletegrupos' idgrupo=gr.id %}">Si</a>
+                                      <a type="button" class="btn btn-primary" href="{% url 'deletegrupos' idgrupo=gr.id %}">Si</a>
+                                      <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                     </div>
                                   </div>
                                 </div>

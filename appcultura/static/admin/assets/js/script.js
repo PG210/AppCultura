@@ -18,12 +18,13 @@
         //================================================0
   function agregarCampo() {
       var formularioContainer = document.getElementById('formulario-container');
-  
+       
         // Crear un nuevo grupo de inputs
         var nuevoGrupo = document.createElement('div');
-        nuevoGrupo.classList.add('mt-3', 'form-control', 'mb-8'); // Agregar la clase al grupo
+        nuevoGrupo.classList.add('mt-3', 'mb-8'); // Agregar la clase al grupo
         // Crear tres inputs y agregarlos al grupo
-
+        var lineaHorizontal = document.createElement('hr');
+        lineaHorizontal.classList.add('mt-2');
         // Etiqueta y campo para la fecha de inicio
         var etiquetaInicio = document.createElement('label');
         etiquetaInicio.innerHTML = 'Fecha de Inicio:';
@@ -65,10 +66,11 @@
 
          // Botón para eliminar el campo
          var btnEliminarCampo = document.createElement('button');
-        btnEliminarCampo.innerHTML = 'X';
-        btnEliminarCampo.classList.add('col-sm-1', 'btn', 'btn-danger', 'mt-2', 'float-end');
+        btnEliminarCampo.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+        btnEliminarCampo.classList.add('btn', 'btn-outline-danger', 'btn-sm', 'mt-2', 'float-end');
         btnEliminarCampo.onclick = function() {
           formularioContainer.removeChild(nuevoGrupo);
+
         };
 
         nuevoGrupo.appendChild(btnEliminarCampo);
@@ -89,7 +91,7 @@
         var btnTematicas = document.createElement('button');
         btnTematicas.type = 'button';
         btnTematicas.innerHTML = 'Tematicas';
-        btnTematicas.classList.add('col-sm-2', 'btn', 'btn-info', 'mt-2', 'float-end', 'me-2');
+        btnTematicas.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'mt-2', 'float-end', 'me-2');
         btnTematicas.setAttribute('data-bs-toggle', 'modal');
         btnTematicas.setAttribute('data-bs-target', '#tematicasModal-' + contadorCampos); // ID único
         nuevoGrupo.appendChild(btnTematicas);
@@ -152,17 +154,19 @@
   document.body.appendChild(modalTematicas);
 
   nuevoGrupo.appendChild(modalTematicas); //este agrega el modal al formulario de lo contrario no aparece
+  nuevoGrupo.appendChild(lineaHorizontal);
   formularioContainer.appendChild(nuevoGrupo);
+  
   
  contadorCampos++;
 }
     //======================= here function objective =================
-function agregarObjetivo() {
+function agregarObjetivo2() {
         var objetivosContainer = document.getElementById('contenedor-objetivos');
     
         // Crear un nuevo grupo de inputs
         var objetivosGrupo = document.createElement('div');
-        objetivosGrupo.classList.add('mt-3', 'form-control'); // Agregar la clase al grupo
+        objetivosGrupo.classList.add('mt-2'); // Agregar la clase al grupo
         // Crear tres inputs y agregarlos al grupo
 
         // Etiqueta y campo para la fecha de inicio
@@ -197,7 +201,7 @@ function agregarObjetivo() {
     
         // Crear un nuevo grupo de inputs
         var objetivosGrupo = document.createElement('div');
-        objetivosGrupo.classList.add('mt-3', 'form-control'); // Agregar la clase al grupo
+        objetivosGrupo.classList.add('mt-3'); // Agregar la clase al grupo
         // Crear tres inputs y agregarlos al grupo
 
         // Etiqueta y campo para la fecha de inicio
@@ -230,13 +234,15 @@ function agregarObjetivo() {
 
          // Botón para eliminar el campo
          var btnDelete = document.createElement('button');
-         btnDelete.innerHTML = 'X';
-         btnDelete.classList.add('col-sm-1', 'btn', 'btn-danger', 'mt-2', 'float-end');
+         btnDelete.innerHTML = '<i class="bi bi-x-circle-fill"></i>';
+         btnDelete.classList.add('btn', 'btn-outline-danger', 'btn-sm', 'mt-2', 'float-end');
          btnDelete.onclick = function() {
           objetivosContainer.removeChild(objetivosGrupo);
         };
         objetivosGrupo.appendChild(btnDelete);
         // Agregar el nuevo grupo al contenedor
+        var lineaHorizontal = document.createElement('hr');
+        objetivosGrupo.appendChild(lineaHorizontal);//crear linea horizontal despues del boton eliminar
         objetivosContainer.appendChild(objetivosGrupo);
  
       contaobjetivos++;
@@ -308,115 +314,3 @@ function agregarObjetivo() {
   contakpiobj++;
 }
     //=======================================
-
-    function editarsesion(){
-      let containersesion = document.getElementById('contenedor-sesion');
-
-      var nuevoGrupo = document.createElement('div');
-        nuevoGrupo.classList.add('mt-3', 'form-control', 'mb-8'); // Agregar la clase al grupo
-        // Crear tres inputs y agregarlos al grupo
-
-        // Etiqueta y campo para la fecha de inicio
-        var etiquetaInicio = document.createElement('label');
-        etiquetaInicio.innerHTML = 'Fecha de Inicio:';
-        etiquetaInicio.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(etiquetaInicio);
-
-        var fechaInicio = document.createElement('input');
-        fechaInicio.type = 'datetime-local';
-        fechaInicio.name = 'fecha_inicio[]';
-        fechaInicio.classList.add('col-sm-10');
-        fechaInicio.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(fechaInicio);
-
-        // Etiqueta y campo para la fecha de finalizacion
-        var etiquetaFinal = document.createElement('label');
-        etiquetaFinal.innerHTML = 'Fecha final:';
-        etiquetaFinal.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(etiquetaFinal);
-
-        var fechaFinal = document.createElement('input');
-        fechaFinal.type = 'datetime-local';
-        fechaFinal.name = 'fecha_final[]';
-        fechaFinal.classList.add('col-sm-10');
-        fechaFinal.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(fechaFinal);
-
-         // Etiqueta y campo para lugar
-        var etiqueLugar = document.createElement('label');
-        etiqueLugar.innerHTML = 'Lugar:';
-        etiqueLugar.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(etiqueLugar);
-
-        var inputLugar = document.createElement('input');
-        inputLugar.type = 'text';
-        inputLugar.name = 'lugar[]';
-        inputLugar.classList.add('col-sm-10');
-        fechaFinal.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(inputLugar);
-
-        let labeltema = document.createElement('label');
-        labeltema.innerHTML='Tema:';
-        labeltema.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(labeltema);
-
-        let inputtema =  document.createElement('input');
-        inputtema.type = 'text';
-        inputtema.name = 'tema[]';
-        inputtema.classList.add('col-sm-10');
-        inputtema.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(inputtema);
-
-        let labeldescripcion = document.createElement('label');
-        labeldescripcion.innerHTML='Descripcion:';
-        labeldescripcion.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(labeldescripcion);
-
-        let inputdescripcion =  document.createElement('textarea');
-        inputdescripcion.type = 'text';
-        inputdescripcion.name = 'descripcion[]';
-        inputdescripcion.classList.add('col-sm-10');
-        inputdescripcion.setAttribute('rows', '3');
-        inputdescripcion.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(inputdescripcion);
-
-        let labelrecursos = document.createElement('label');
-        labelrecursos.innerHTML='Recursos:';
-        labelrecursos.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(labelrecursos);
-
-        let inputrecursos =  document.createElement('textarea');
-        inputrecursos.type = 'text';
-        inputrecursos.name = 'recursos[]';
-        inputrecursos.classList.add('col-sm-10');
-        inputrecursos.setAttribute('rows', '3');
-        inputrecursos.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(inputrecursos);
-
-        let labelarchivo = document.createElement('label');
-        labelarchivo.innerHTML='Archivo:';
-        labelarchivo.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(labelarchivo);
-
-        let inputarchivo = document.createElement('input');
-        inputarchivo.type = 'file';
-        inputarchivo.name = 'archivo[]';
-        inputarchivo.classList.add('col-sm-10');
-        nuevoGrupo.appendChild(inputarchivo);
-
-         // Botón para eliminar el campo
-         var btnEliminarCampo = document.createElement('button');
-        btnEliminarCampo.innerHTML = 'X';
-        btnEliminarCampo.classList.add('col-sm-1', 'btn', 'btn-danger', 'mt-2', 'float-end');
-        btnEliminarCampo.onclick = function() {
-          formularioContainer.removeChild(nuevoGrupo);
-        };
-
-        nuevoGrupo.appendChild(btnEliminarCampo);
-
-        // Agregar el nuevo grupo al contenedor
-        containersesion.appendChild(nuevoGrupo);
- 
-        editorcontarsesion++;
-
-    }

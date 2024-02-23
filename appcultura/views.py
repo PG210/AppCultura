@@ -13,7 +13,8 @@ from .models import UserPerfil
 # Create your views here.
 #vista para home
 def home(request):
- return render(request, 'home.html') # retorma la vista competa
+ #return render(request, 'home.html') # retorma la vista competa
+    return render(request, 'layoutsinicio/login.html') 
 
 #vista para login 
 def loginuser(request):
@@ -42,7 +43,8 @@ def loginuser(request):
 #funcion para cerrar la sesion
 def singout(request):
     logout(request) #Aqui destruye la sesion
-    return redirect('home')
+    #return redirect('home')
+    return render(request, 'layoutsinicio/login.html') 
 
 #vista para registro
 def reguser(request):
