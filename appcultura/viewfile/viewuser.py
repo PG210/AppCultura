@@ -76,11 +76,15 @@ def calificacionCurso(request, idcurso):
     curso = Curso.objects.get(id=idcurso)
     sesiones = Sesioncurso.objects.filter(idcurso=curso)
     #=== buscar todas las respuestas ==============
+    rescurso = [] 
     for sesion in sesiones:
-        rescurso = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion, idusuario=perfil_usuario)
+        recursos_sesion = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion.id, idusuario=perfil_usuario.id)
+        rescurso.extend(recursos_sesion)
     #=========== buscar las calificaciones del formador ===============
+    resformador = []
     for ses in sesiones:
-        resformador = CalificacionFormador.objects.filter(sesion_curso=ses, usuario=perfil_usuario)
+        resformador_sesion = CalificacionFormador.objects.filter(sesion_curso=ses, usuario=perfil_usuario)
+        resformador.extend(resformador_sesion)
     return render(request, 'user/sesioncalif.html', {'usu':perfil_usuario, 'idcurso':idcurso, 'rescurso':rescurso, 'resformador':resformador, 'curso':curso})
 #============== ver formularios de la sesion =====
 @login_required
@@ -349,7 +353,7 @@ def validarasistenciaform(request, idsesion):
                     #return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False})
   
                 if verificar:
-                    asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=True)
+                    asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=False)
                     asistencia.save()
                     mensaje="Asistencia verificada"
                     #Aqui debe permitir redirigir y mostrar el formulario
@@ -379,7 +383,7 @@ def inscribirasistenteform(request, idsesion):
             #id_cargo = request.POST['cargo']
             #id_empresa =  request.POST['empresa']
             #empresa_user = EmpresaAreas.objects.get(id=1)
-            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, cargo=None, idepart=None, user=user, pendiente=True )
+            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, user=user, pendiente=True )
             userper.save()
             sesion = Sesioncurso.objects.get(id=idsesion)
             grupo = GruposCursos.objects.filter(idcurso=sesion.idcurso).first()
@@ -491,6 +495,7 @@ def saveRespuestasFormu(request, idsesion, idformu, idusu):
                             prioridad = request.POST.get(f'prioridad{pregunta_id}') # aqui llega la prioridad
                             fecha = request.POST.get(f'fecha{pregunta_id}') # aqui llega la fecha final
                             personas_seleccionadas = request.POST.getlist(f'opcionesPersonas{pregunta_id}')
+
                             valorpreg = 0
                             existe_compromiso = RespuestaForm.objects.filter(iduser=perfil_usuario, idpreg=pregunta_id, idsesion=datoscurso).exists() #evaluar si existe
                             if not existe_compromiso:
@@ -500,11 +505,13 @@ def saveRespuestasFormu(request, idsesion, idformu, idusu):
                                savecompromiso = Compromisos(compromiso=comentario, prioridad=prioridad, fecha_final=fecha, id_sesion=datoscurso, id_usuario=perfil_usuario, idrespuesta=rescompromiso)
                                savecompromiso.save()
                                #guardar las opciones de personas requeridas
-                               if personas_seleccionadas:
-                                  for perid in personas_seleccionadas:
-                                      obtenerusu = UserPerfil.objects.get(id=perid)
-                                      savePersonas = PersonasCompromisos(id_compromiso=savecompromiso, id_usuario=obtenerusu)
-                                      savePersonas.save()
+                               
+                               if 'noaplica' not in request.POST:
+                                    if personas_seleccionadas:
+                                        for perid in personas_seleccionadas:
+                                            obtenerusu = UserPerfil.objects.get(id=perid)
+                                            savePersonas = PersonasCompromisos(id_compromiso=savecompromiso, id_usuario=obtenerusu)
+                                            savePersonas.save()
             #====== mensaje de exito =============
             mensajeInfo = "La información se ha registrado éxitosamente"
             #tot = RespuestaForm.objects.filter(idpreg__idform=idformu, iduser=perfil_usuario).aggregate(Sum('valores'))

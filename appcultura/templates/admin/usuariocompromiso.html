@@ -86,7 +86,7 @@
                                 <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Información del compromiso</h1>
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Información del plan de acción personal</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form method="post" action="{% url 'savecompromiso' idcom=com.id %}">
@@ -96,7 +96,7 @@
                                     <div class="form-control">
                                         <div class="row">
                                            <div class="col-4">
-                                              <h6>Compromiso:</h6>
+                                              <h6>¿Qué vas a hacer?</h6>
                                            </div>
                                            <div class="col-8">
                                                 {{com.compromiso}}
@@ -105,14 +105,18 @@
                                         <hr>
                                         <div class="row">
                                             <div class="col-4">
-                                               <h6>¿Con quién?:</h6>
+                                               <h6>¿Con quién? </h6>
                                             </div>
                                             <div class="col-8">
+                                              {% if comp.personascompromisos_set.all %}
                                                 <ul>
                                                  {% for per in com.personascompromisos_set.all %}
                                                     <li> {{per.id_usuario.nombre}} {{per.id_usuario.nombre}}</li>  
                                                  {% endfor %}
                                                 </ul>
+                                              {% else %}
+                                                <p>No hay colaboradores.</p>
+                                              {% endif %}
                                             </div>
                                          </div>
                                          <hr>

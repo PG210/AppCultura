@@ -147,6 +147,7 @@
               <table class="table" id="tablareactiva">
                 <thead>
                   <tr>
+                    <th>Idarea</th>
                     <th>Area</th>
                     <th>Información</th>
                     <th>Departamentos</th>
@@ -160,12 +161,13 @@
                 <tbody>
                   {% for area in areas %}
                   <tr>
+                    <td>{{ area.id }}</td>
                     <td>{{ area.nombre }}</td>
                     <td>{{area.descrip}}</td>
                     <td>
                       {% for dep in depar %}
                         {% if dep.idarea.id == area.id %}
-                        <div class="form-control"><li>{{dep.nombre}}&nbsp;<span><a href="{% url 'deleteDepar' iddepar=dep.id area=dep.idarea.id %}" style="color: red;">x</a></span> </li> </div>
+                        <div class="form-control"><li>{{dep.nombre}} ({{dep.id}})&nbsp;<span><a href="{% url 'deleteDepar' iddepar=dep.id area=dep.idarea.id %}" style="color: red;">x</a></span> </li> </div>
                         {% endif %}
                       {% endfor %}
                     </td>

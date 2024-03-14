@@ -7,7 +7,7 @@ from pdb import post_mortem
 import select
 from urllib import request, response
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import FileSystemStorage, default_storage
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect #sirve para hacer las peticiones
 from django.contrib.auth.models import User
@@ -113,9 +113,12 @@ def registroCursos(request):
             regsesion.save()
             #=========guarda el archivo
             if archivo:
-                fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
-                nombre_archivo = fs.save(archivo.name, archivo)
-                ruta_destino = fs.url(nombre_archivo)
+                #fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
+                #nombre_archivo = fs.save(archivo.name, archivo)
+                nombre_archivo = archivo.name
+                ruta_destino = f"archivos/{nombre_archivo}"
+                ruta_guardada = default_storage.save(ruta_destino, archivo)
+                ruta_destino = settings.MEDIA_URL + ruta_guardada
             else:
                 ruta_destino = None
             #========guarda los temas
@@ -309,10 +312,14 @@ def editarcurso(request, idcurso):
             temasesion.competencias = temades
             temasesion.recursos  = recursos
             if archivo:
-                fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
-                nombre_archivo = fs.save(archivo.name, archivo)
-                ruta_destino = fs.url(nombre_archivo)
-                temasesion.ruta = ruta_destino
+                #fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
+                #nombre_archivo = fs.save(archivo.name, archivo)
+                #ruta_destino = fs.url(nombre_archivo)
+                nombre_archivo_old = archivo.name
+                ruta_destino_old = f"archivos/{nombre_archivo_old}"
+                ruta_guardada_old = default_storage.save(ruta_destino_old, archivo)
+                ruta_destino_old = settings.MEDIA_URL + ruta_guardada_old
+                temasesion.ruta = ruta_destino_old
             temasesion.save()
         #================ guardar las nuevas sesiones ==================================
         contador=1
@@ -331,9 +338,10 @@ def editarcurso(request, idcurso):
                 regsesionnew.save()
                 #=========guarda el archivo
                 if archivo_new:
-                    fs = FileSystemStorage(location=os.path.join(settings.STATIC_ROOT, 'archivos')) 
-                    nombre_archivo_new = fs.save(archivo_new.name, archivo_new)
-                    ruta_destino_new = fs.url(nombre_archivo_new)
+                    nombre_archivo = archivo_new.name
+                    ruta_destino = f"archivos/{nombre_archivo}"
+                    ruta_guardada = default_storage.save(ruta_destino, archivo_new)
+                    ruta_destino_new = settings.MEDIA_URL + ruta_guardada
                 else:
                     ruta_destino_new = None
                 #========guarda los temas
@@ -1058,6 +1066,7 @@ def validarasistencia(request, idsesion):
 def generarqr(request, idsesion):
     data = f'http://localhost:8000/administracion/validarasistencia/{idsesion}/'
     relative_path = generar_qr(data,idsesion)
+    print('ruta es', relative_path)
     return render(request, 'admin/codigoqr.html',{"qr_code_url":relative_path, 'idsesion':idsesion, 'data':data})
 
 

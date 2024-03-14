@@ -16,8 +16,8 @@
           <h2>Aplicación de Cultura</h2>
           <p><small>Por favor, escanea el siguiente código QR para registrar tu asistencia o completar formularios del curso. ¡Gracias!</small></p>
           <br>
-          <img src="{% static '' %}{{qr_code_url}}" class="rounded mx-auto d-block d-sm-none" alt="Cargando imagen ..." style="width: 200px; height: 200px;">
-          <img src="{% static '' %}{{qr_code_url}}" class="rounded mx-auto d-block d-none d-sm-block" alt="Cargando imagen ..." style="width: 300px; height: 300px;">
+          <img src="{{qr_code_url}}" class="rounded mx-auto d-block d-sm-none" alt="Cargando imagen ..." style="width: 200px; height: 200px;">
+          <img src="{{qr_code_url}}" class="rounded mx-auto d-block d-none d-sm-block" alt="Cargando imagen ..." style="width: 300px; height: 300px;">
           <br>
           <button type="button" class="btn btn-warning" onclick="copiarlink('{{data}}')" id="btnlink" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copiar enlace al portapapeles">Copiar Enlace</button>
       </div>

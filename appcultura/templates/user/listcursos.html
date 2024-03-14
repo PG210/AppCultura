@@ -108,20 +108,20 @@
                                     {% endif %}
                                     </td>
                                     <td class="text-center">
-                                    {% if calificacion %}
-                                      {% for cali in calificacion %}
-                                        {% if cali.estado is False %}
-                                          <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>Completado</small></p>
-                                        {% endif %}
-                                      {% endfor %}
-                                    {% else %}
-                                    <a class="btn btn-outline-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} esta habilitada">Calificar</a>
+                                    {% if usu.sesionasistencia_set.all and sesion.sesionasistencia_set.all %}
+                                      {% if usu.calificacionusuarios_set.all and sesion.calificacionusuarios_set.all %}
+                                        <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>Completado</small></p>
+                                      {% else %}
+                                        <a class="btn btn-outline-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} esta habilitada">Calificar</a>
+                                      {% endif %}
                                     {% endif %}
                                     </td>
                                     <!--aqui boton de evaluar formulario-->
                                      <td>
+                                      {% if usu.sesionasistencia_set.all and sesion.sesionasistencia_set.all %}
                                       <a href="{% url 'verformusesion' idsesion=sesion.id %}" class="btn btn-outline-success" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ingrese al formulario de evaluacion de la sesión {{sesion.id}}">Evaluar</a>
-                                     </td>
+                                      {% endif %}
+                                    </td>
                                     <!--end evaluar-->
                                   </tr>
                                   <!--====================================-->
@@ -140,7 +140,7 @@
                                           <p class="form-control"><small> {{ tematica.recursos }}</small></p>
                                          <div class="mb-1">
                                           <label class="col-form-label"><small>Archivo: </small></label>
-                                           <a class="btn btn-outline-primary btn-sm" href="{% url 'download' ruta=tematica.ruta %}" download data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Descarga los archivos que corresponden a la tematica {{tematica.descrip}}">
+                                           <a class="btn btn-outline-primary btn-sm" href="{{tematica.ruta}}" download data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Descarga los archivos que corresponden a la tematica {{tematica.descrip}}">
                                             <i class="bi bi-cloud-arrow-down-fill"></i>
                                            </a>
                                           </div>

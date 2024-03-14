@@ -240,11 +240,11 @@
                                                                 {% elif preguntas.idpreg.tipo == '6' %}
                                                                 <!----==============================-->
                                                                 {% for comp in preguntas.compromisos_set.all  %}
-                                                                  <p><b>Compromiso:</b></p>
+                                                                  <p><b>¿Qué vas a hacer?</b></p>
                                                                   <p class="form-control"> {{comp.compromiso}} </p> 
                                                                     <div class="row">
                                                                         <div class="col-lg-6 col-md-12">
-                                                                            <p><b>Fecha compromiso:</b></p>
+                                                                            <p><b>Fecha de inicio:</b></p>
                                                                             <p class="form-control"> {{comp.fecha_final|date:'Y-m-d'}} </p> 
                                                                           </div>
                                                                         <div class="col-lg-6 col-md-12">
@@ -254,7 +254,7 @@
                                                                     </div>
                                                                     <div class="row">
                                                                           <div class="col-lg-6 col-md-12">
-                                                                            <p><b>Estado revisión:</b></p>
+                                                                            <p><b>Estado de revisión:</b></p>
                                                                               <p class="form-control"> {{comp.id_estado.descripcion}}</p> 
                                                                           </div>
                                                                           <div class="col-lg-6 col-md-12">
@@ -262,12 +262,16 @@
                                                                             <p class="form-control"> {{comp.puntaje}} </p> 
                                                                           </div>
                                                                     </div>
-                                                                    <p><b>Personas elegidas</b></p>
+                                                                    <p><b>Colaboradores</b></p>
+                                                                    {% if comp.personascompromisos_set.all %}
                                                                     <ul>
-                                                                    {% for personas in comp.personascompromisos_set.all  %} 
-                                                                      <li>{{personas.id_usuario.nombre}} {{personas.id_usuario.apellido}}</li>
-                                                                    {% endfor %}
-                                                                  </ul>
+                                                                      {% for personas in comp.personascompromisos_set.all  %} 
+                                                                        <li>{{personas.id_usuario.nombre}} {{personas.id_usuario.apellido}}</li>
+                                                                      {% endfor %}
+                                                                    </ul>
+                                                                    {% else %}
+                                                                      <p>No hay colaboradores disponibles.</p>
+                                                                    {% endif %}
                                                                   {% endfor %}
                                                                 <!----==============================-->
                                                                 <!--==================end preguntas ===============-->

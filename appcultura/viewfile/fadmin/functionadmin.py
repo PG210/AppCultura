@@ -2,6 +2,7 @@ from io import BytesIO
 import qrcode
 from django.core.files.storage import default_storage
 
+
 def generar_qr(data, name):
     qr = qrcode.QRCode(
         version=1,
@@ -23,11 +24,9 @@ def generar_qr(data, name):
     img.save(buffer, format="PNG")
 
     # Guardar la imagen en el sistema de archivos de Django
-    filename = f"appcultura/static/media/qrcodes/{name}_qrcode.png"
-    #filename = f"static/qrcodes/{idsesion}_qrcode.png"
+    filename = f"qrcodes/{name}_qrcode.png"
     filepath = default_storage.save(filename, buffer)
 
     # Obtener la URL de la imagen
     qr_code_url = default_storage.url(filepath)
-    relative_path = qr_code_url.split("appcultura/static/")[1]
-    return relative_path
+    return qr_code_url

@@ -189,7 +189,7 @@
                                           <p class="form-control"><small> {{ tematica.recursos }}</small></p>
                                          <div class="mb-1">
                                           <label class="col-form-label"><small>Archivo: </small></label>
-                                           <a class="btn btn-outline-primary btn-sm" href="{% url 'download' ruta=tematica.ruta %}" download data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Descarga los archivos que corresponden a la tematica {{tematica.descrip}}">
+                                           <a class="btn btn-outline-primary btn-sm" href="{{ tematica.ruta }}" download data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Descarga los archivos que corresponden a la tematica {{tematica.descrip}}">
                                             <i class="bi bi-cloud-arrow-down-fill"></i>
                                            </a>
                                           </div>

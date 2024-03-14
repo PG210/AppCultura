@@ -1,5 +1,5 @@
-from asyncio.windows_events import NULL
-from tkinter.tix import Tree
+#from asyncio.windows_events import NULL
+#from tkinter.tix import Tree
 from django.db import models
 from appcultura.modelos.estado_compromisos import EstadoCompromisos
 from appcultura.modelos.perfiluser import UserPerfil

@@ -141,9 +141,8 @@
                                 <div class="col-lg-8 col-md-12">
                                   <!--seleccionar prioridad-->
                                   <select  class="form-select" id="prioridad{{pregunta.id}}" name="prioridad{{pregunta.id}}" aria-label="Default select example">
-                                    <option value="Nada urgente">Nada urgente </option>
-                                    <option value="Urgente">Urgente </option>
-                                    <option value="Muy urgente"> Muy urgente</option>
+                                    <option value="Importante y urgente">Importante y urgente</option>
+                                    <option value="Importante y no urgente">Importante y no urgente</option>
                                   </select>
                                   <!--end seleccion prioridad-->
                               </div>
@@ -322,24 +321,22 @@
                                                 <p><b>Opciones: Selección múltiple con varias respuestas</b></p>
                                                 {% for respuestasopc in formudes.idpreg.opciones_set.all %}
                                                 <div class="form-control">
-                                                <div class="form-check">
-                                                  {% for seluser in respuestasopc.respuestaopciones_set.all %}
-                                                    {% if  seluser %}
-                                                    <input class="form-check-input" type="checkbox" value="" id="mulver{{respuestasopc.id}}" checked >
+                                                   <div class="form-check">
+                                                    {% for resusu in formudes.respuestaopciones_set.all %}
+                                                        {% if resusu.idopcion.id == respuestasopc.id %}
+                                                        <input class="form-check-input" type="checkbox" value="" id="mulver{{respuestasopc.id}}" checked >
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% if respuestasopc.correcta  %}
+                                                    <label class="form-check-label" for="mulver{{respuestasopc.id}}">
+                                                      {{ respuestasopc.descrip }} <span style="background-color: yellow;">  Correcta</span> 
+                                                    </label>
                                                     {% else %}
-                                                    <input class="form-check-input" type="checkbox" value="" id="mulver{{respuestasopc.id}}" >
+                                                    <label class="form-check-label" for="mulver{{respuestasopc.id}}">
+                                                      {{ respuestasopc.descrip }}  
+                                                    </label>
                                                     {% endif %}
-                                                  {% endfor %}
-                                                  {% if respuestasopc.correcta  %}
-                                                  <label class="form-check-label" for="mulver{{respuestasopc.id}}">
-                                                    {{ respuestasopc.descrip }} <span style="background-color: yellow;">  Correcta</span> 
-                                                  </label>
-                                                  {% else %}
-                                                  <label class="form-check-label" for="mulver{{respuestasopc.id}}">
-                                                    {{ respuestasopc.descrip }}  
-                                                  </label>
-                                                  {% endif %}
-                                                  </div>
+                                                   </div>
                                                 </div>
                                                 {% endfor %}
                                               

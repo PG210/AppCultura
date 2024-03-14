@@ -26,6 +26,10 @@
     box-shadow: 0 5px #666;
     transform: translateY(4px);
   }
+  .tooltip1 {
+    border-bottom: 1px dotted #000;
+    cursor: help;
+  }
   </style>
 <!--end boton -->
 <main id="main" class="main">
@@ -137,7 +141,7 @@
                               </div>
                               {% endfor %}
                           {% elif pregunta.tipo == '5' %} {# Pregunta de opciones múltiples con varias verdaderas (Checkbox) #}
-                              <p><b>Opciones: Selección múltiple con varias respuestas</b></p>
+                              <p><b>Opciones de selección</b></p>
                               {% for opcion in pregunta.opciones_set.all %}
                               <div class="form-control">
                               <div class="form-check">
@@ -150,26 +154,28 @@
                               {% endfor %}
                             <!--======================= validar los comentarios============-->
                             {% elif pregunta.tipo == '6' %} 
-                              <p><b>Compromiso</b></p>
+                              <p><b>Plan de acción personal</b></p>
                               <div class="form-control">
                                 <div class="row mt-2">
-                                  <div class="col-lg-4 col-md-12">Descripción</div>
-                                  <div class="col-lg-8 col-md-12"><textarea type="text" class="form-control" id="compromiso{{pregunta.id}}" name="compromiso{{pregunta.id}}" required></textarea></div>
+                                  <div class="col-lg-4 col-md-12">
+                                    ¿Qué vas a hacer? 
+                                    <span class="tooltip1" title="Documente hasta tres objetivos que usted empezará a trabajar gracias a lo aprendido.">(*)</span>
+                                  </div>
+                                  <div class="col-lg-8 col-md-12"><textarea type="text" class="form-control" id="compromiso{{pregunta.id}}" name="compromiso{{pregunta.id}}" rows="5" required></textarea></div>
                                 </div>
                                 <div class="row mt-2">
                                 <div class="col-lg-4 col-md-12">Prioridad</div>
                                 <div class="col-lg-8 col-md-12">
                                   <!--seleccionar prioridad-->
                                   <select  class="form-select" id="prioridad{{pregunta.id}}" name="prioridad{{pregunta.id}}" aria-label="Default select example">
-                                    <option value="Nada urgente">Nada urgente </option>
-                                    <option value="Urgente">Urgente </option>
-                                    <option value="Muy urgente"> Muy urgente</option>
+                                    <option value="Importante y Urgente">Importante y Urgente</option>
+                                    <option value="Importante y NO urgente">Importante y NO urgente</option>
                                   </select>
                                   <!--end seleccion prioridad-->
                               </div>
                               </div>
                               <div class="row mt-2">
-                                <div class="col-lg-4 col-md-12">Fecha final</div>
+                                <div class="col-lg-4 col-md-12">Fecha de inicio</div>
                                 <div class="col-lg-8 col-md-12"><input type="date" class="form-control" id="fecha{{pregunta.id}}" name="fecha{{pregunta.id}}" min="{{ fecha_actual|date:'Y-m-d' }}" required></div>
                               </div>
                               <div class="row mt-2">
@@ -178,7 +184,9 @@
                                   <div class="accordion-item">
                                     <h2 class="accordion-header" id="flush-headingPersona">
                                       <a style="color: black;" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#ElegirPersonas{{pregunta.id}}" aria-expanded="false" aria-controls="ElegirPersonas{{pregunta.id}}">
-                                       <b>Elegir: ¿Con quién?</b>
+                                       <b>¿Con quién?
+                                        <span class="tooltip1" title="Seleccione las personas de este curso que usted considera deban estar involucradas en el logro de los objetivos propuestos.">(*)</span>
+                                       </b>
                                       </a>
                                     </h2>
                                     <div id="ElegirPersonas{{pregunta.id}}" class="accordion-collapse collapse" aria-labelledby="flush-headingPersona" data-bs-parent="#accordionPersonas">
@@ -192,6 +200,9 @@
                                             </tr>
                                           </thead>
                                           <tbody>
+                                            <tr>                                             
+                                              <td><input class="form-check-input" type="checkbox" id="noaplica" name="noaplica" value="noaplica">&nbsp; N/A - No aplica  </td>
+                                            </tr>
                                             {% for usup in usuarios %}
                                             <tr>                                             
                                               <td><input class="form-check-input" type="checkbox" id="opcionesPersonas{{pregunta.id}}" name="opcionesPersonas{{pregunta.id}}" value="{{ usup.id }} "> &nbsp;{{usup.nombre}}  {{usup.apellido}} </td>
@@ -362,11 +373,11 @@
                                               {% elif formudes.idpreg.tipo == '6' %}
                                                 <!--end compromiso-->  
                                                 {% for comp in formudes.compromisos_set.all  %}
-                                                <p><b>Compromiso:</b></p>
+                                                <p><b>¿Qué vas a hacer?</b></p>
                                                 <p class="form-control"> {{comp.compromiso}} </p> 
                                                   <div class="row">
                                                        <div class="col-lg-6 col-md-12">
-                                                          <p><b>Fecha compromiso:</b></p>
+                                                          <p><b>Fecha de inicio:</b></p>
                                                            <p class="form-control"> {{comp.fecha_final|date:'Y-m-d'}} </p> 
                                                         </div>
                                                        <div class="col-lg-6 col-md-12">
@@ -376,7 +387,7 @@
                                                   </div>
                                                   <div class="row">
                                                         <div class="col-lg-6 col-md-12">
-                                                          <p><b>Estado revisión:</b></p>
+                                                          <p><b>Estado de revisión:</b></p>
                                                             <p class="form-control"> {{comp.id_estado.descripcion}}</p> 
                                                         </div>
                                                         <div class="col-lg-6 col-md-12">
@@ -384,12 +395,16 @@
                                                           <p class="form-control"> {{comp.puntaje}} </p> 
                                                         </div>
                                                   </div>
-                                                  <p><b>Personas elegidas</b></p>
-                                                  <ul>
-                                                  {% for personas in comp.personascompromisos_set.all  %} 
-                                                    <li>{{personas.id_usuario.nombre}} {{personas.id_usuario.apellido}}</li>
-                                                  {% endfor %}
-                                                </ul>
+                                                  <p><b>Colaboradores</b></p>
+                                                  {% if comp.personascompromisos_set.all %}
+                                                    <ul>
+                                                    {% for personas in comp.personascompromisos_set.all  %} 
+                                                      <li>{{personas.id_usuario.nombre}} {{personas.id_usuario.apellido}}</li>
+                                                    {% endfor %}
+                                                    </ul>
+                                                    {% else %}
+                                                      <p>No hay colaboradores disponibles.</p>
+                                                    {% endif %}
                                                 {% endfor %}
                                             {% endif %}
                                               </div><!--cerrar el div de columna-->
@@ -429,5 +444,6 @@
     </section>
 </main><!-- End #main -->
   <!-- Aqui se encuentran las instrucciones para formularios -->
+
   {% endblock %} 
 
