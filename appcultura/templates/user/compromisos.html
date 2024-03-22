@@ -19,22 +19,32 @@
        <div class="col-lg-12 col-md-12">
         <div class="card">
             <div class="card-body">
+              {% if messages %}
+                <div id="alert-message" class="alert alert-warning alert-dismissible fade show mb-2 mt-2" role="alert">
+                  {% for message in messages %}
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <!--========================================-->
               <div class="alert alert-primary mt-2" role="alert">
                 Lista de compromisos
               </div>
               <p><small>Nota:</small>En esta sección, puedes editar un compromiso y revisar la retroalimentación recibida. </p>
               {% if mensaje %}
-              <div class="alert alert-warning alert-dismissible fade show mt-2 mb-1" role="alert">
-                <strong>{{mensaje}}</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endif %}
+                <div class="alert alert-warning alert-dismissible fade show mt-2 mb-1" role="alert">
+                  <strong>{{mensaje}}</strong>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+              {% endif %}
+           
                <div class="table-responsive">
                <table class="table" id="tablareactiva">
                 <thead>
                   <tr>
-                    <th>Curso</th>
-                    <th>Descripción</th>
+                    <th></th>
+                    <th>Compromiso a realizar</th>
                     <th>Fecha inicial</th>
                     <th>Fecha final</th>
                     <th>Estado</th>
@@ -45,50 +55,335 @@
                   {% if compromisos %}
                       {% for comp in compromisos %}
                         <tr>
-                          <td>{{comp.id_sesion.idcurso.nombre}}</td>
+                          <td>
+                            {% if comp.id_estado.id == 1 %}
+                            <div style="background-color: #FFFF00; border-radius: 10px;">
+                              <span>&nbsp;¡Cumplido! &#128515;</span>
+                            </div>
+                            {% elif comp.id_estado.id == 2 %}
+                            <div style="background-color: #53f707b0; border-radius: 10px;">
+                              <span>&nbsp;¡Pendiente! &#128578;</span>
+                            </div>
+                            {% elif comp.id_estado.id == 3 %}
+                            <div style="background-color: #ff6804; border-radius: 10px;">
+                              <span>&nbsp;¡No cumplido! &#x1F625;</span>
+                            </div>
+                            {% endif %}
+                          </td>
                           <td>{{comp.compromiso}}</td>
                           <td>{{comp.fecha_compromiso|date:'Y-m-d'}}</td>
                           <td>{{comp.fecha_final|date:'Y-m-d' }}</td>
-                          <td>{{comp.id_estado.descripcion}}</td>
                           <td>
-                            <!--respuesta y puntaje-->
-                             <!-- Button trigger modal -->
-                             {% if comp.id_estado.id == 2 %}
-                             <button type="button" class="btn btn-outline-secondary  btn-sm" disabled data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Este compromiso se encuentra en estado pendiente"> <i class="bi bi-eye-slash-fill" ></i></button>
-                                {% else %}
-                                <a type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalMasinfo{{comp.id}}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="El compromiso ya ha sido revisado. Puede visualizar la retroalimentación">
-                                  <i class="bi bi-eye-fill" ></i></a> 
-                              {% endif %}
+                           {{comp.id_estado.descripcion}}               
+                          </td>
+                          <td> 
+                            <!--===========================================-->
+                            <div class="btn-group" role="group" aria-label="Basic outlined example">
+                              <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Información del compromiso.">
+                                  <a type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#compromiso{{comp.id}}">
+                                    <i class="bi bi-plus-square"></i>
+                                  </a>
+                              </span>
+                              <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Actividades del compromiso.">
+                                <a type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalMasinfo{{comp.id}}">
+                                  <i class="bi bi-book"></i>
+                                </a>
+                              </span>
                                 <!-- Button trigger modal -->
-                                <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el compromiso">
+                              <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el compromiso">
                                   <button type="button" class="btn btn-outline-success btn-sm" data-bs-target="#modaleditarcompromiso{{comp.id}}" data-bs-toggle="modal"><i class="bi bi-pencil-square"></i></button>
-                                </span>
-                            
-                              <!-- Modal -->
+                              </span>
+                            </div>
+                          
+                            <!-- Modal -->
+                            <div class="modal fade" id="compromiso{{comp.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Información</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <!--============= aqui la info=========-->
+                                    <div class="form-control">
+                                      <div class="row mb-3">
+                                          <label for="textCompromiso" class="col-lg-3 col-md-12 col-form-label"><b>Compromiso</b></label>
+                                          <div class="col-lg-9 col-md-12">
+                                              <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="textCompromiso" readonly>{{comp.compromiso}}</textarea>
+                                          </div>
+                                      </div>
+                                      <div class="row mb-3">
+                                        <label for="fechafinal" class="col-lg-3 col-md-12 col-form-label"><b>Fecha inical</b></label>
+                                        <div class="col-lg-9 col-md-12">
+                                            <input type="date" class="form-control" name="fechafinal" value="{{comp.fecha_compromiso|date:'Y-m-d'}}" readonly>
+                                        </div>
+                                    </div>
+                                      <div class="row mb-3">
+                                          <label for="fechafinal" class="col-lg-3 col-md-12 col-form-label"><b>Fecha Final</b></label>
+                                          <div class="col-lg-9 col-md-12">
+                                              <input type="date" class="form-control" name="fechafinal" value="{{comp.fecha_final|date:'Y-m-d'}}" readonly>
+                                          </div>
+                                      </div>
+                                      <!--=============== fechas ============-->
+                                      <hr>
+                                      <div class="row mb-3">
+                                        <label for="nombre" class="col-lg-3 col-md-12 col-form-label"><b>Fechas extendidas</b></label>
+                                          <div class="col-lg-9 col-md-12">
+                                            <!--============-->
+                                            <div class="activity">
+                                              {% if comp.fechascompromisos_set.all %}
+                                                 {% for fec in comp.fechascompromisos_set.all %}
+                                                  <div class="activity-item d-flex">
+                                                    <div class="activite-label">{{ fec.fechadd|date:'Y-m-d' }}</div>
+                                                    <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
+                                                    <div class="activity-content">
+                                                      <span><br></span>
+                                                    </div>
+                                                  </div><!-- End activity item-->
+                                                {% endfor %}
+                                              {% else %}
+                                               <p>Sin fechas</p>
+                                              {% endif %}
+                                              </div>
+                                              <!--=============-->
+                                          </div>
+                                      </div>
+                                      <!--======================================-->
+                                      <hr>
+                                      <div class="row mb-3">
+                                          <label for="nombre" class="col-lg-3  col-md-12 col-form-label"><b>Colaboradores elegidos</b></label>
+                                          <div class="col-lg-9 col-md-12">
+                                            <ul>
+                                              {% if comp.personascompromisos_set.all %}
+                                                {% for respuesta in comp.personascompromisos_set.all %} 
+                                                  <li>
+                                                      {{ persona.nombre }} {{ persona.apellido }}
+                                                  </li>  
+                                                {% endfor %}
+                                              {% else %}
+                                                  <li> No hay personas</li>
+                                              {% endif %}
+                                            </ul>
+                                           <!--end tabla usuarios-->
+                                          </div>
+                                          <!--retroalimentacion del compromiso-->
+                                          <hr>
+                                          <label for="nombre" class="col-lg-12  col-md-12 col-form-label"><b>Retroalimentación del compromiso</b></label>
+                                          <hr>
+                                          <div class="row mb-3">
+                                            <label for="retro" class="col-lg-3 col-md-12 col-form-label"><b>Comentario:</b></label>
+                                            <div class="col-lg-9 col-md-12">
+                                                {% if comp.respuesta != None %}
+                                                 <textarea class="form-control" name="retro">{{ comp.respuesta }}</textarea>
+                                                 {% else  %}
+                                                 <p>Aun no tienes retroalimentación para este compromiso.</p>
+                                                {% endif %}
+                                              </div>
+                                          </div>
+                                          <div class="row mb-3">
+                                            <label for="puntos" class="col-lg-3 col-md-12 col-form-label"><b>Puntos:</b></label>
+                                            <div class="col-lg-9 col-md-12">
+                                                 <input type="number" class="form-control" name="puntos" value="{{ comp.puntaje }}" readonly> 
+                                              </div>
+                                          </div>
+                                        
+                                          <!--==================================-->
+                                      </div>
+                                    </div>
+                                    <!--======== end ======================-->
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!--==========================================-->
                               <div class="modal fade" id="modalMasinfo{{comp.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
+                                <div class="modal-dialog modal-lg modal-dialog-scrollable">
                                   <div class="modal-content">
                                     <div class="modal-header">
-                                      <h1 class="modal-title fs-5" id="exampleModalLabel"></h1>
+                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Actividades a realizar</h1>
                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                       <!--====================================-->
                                       <div class="row">
-                                        <div class="col-4">Comentario:</div>
-                                        <div class="col-8">
-                                         <div class="form-control"> {{ comp.respuesta }}</div>
+                                        <div class="col-lg-12">
+                                          <!---botones-->
+                                          <p class="d-inline-flex gap-1">
+                                            <a class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" href="#crearactividad{{comp.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                              Nueva actividad
+                                            </a>
+                                          </p>
+                                          <p class="d-inline-flex gap-1">
+                                            <a class="btn btn-outline-success btn-sm" data-bs-toggle="collapse" href="#lineactividades{{comp.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                              Linea de actividades
+                                            </a>
+                                          </p>
+                                          <!--end botones-->
                                         </div>
                                       </div>
-                                      <div class="row mt-2">
-                                        <div class="col-4">Puntos:</div>
-                                        <div class="col-8">
-                                          <div class="form-control">
-                                            {{ comp.puntaje }}
-                                          </div>
+                                    
+                                      <div class="collapse" id="crearactividad{{comp.id}}">
+                                        <div class="card card-body">
+                                          <!---=========================-->
+                                          {% if fechamin|date:'Y-m-d' > comp.fecha_final|date:'Y-m-d' %}
+                                          <p class="mt-3">No puedes agregar actividades, la fecha de compromiso ha caducado el {{comp.fecha_final|date:'Y-m-d'}}.</p>
+                                          {% else %}
+                                          <form class="form-control mt-3" action="{% url 'craeteAvance' %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="row mb-3">
+                                              <div class="col-lg-4 col-md-12">
+                                                <label for="fecini" class="col-form-label">Fecha inicio</label>
+                                                <input type="date" class="form-control" id="fecini" name="fecini" min="{{comp.fecha_compromiso|date:'Y-m-d'}}" max="{{comp.fecha_final|date:'Y-m-d'}}">
+                                              </div>
+                                              <div class="col-lg-4 col-md-12">
+                                                <label for="fecfin" class="col-form-label">Fecha final</label>
+                                                <input type="date" class="form-control" id="fecfin" name="fecfin" min="{{comp.fecha_compromiso|date:'Y-m-d'}}" max="{{comp.fecha_final|date:'Y-m-d'}}">
+                                              </div>
+                                              <div class="col-lg-4 col-md-12">
+                                                <label for="estado" class="col-form-label">Estado</label>
+                                                <select class="form-select form-select-sm" id="estado" name="estado" aria-label="Default select example">
+                                                  <option value="Pendiente" selected>Pendiente</option>
+                                                  <option value="Completada">Completada</option>
+                                                </select>
+                                              </div>
+                                            </div>
+                                            <div class="mb-3">
+                                              <label for="actividad" class="col-form-label">Actividad a realizar:</label>
+                                              <textarea class="form-control" id="actividad" name="actividad" required></textarea>
+                                            </div>
+                                            <input id="comp" name="idcom" value="{{comp.id}}" hidden>
+                                            <div class="col-lg-12 col-md-12 text-end">
+                                               <button type="submit" class="btn btn-sm btn-outline-success">Guardar</button>
+                                            </div>
+                                          </form>   
+                                          {% endif %}
                                         </div>
                                       </div>
                                       <!--=======================================-->
+                                      <div class="collapse" id="lineactividades{{comp.id}}">
+                                        <div class="card card-body mt-3">
+                                           <!--==========================================-->
+                                           <div class="card">
+                                           
+                                            <div class="card-body">
+                                              <h5 class="card-title">Actividades a realizar para este compromiso</span></h5>
+                                
+                                              <div class="activity">
+                                              {% if comp.avancecompromisos_set.all %}
+                                                 {% for avances in comp.avancecompromisos_set.all %}
+                                                  <div class="activity-item d-flex">
+                                                    <div class="activite-label">{{ avances.fechafin|date:'Y-m-d' }}</div>
+                                                    {% if avances.estado == 'Completada' %}
+                                                       <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                                                    {% elif avances.estado == 'Pendiente' %}
+                                                    <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
+                                                    {% endif %}
+                                                    <div class="activity-content">
+                                                      <span>{{ avances.actividad }}.</span> <span class="fw-bold text-dark">{{ avances.estado }}</span>
+                                                    </div>
+                                                  </div><!-- End activity item-->
+                                                {% endfor %}
+                                              {% endif %}
+                                              </div>
+                                
+                                            </div>
+                                          </div><!-- End Recent Activity -->                                
+                                           <!--=========================================-->
+                                        </div>
+                                      </div>
+                                      <!---======================-->
+                                        <div class="alert alert-primary" role="alert">
+                                           Actividades registradas
+                                        </div>
+                                        {% if comp.avancecompromisos_set.all %}
+                                             {% for avances in comp.avancecompromisos_set.all %}
+                                               <form action="{% url 'updateAvance' idavance=avances.id %}" method="post">
+                                                 {% csrf_token %}
+                                                 <!--============================-->
+                                                 <div class="row mb-3">
+                                                    <label class="col-lg-12 col-md-12 col-form-label">
+                                                      {% if avances.estado == 'Completada' %}
+                                                          <div style="background-color: #FFFF00; border-radius: 10px;">
+                                                            <span>&nbsp; Avance No. {{ forloop.counter }} ¡Cumplido! &#128515;</span>
+                                                          </div>
+                                                          {% elif avances.estado == 'Pendiente' %}
+                                                          <div style="background-color: #53f707b0; border-radius: 10px;">
+                                                            <span>&nbsp; Avance No. {{ forloop.counter }} ¡Pendiente! &#128578;</span>
+                                                          </div>
+                                                          {% endif %}
+                                                    </label>
+                                                  </div>
+                                                 <!--============================-->
+                                                  <div class="row mb-3">
+                                                      <label for="fechainiavance" class="col-lg-3 col-md-12 col-form-label"><b>Fecha inicial</b></label>
+                                                      <div class="col-lg-3 col-md-12">
+                                                          <input type="date" class="form-control" id="fechainiavance" name="fechainiavance" min="{{comp.fecha_compromiso|date:'Y-m-d'}}" max="{{comp.fecha_final|date:'Y-m-d'}}" value="{{avances.fechaini|date:'Y-m-d'}}" required>
+                                                      </div>
+                                                      <!---=== fecha final==========-->
+                                                      <label for="fechafinavance" class="col-lg-3 col-md-12 col-form-label"><b>Fecha final</b></label>
+                                                      <div class="col-lg-3 col-md-12">
+                                                          <input type="date" class="form-control" id="fechafinavance" name="fechafinavance" min="{{comp.fecha_compromiso|date:'Y-m-d'}}" max="{{comp.fecha_final|date:'Y-m-d'}}" value="{{avances.fechafin|date:'Y-m-d'}}" required>
+                                                      </div>
+                                                      <!--===========-->
+                                                  </div>
+                                                  <div class="row mb-3">
+                                                      <label for="actividad" class="col-lg-3 col-md-12 col-form-label"><b>Actividad</b></label>
+                                                      <div class="col-lg-9 col-md-12">
+                                                          <textarea type="text" class="form-control text-sm" id="actividad" name="actividad" required>{{avances.actividad}}</textarea>
+                                                      </div>
+                                                  </div>
+                                                  <div class="row mb-3">
+                                                    <label for="estadoavance" class="col-lg-3 col-md-12 col-form-label"><b>Estado</b></label>
+                                                      <div class="col-lg-9 col-md-12">
+                                                        <select class="form-select form-select-sm" id="estadoavance" name="estadoavance" aria-label="Default select example">
+                                                          {% if avances.estado == 'Pendiente' %}
+                                                              <option value="Pendiente" selected>Pendiente</option>
+                                                              <option value="Completada">Completada</option>
+                                                          {% elif avances.estado == 'Completada' %}
+                                                              <option value="Completada" selected>Completada</option>
+                                                              <option value="Pendiente">Pendiente</option>
+                                                          {% endif %}
+                                                        </select>
+                                                      </div>
+                                                  </div>
+                                                   <!---agregar puntaje y respuesta--> 
+                                                   <div class="row mb-3">
+                                                    <label for="respuesta" class="col-lg-3 col-md-12 col-form-label"><b>Respuesta</b></label>
+                                                      <div class="col-lg-9 col-md-12">
+                                                          <textarea type="text" class="form-control text-sm" id="respuesta" name="respuesta" required>{% if avances.respuesta %} {{avances.respuesta}} {% endif %}</textarea>
+                                                      </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                      <label for="puntos" class="col-lg-3 col-md-12 col-form-label"><b>Puntos</b></label>
+                                                        <div class="col-lg-9 col-md-12">
+                                                            <input type="number" class="form-control text-sm" id="puntos" name="puntos" value="{{avances.puntaje}}" min="0" max="100" required>
+                                                        </div>
+                                                      </div>
+                                                    <!--botones-->
+                                                    <!--=====================-->
+                                                    {% if fechamin|date:'Y-m-d' > comp.fecha_final|date:'Y-m-d' %}
+                                                      <p class="mt-3">No puedes realizar acciones, la fecha de compromiso ha caducado.</p>
+                                                    {% else %}
+                                                    <div class="row mb-3">
+                                                        <div class="col-lg-12 col-md-12 text-end">
+                                                          <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                                            <button type="submit" class="btn btn-outline-primary"><i class="bi bi-floppy"></i></button>
+                                                            <a href="{% url 'deleteAvance' idavance=avances.id %}" type="button" class="btn btn-outline-danger" ><i class="bi bi-trash3-fill"></i></a>
+                                                          </div>                                                       
+                                                         </div>
+                                                    </div>
+                                                    {% endif %}
+                                                  </form>
+                                                   <!--===============================-->
+                                                  <hr>
+                                               
+                                              
+                                            {% endfor %}
+                                        {% endif %}
+                                        <!--=========================-->
                                     </div>
                                     <div class="modal-footer">
                                       <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
@@ -109,24 +404,65 @@
                                     <form action="{% url 'editarcompromiso' idcomp=comp.id %}" method="post">
                                       {% csrf_token %}
                                       <div class="form-control">
+                                        <!--==========-->
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-lg-3 col-md-12 col-form-label"><b>Compromiso</b></label>
+                                            <label for="nombre" class="col-lg-3 col-md-12 col-form-label"><b>Estado</b></label>
+                                            <div class="col-lg-9 col-md-12">
+                                             <select class="form-select" aria-label="Default select example" id="estadoCom" name="estadoCom">
+                                              <option value="{{comp.id_estado.id}}" selected>{{comp.id_estado.descripcion}}</option>
+                                              {% for estado in estadocom %}
+                                                  {% if estado.id != comp.id_estado.id %}
+                                                  <option value="{{estado.id}}">{{estado.descripcion}}</option>
+                                                  {% endif %}
+                                              {% endfor %}
+                                            </select>
+                                            </div>
+                                        </div>
+                                        <!--end estado-->
+                                        <div class="row mb-3">
+                                            <label for="textCompromiso" class="col-lg-3 col-md-12 col-form-label"><b>Compromiso</b></label>
                                             <div class="col-lg-9 col-md-12">
                                                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="textCompromiso" required>{{comp.compromiso}}</textarea>
                                             </div>
                                         </div>
                         
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-lg-3 col-md-12 col-form-label"><b>Fecha Final</b></label>
+                                            <label for="fechafinal" class="col-lg-3 col-md-12 col-form-label"><b>Fecha Final</b></label>
                                             <div class="col-lg-9 col-md-12">
                                                 <input type="date" class="form-control" min="{{ fechamin|date:'Y-m-d' }}" name="fechafinal" value="{{comp.fecha_final|date:'Y-m-d'}}" required>
                                             </div>
                                         </div>
-                                        
+                                        <!--aqui la informacion de todas las fechas extendidas-->
+                                        <p class="d-inline-flex gap-1">
+                                          <a class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" href="#fechasextendidas{{comp.id}}" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                            Fechas extendidas
+                                          </a>
+                                        </p>
+                                        <div class="collapse mt-2" id="fechasextendidas{{comp.id}}">
+                                          <div class="card card-body mt-3">
+                                              <!---ver avance de fechas-->
+                                              <div class="activity">
+                                                {% if comp.fechascompromisos_set.all %}
+                                                   {% for fec in comp.fechascompromisos_set.all %}
+                                                    <div class="activity-item d-flex">
+                                                      <div class="activite-label">{{ fec.fechadd|date:'Y-m-d' }}</div>
+                                                      <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
+                                                      <div class="activity-content">
+                                                        <span><br></span>
+                                                      </div>
+                                                    </div><!-- End activity item-->
+                                                  {% endfor %}
+                                                {% endif %}
+                                                </div>
+                                              <!--======================-->
+                                          </div>
+                                        </div>
+                                        <!--end informacion de fechas extendidas-->
                                         <div class="row mb-3">
-                                            <label for="nombre" class="col-lg-3  col-md-12 col-form-label"><b>Personas elegidas</b></label>
+                                            <label for="nombre" class="col-lg-3  col-md-12 col-form-label"><b>Colaboradores elegidos</b></label>
                                             <div class="col-lg-9 col-md-12">
                                              <!--tabla usuarios-->
+                                             {% if comp.personascompromisos_set.all %}
                                              <div class="table-responsive mt-2">
                                               <table class="table" id="tablareactiva_02">
                                                 <thead>
@@ -135,6 +471,9 @@
                                                   </tr>
                                                 </thead>
                                                 <tbody>
+                                                  <tr>                                             
+                                                    <td><input class="form-check-input" type="checkbox" id="noaplica" name="noaplica" value="noaplica">&nbsp; N/A - No aplica  </td>
+                                                  </tr>
                                                   {% for persona in user_all %}
                                                         <tr>
                                                             <td>
@@ -145,6 +484,9 @@
                                                 </tbody>
                                               </table>
                                             </div>
+                                            {% else  %}
+                                             <span>No se seleccionaron colaboradores para este compromiso.</span> 
+                                            {% endif %}
                                              <!--end tabla usuarios-->
                                             </div>
                                         </div>
@@ -173,4 +515,13 @@
       </div>
     </section>
 </main><!-- End #main -->
-  {% endblock %} 
+<script>
+  setTimeout(function() {
+      var alertMessage = document.getElementById('alert-message');
+      alertMessage.classList.add('fade');
+      setTimeout(function() {
+          alertMessage.remove();
+      }, 1000); // 1 segundo después del desvanecimiento
+  }, 3000); // 3 segundos
+</script>
+{% endblock %} 

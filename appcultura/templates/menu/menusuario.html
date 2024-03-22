@@ -8,25 +8,19 @@
           <span>Dashboard</span>
         </a>
       </li><!-- End Dashboard Nav -->
-
       <li class="nav-item">
-        <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-menu-button-wide"></i><span>Cursos</span><i class="bi bi-chevron-down ms-auto"></i>
+        <a class="nav-link collapsed" href="{% url 'compromisos' %}">
+          <i class="bi bi-journal-text"></i>
+          <span>Compromisos</span>
         </a>
-        <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
-          <li>
-            <!--Listado de cursos para el usuario-->
-            <a href="{% url 'listarcursosusuario' %}">
-                <i class="bi bi-circle"></i><span>Consultar Cursos</span>
-            </a>
-            <a href="{% url 'compromisos' %}">
-              <i class="bi bi-circle"></i><span>Mis Compromisos</span>
-          </a>
-          </li>
-        </ul>
-      </li><!-- End Components Nav -->
+      </li>
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="{% url 'listarcursosusuario' %}">
+          <i class="bi bi-menu-button-wide"></i><span>Cursos</span>
+        </a>
+      </li>
 
-    <!--
+    <!-- 
       <li class="nav-heading">Pages</li>
 
       <li class="nav-item">

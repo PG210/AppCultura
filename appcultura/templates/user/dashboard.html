@@ -1,0 +1,545 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+<main id="main" class="main">
+    {% load static %}
+    
+      <div class="pagetitle">
+        <h1>Panel administrativo</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
+          </ol>
+        </nav>
+      </div><!-- End Page Title -->  
+       <!--==========================================-->
+       <section class="section dashboard">
+        <div class="row">
+          <!-- Left side columns -->
+          <div class="col-lg-8">
+            <div class="row">
+              <!-- Sales Card -->
+              <div class="col-xxl-4 col-md-6">
+                <div class="card info-card sales-card">
+                  <!--==========ver mas ============-->
+                  <div class="filter">
+                    <a class="icon" type="button" data-bs-toggle="modal" data-bs-target="#faltas">
+                      <i class="bi bi-three-dots"></i>
+                    </a>
+                     <!-- Modal -->
+                     <div class="modal fade" id="faltas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel"><b>Reporte de asistencias</b></h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                             <!--=================Clases no asistidas=======================-->
+                             <div class="container d-inline-flex mb-2" style="background-color: rgb(221, 218, 218); border-radius: 10px; padding: 5px;">
+                              <a data-bs-toggle="collapse" href="#asis" role="button" aria-expanded="false" aria-controls="collapseExample">
+                               <b>Clases asistidas</b> 
+                              </a>
+                            </div>
+                            <div class="collapse show" id="asis">
+                              <div class="card card-body">
+                               <!--===== aqui itera-->
+                                <div class="activity mt-3">
+                                  {% for asistencia_item in asistencia %}
+                                      {% for tema_sesion in asistencia_item.idsesioncurso.temassesion_set.all %}
+                                          <div class="activity-item d-flex">
+                                              <div class="activite-label">{{ asistencia_item.fecha_asistencia | date:'d/m/Y' }}</div>
+                                              <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                                              <div class="activity-content">
+                                                  <p>Tema: {{ tema_sesion.descrip }}</p>
+                                              </div>
+                                          </div>
+                                      {% endfor %}
+                                  {% endfor %}
+                                </div>
+                                <!--========================================-->
+                              </div>
+                            </div>
+                            <!--=================Clases no asistidas=======================-->
+                            <div class="container d-inline-flex" style="background-color: rgb(221, 218, 218); border-radius: 10px; padding: 5px;">
+                              <a data-bs-toggle="collapse" href="#noasis" role="button" aria-expanded="false" aria-controls="collapseExample">
+                               <b> Clases no asistidas</b>
+                              </a>
+                            </div>
+                            <div class="collapse" id="noasis">
+                              <div class="card card-body">
+                               <!--===== aqui itera-->
+                                <div class="activity mt-3">
+                                  {% for faltas in noasis.faltantes %}
+                                    {% for vfaltas in faltas.temassesion_set.all %}
+                                    <div class="activity-item d-flex">
+                                      <div class="activite-label">{{ faltas.fechainicio |date:'d/m/Y' }}</div>
+                                      <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
+                                      <div class="activity-content">
+                                        <p>Tema: {{ vfaltas.descrip }}</p>
+                                      </div>
+                                    </div>
+                                    {% endfor %}
+                                  {% endfor %}
+                                </div>
+                                <!--========================================-->
+                              </div>
+                            </div>
+                            <!--============================================-->
+
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-warning btn-small" data-bs-dismiss="modal"><i class="bi bi-arrow-left-square"></i>&nbsp;Salir</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!--===================================end modal ===-->
+                  </div>
+                  <!--===============================-->
+                  <div class="card-body">
+                    <h5 class="card-title">Asistencias </span></h5>
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person-check"></i>
+                      </div>
+                      <div class="ps-3">
+                        <!--=========================================-->
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="small text-muted pt-1 fw-bold"><span>Asistencias: <b>{{tasis}}</b></span></div>
+                          </div>
+                          <div class="col-lg-12 small text-muted pt-1 fw-bold">
+                            <span>No asistencias: <b>{{noasis.totfaltantes}}</b></span>
+                          </div>
+                          <div class="col-lg-12">
+                            <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{totalasis}}</b></span></div>
+                          </div>
+                        </div>
+                        <!--=============================================-->
+                        <!--<h6>{{tasis}}</h6>
+                        <span class="text-success small pt-1 fw-bold">{{porasis|floatformat:"2"}}%</span> <span class="text-muted small pt-2 ps-1"></span>
+                        -->
+                      </div>
+                    </div>
+                     <!--progress bar-->
+                    <div class="progress mt-3" role="progressbar" aria-label="Success example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                      <div id="barra-progreso" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{ porasis|floatformat:"2" }}%</div>
+                    </div>
+                    <!--end progresbar-->
+                  </div>
+  
+                </div>
+              </div><!-- End Sales Card -->
+  
+              <!-- Revenue Card -->
+              <div class="col-xxl-4 col-md-6">
+                <div class="card info-card revenue-card">
+                <!--==================================-->
+                  <div class="filter">
+                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                      <li class="dropdown-header text-start">
+                        <h6>Sesiones</h6>
+                      </li>
+                      {% for ses in sesion %}
+                      <li><a class="dropdown-item" href="{% url 'verformusesion' idsesion=ses.idsesion %}">Ver sesión {{ forloop.counter }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <!---==========================================-->
+                  <div class="card-body">
+                    <h5 class="card-title">Formularios de evaluación</h5>
+  
+                    <div class="d-flex align-items-center">
+                      <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                        <i class="bi bi-ui-checks"></i>
+                      </div>
+                      <div class="ps-3">
+                        <div class="row">
+                          <div class="col-lg-12">
+                            <div class="small text-muted pt-1 fw-bold"><span>Contestados: <b>{{totforms}}</b></span></div>
+                          </div>
+                          <div class="col-lg-12">
+                            <div class="small text-muted pt-1 fw-bold"><span>Pendientes: <b>{{formpendientes}}</b></span></div>
+                          </div>
+                          <div class="col-lg-12">
+                            <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{formtotal}}</b></span></div>
+                          </div>
+                        </div>
+                      
+                      </div>
+                    </div>
+                     <!---========== calcular barras de progreso ==========-->
+                    <div class="progress mt-3" role="progressbar" aria-label="Success example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                      <div id="barra-progreso-formularios" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{porform | floatformat:"2"}}%</div>
+                    </div>
+                    <!--===============-->
+                  </div>
+  
+                </div>
+              </div><!-- End Revenue Card -->
+  
+              <!-- Customers Card -->
+              <div class="col-xxl-4 col-xl-12">
+  
+                <div class="card info-card customers-card">
+                  <!---
+                  <div class="filter">
+                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                      <li class="dropdown-header text-start">
+                        <h6>Filter</h6>
+                      </li>
+  
+                      <li><a class="dropdown-item" href="#">Today</a></li>
+                      <li><a class="dropdown-item" href="#">This Month</a></li>
+                      <li><a class="dropdown-item" href="#">This Year</a></li>
+                    </ul>
+                  </div>-->
+  
+                  <div class="card-body">
+                    <div class="row">
+                    <div class="col-lg-9">
+                      <h5 class="card-title">Compromisos</span></h5>
+                    </div>
+                    <div class="col-lg-3 mt-3">
+                      <div class="small text-muted fw-bold"><span>Total: 
+                         <b> {{totcompromisos}}</b></span> 
+                      </div>
+                    </div>
+                    </div>
+                    <!--==========-->
+                      <div class="ps-3">
+                        <!--========================-->
+                        <div class="row">
+                          <div class="col-lg-2">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                              <i class="bi bi-people"></i>
+                            </div>
+                          </div>
+                          <div class="col-lg-3">
+                            <div class="small text-muted fw-bold"><span>Cumplidos: </span>
+                              <br><b>{{total_cumplido}}</b>
+                            </div>
+                          </div>
+                          <div class="col-lg-3">
+                            <div class="small text-muted fw-bold"><span>Pendientes:</span>
+                              <br><b>{{total_pendientes}}</b>
+                            </div>
+                          </div>
+                          <div class="col-lg-3">
+                            <div class="small text-muted fw-bold"><span>No cumplidos: </span> 
+                              <br> <b>{{total_nocumplido}}</b>
+                            </div>
+                          </div>
+                                                
+                        </div>
+                        <!--=========================-->   
+                         <!---========== calcular barras de progreso ==========-->
+                        <div class="progress mt-3" role="progressbar" aria-label="Success example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                          <div id="barra-progreso-compromisos" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{porcomp | floatformat:"2"}}%</div>
+                        </div>
+                        <!--===============--> 
+                      </div>
+                    
+                  </div>
+                </div>
+  
+              </div><!-- End Customers Card -->
+
+              <!-- ============== compromisos de la personas -->
+              <div class="col-12">
+                <div class="card recent-sales overflow-auto">
+                  <!--
+                  <div class="filter">
+                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                      <li class="dropdown-header text-start">
+                        <h6>Filter</h6>
+                      </li>
+  
+                      <li><a class="dropdown-item" href="#">Today</a></li>
+                      <li><a class="dropdown-item" href="#">This Month</a></li>
+                      <li><a class="dropdown-item" href="#">This Year</a></li>
+                    </ul>
+                  </div>-->
+  
+                  <div class="card-body">
+                    <h5 class="card-title">Colaboradores elegidos para cumplir un compromiso.</h5>
+  
+                    <table class="table table-borderless datatable">
+                      <thead>
+                        <tr>
+                          <th scope="col">No</th>
+                          <th scope="col">Colaborador</th>
+                          <th scope="col">Detalle</th>
+                          <th scope="col">Fecha final</th>
+                          <th scope="col">Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for com in compromisos %}
+                        <tr>
+                          <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
+                          <td>
+                            <!--Personas a colaborar en un compromiso-->
+                            {% if com.personascompromisos_set.all %}
+                            {% for personas in com.personascompromisos_set.all %}
+                                {{personas.id_usuario.nombre}}  {{personas.id_usuario.apellido}}
+                            {% endfor %}
+                            {% else %}
+                                <span>Sin colaboradores.</span>
+                            {% endif %}
+                            <!--====================================-->
+                          </td>
+                          <td><span class="text-primary">{{ com.compromiso }}</span></td>
+                          <td>{{ com.fecha_final|date:'d/m/Y'}}</td>
+                          <td>
+                            {% if com.id_estado.id == 1 %}
+                              <span class="badge bg-success">{{com.id_estado.descripcion}}</span>
+                            {% elif com.id_estado.id == 2 %}
+                              <span class="badge bg-warning">{{com.id_estado.descripcion}}</span>
+                            {% elif com.id_estado.id == 3 %}
+                              <span class="badge bg-danger">{{com.id_estado.descripcion}}</span>
+                            {% endif %}
+                          </td>
+                        </tr>
+                        {% endfor %}
+                       
+                      </tbody>
+                    </table>
+  
+                  </div>
+  
+                </div>
+              </div>
+              <!-- ================== end compromisos  -->
+             <!--=========== compromisos a los cuales te han viculado ============-->
+             <div class="col-12">
+              <div class="card recent-sales overflow-auto">
+               <!--
+                <div class="filter">
+                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                      <h6>Filter</h6>
+                    </li>
+
+                    <li><a class="dropdown-item" href="#">Today</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                  </ul>
+                </div>
+              -->
+                <div class="card-body">
+                  <h5 class="card-title">Compromisos en los cuales fuiste elegido.</h5>
+
+                  <table class="table table-borderless datatable">
+                    <thead>
+                      <tr>
+                        <th scope="col">No</th>
+                        <th scope="col">Colaborador</th>
+                        <th scope="col">Detalle</th>
+                        <th scope="col">Fecha final</th>
+                        <th scope="col">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% if usu.personascompromisos_set.all %}
+                      {% for per in usu.personascompromisos_set.all %}
+                      <tr>
+                        <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
+                        <td>
+                          <!--Personas a colaborar en un compromiso-->
+                              {{per.idcompromiso.id_usuario.nombre}}  {{per.idcompromiso.id_usuario.apellido}}
+                          <!--======================================-->
+                        </td>
+                        <td><a href="#" class="text-primary">{{ per.id_compromiso.compromiso }}</a></td>
+                        <td>{{ com.fecha_final|date:'d/m/Y'}}</td>
+                        <td>
+                          {% if per.id_compromiso.id_estado.id == 1 %}
+                            <span class="badge bg-success">{{per.id_compromiso.id_estado.descripcion}}</span>
+                          {% elif per.id_compromiso.id_estado.id == 2 %}
+                            <span class="badge bg-warning">{{per.id_compromiso.id_estado.descripcion}}</span>
+                          {% elif per.id_compromiso.id_estado.id == 3 %}
+                            <span class="badge bg-danger">{{per.id_compromiso.id_estado.descripcion}}</span>
+                          {% endif %}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                      {% else %}
+                      <tr>
+                        <td colspan="5">No hay datos. </td>
+                      </tr>
+                      {% endif %}
+                    </tbody>
+                  </table>
+
+                </div>
+
+              </div>
+            </div>
+             <!--=============== end compromisos =================================-->
+            </div>
+          </div><!-- End Left side columns -->
+  
+          <!-- Right side columns -->
+          <div class="col-lg-4">
+  
+            <!-- Recent Activity -->
+            <div class="card">
+              <!---
+              <div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                  <li class="dropdown-header text-start">
+                    <h6>Filter</h6>
+                  </li>
+  
+                  <li><a class="dropdown-item" href="#">Today</a></li>
+                  <li><a class="dropdown-item" href="#">This Month</a></li>
+                  <li><a class="dropdown-item" href="#">This Year</a></li>
+                </ul>
+              </div>-->
+  
+              <div class="card-body">
+                <h5 class="card-title">Proximas sesiones</h5>
+  
+                <div class="activity">
+                  {% if sesiones %}
+                  {% for sesion in sesiones %}
+                  <div class="activity-item d-flex">
+                    <div class="activite-label">{{ sesion.fechainicio |date:"d/m/Y"  }}</div>
+                    <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
+                    <div class="activity-content">
+                        {% for temassesion in sesion.temassesion_set.all %}
+                        <p>Tema: {{ temassesion.competencias }}</p>
+                        {% endfor %}
+                    </div>
+                  </div><!-- End activity item-->
+                   {% endfor %}
+                   {% else %}
+                   <p>No hay sesiones programadas.</p>
+                   {% endif %}
+                  <!-- ================= End activity item ================-->
+                </div>
+  
+              </div>
+            </div><!-- End Recent Activity -->
+
+            <!-- Website Traffic -->
+            <div class="card">
+              <!--============= filtro ===========-->
+             <!---<div class="filter">
+                <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                  <li class="dropdown-header text-start">
+                    <h6>Curso</h6>
+                  </li>
+                  <li><a class="dropdown-item" href="#">Liderazgo</a></li>
+                  <li><a class="dropdown-item" href="#">Venta consultivas</a></li>
+                  <li><a class="dropdown-item" href="#">Gamificación</a></li>
+                </ul>
+              </div>-->
+              <!--=================================-->
+              <div class="card-body pb-0">
+                <h5 class="card-title">Métricas del curso</h5>
+                <p>{{valorescurso.curso.idsesioncurso.idcurso.nombre}}</p>
+                <canvas id="graficoTorta" style="min-height: 250px;" class="echart"></canvas>
+              </div>
+            </div><!-- End Website Traffic -->
+  
+          </div><!-- End Right side columns -->
+  
+        </div>
+      </section>
+       <!--==========================================-->
+  </main><!-- End #main -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    new Chart(document.querySelector('#graficoTorta'), {
+      type: 'pie',
+      data: {
+        labels: [
+          'Relevancia del contenido {{ valorescurso.valorc1 }}%',
+          'Claridad de la presentación {{ valorescurso.valorc2 }}%',
+          'Aplicabilidad de los conceptos {{ valorescurso.valorc3 }}%'
+        ],
+        datasets: [{
+          data: ['{{ valorescurso.valorc1 }}', '{{ valorescurso.valorc2 }}', '{{ valorescurso.valorc3 }}'],
+          backgroundColor: [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 205, 86)'
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          datalabels: {
+            color: '#fff',
+            formatter: (value) => {
+              return value + '%';
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+<script>
+     // Obtener el valor de porasis y porform desde el template y convertirlos a números
+  let porasis = parseFloat('{{ porasis|floatformat:"2"|safe }}');
+  let porform = parseFloat('{{ porform|floatformat:"2"|safe }}');
+  let porcomp = parseFloat('{{ porcomp|floatformat:"2"|safe }}');
+
+  // Actualizar el ancho de la barra de progreso
+  document.addEventListener("DOMContentLoaded", function() {
+    let barraProgreso = document.getElementById('barra-progreso');
+    let barraFormularios = document.getElementById('barra-progreso-formularios');
+    let barraCompromisos = document.getElementById('barra-progreso-compromisos');
+
+    // Actualizar la barra de progreso de asistencias
+    barraProgreso.style.width = porasis + '%';
+    barraProgreso.setAttribute('aria-valuenow', porasis);
+    barraProgreso.innerText = porasis.toFixed(2) + '%';
+    
+    // Actualizar la barra de progreso de formularios
+    barraFormularios.style.width = porform + '%';
+    barraFormularios.setAttribute('aria-valuenow', porform);
+    barraFormularios.innerText = porform.toFixed(2) + '%';
+
+     // Actualizar la barra de progreso de asistencias
+    barraCompromisos.style.width = porcomp + '%';
+    barraCompromisos.setAttribute('aria-valuenow', porcomp);
+    barraCompromisos.innerText = porcomp.toFixed(2) + '%';
+    
+    // Aplicar clases de color según el valor del porcentaje
+    if (porasis < 30) {
+      barraProgreso.classList.add('bg-danger');
+    } else if (porasis >= 30 && porasis < 70) {
+      barraProgreso.classList.add('bg-primary');
+    } else {
+      barraProgreso.classList.add('bg-success');
+    }
+    
+    if (porform < 30) {
+      barraFormularios.classList.add('bg-danger');
+    } else if (porform >= 30 && porform < 70) {
+      barraFormularios.classList.add('bg-primary');
+    } else {
+      barraFormularios.classList.add('bg-success');
+    }
+     
+    // para compromisos
+    if (porcomp < 30) {
+      barraCompromisos.classList.add('bg-danger');
+    } else if (porasis >= 30 && porasis < 70) {
+      barraCompromisos.classList.add('bg-primary');
+    } else {
+      barraCompromisos.classList.add('bg-success');
+    }
+  });
+</script>
+
+{% endblock %} 

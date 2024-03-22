@@ -1,9 +1,14 @@
+from audioop import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
+from appcultura.modelos.avancecompromisos import AvanceCompromisos
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
 from appcultura.modelos.cursos import Curso
+from appcultura.modelos.estado_compromisos import EstadoCompromisos
+from appcultura.modelos.fechascompromiso import FechasCompromisos
 from appcultura.modelos.gruposcursos import GruposCursos
 from datetime import datetime, date
 from django.contrib import messages
@@ -250,17 +255,24 @@ def saveRespuestas(request, idsesion, idformu):
 @login_required
 def agregar_compromiso(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    compromises = Compromisos.objects.filter(id_usuario=perfil_usuario) #=== aqui retorna los compromisos del user logueado
     grupo_user = GruposUser.objects.filter(iduser=perfil_usuario)
     user_all = UserPerfil.objects.filter(idrol=2).exclude(id=perfil_usuario.id)
+    estadocom = EstadoCompromisos.objects.all()
     fecha_actual = date.today()
+    #==== modificar los compromisos que estan con la fecha vencida =====
+    noterminado = EstadoCompromisos.objects.filter(descripcion__icontains="no cumplido").first()
+    compromisos_anteriores = Compromisos.objects.filter(id_usuario=perfil_usuario, id_estado=2, fecha_final__lt=fecha_actual)  
+    for comp in compromisos_anteriores:
+        comp.id_estado = noterminado
+        comp.save() 
+    #===================================================================
+    compromises = Compromisos.objects.filter(id_usuario=perfil_usuario) #=== aqui retorna los compromisos del user logueado
     if grupo_user:
         for user in grupo_user:
             cursos = GruposCursos.objects.filter(idgrupo=user.idgrupo)
     else:
         cursos = ""
     if request.method == 'POST':
-        print(request.POST)
         compromiso = request.POST.get('textCompromiso')
         prioridad = request.POST.get('prioridad')
         fecha_str = request. POST.get('fechafinal')
@@ -276,9 +288,9 @@ def agregar_compromiso(request):
         add_compromiso = Compromisos(id_curso=curso, compromiso=compromiso, prioridad=prioridad, fecha_final=fecha_final, con_quien=con_quien_user, id_usuario=perfil_usuario)
         add_compromiso.save()
         message ="Compromiso agregado correctamente"
-        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message, 'compromisos':compromises})
+        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message, 'compromisos':compromises, 'fechamin':fecha_actual, 'estadocom':estadocom})
     else:
-        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises, 'fechamin':fecha_actual})
+        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises, 'fechamin':fecha_actual, 'estadocom':estadocom})
 
 @login_required
 def editarcompromiso(request, idcomp):
@@ -286,26 +298,82 @@ def editarcompromiso(request, idcomp):
         compromiso = request.POST.get('textCompromiso')
         fecha = request. POST.get('fechafinal')
         personas = request.POST.getlist('idpersona')
+        idestado = request.POST.get('estadoCom')
         # guardar la informacion de personas compromiso
-        personasActuales = PersonasCompromisos.objects.filter(id_compromiso=idcomp)
+        #personasActuales = PersonasCompromisos.objects.filter(id_compromiso=idcomp)
+        estadopen = EstadoCompromisos.objects.get(id=2)
+        estadoactual = EstadoCompromisos.objects.get(id=idestado)
         # buscar el objeto compromiso por el id
         updateCompromiso = get_object_or_404(Compromisos, id=idcomp)
+        #==== validar si la fecha es mayor a la anterior =====
         updateCompromiso.compromiso =  compromiso
-        updateCompromiso.fecha_final = fecha
+        fechafin = updateCompromiso.fecha_final
+        fechanew = datetime.strptime(fecha, '%Y-%m-%d').date() #type str a date
+        if fechafin<fechanew:
+           updateCompromiso.fecha_final = fecha
+           updateCompromiso.id_estado = estadopen
+           addfecha = FechasCompromisos(fechadd=fecha, idcompromiso=updateCompromiso)
+           addfecha.save()
+        else:
+           updateCompromiso.id_estado = estadoactual
         updateCompromiso.save()
         # registrar los usuarios
-        deletePersonas = PersonasCompromisos.objects.filter(id_compromiso=idcomp)
-        deletePersonas.delete()
-        # guardar la informacion
-        for userper in personas:
-            buscaruser = get_object_or_404(UserPerfil, id=userper)
-            addPersonas = PersonasCompromisos(id_compromiso=updateCompromiso, id_usuario=buscaruser)
-            addPersonas.save()
+        if 'noaplica' in request.POST:
+            deletePersonas = PersonasCompromisos.objects.filter(id_compromiso=idcomp)
+            deletePersonas.delete()
+        else:
+            # guardar la informacion
+            deletePersonas = PersonasCompromisos.objects.filter(id_compromiso=idcomp)
+            deletePersonas.delete()
+            for userper in personas:
+                buscaruser = get_object_or_404(UserPerfil, id=userper)
+                addPersonas = PersonasCompromisos(id_compromiso=updateCompromiso, id_usuario=buscaruser)
+                addPersonas.save()
         return redirect('compromisos')
     else:
         return redirect('compromisos')
-    
 
+#================ agregar avances al compromisos============
+@login_required
+def craeteAvance(request):
+    if request.method == 'POST':
+        fechaini = request.POST.get('fecini', '')
+        fechafin = request.POST.get('fecfin', '')
+        estado = request.POST.get('estado', '')
+        activ = request.POST.get('actividad', '')
+        idcom = request.POST.get('idcom')
+        compromiso = get_object_or_404(Compromisos, id=idcom)
+        addavance = AvanceCompromisos(fechaini=fechaini, fechafin=fechafin, actividad=activ, estado=estado, idcompromiso=compromiso)
+        addavance.save()
+        messages.error(request, 'Actividad agregada de manera exitosa.')
+        return redirect('compromisos')
+    
+#============ actualizar los avances ==========  
+@login_required
+def updateAvance(request, idavance):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    print('id del avance', idavance)
+    if request.method == 'POST':
+       updateavance = get_object_or_404(AvanceCompromisos, id=idavance)
+       updateavance.fechaini = request.POST.get('fechainiavance', '')
+       updateavance.fechafin = request.POST.get('fechafinavance', '')
+       updateavance.actividad = request.POST.get('actividad', '')
+       updateavance.estado = request.POST.get('estadoavance', '')
+       updateavance.puntaje = request.POST.get('puntos', '')
+       updateavance.respuesta = request.POST.get('respuesta', '')
+       updateavance.idusurespuesta = perfil_usuario
+       updateavance.save()
+       messages.success(request, 'Actividad actualizada exitosamente.')
+       return redirect('compromisos')
+      
+
+# ============== eliminar los avances =========
+@login_required
+def deleteAvance(request, idavance):
+    elim = get_object_or_404(AvanceCompromisos, id=idavance)
+    elim.delete()
+    messages.success(request, 'Actividad eliminada exitosamente.')
+    return redirect('compromisos') 
 #=============== aqui evaluar formularios del QR
 # crear la ruta que permite ver el formulario en linea
 def verFormuQR(request, idsesion):

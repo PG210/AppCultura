@@ -162,8 +162,13 @@ urlpatterns = [
     path('formador/cambiar/empresa/', viewformador.cambiarEmpresa, name="cambiarEmpresa"),
     path('formador/empresa/', viewformador.consultarEmpresa, name="consultarEmpresa"),
     
+    #==================================== agregar actividades a compromisos ===================
+    path('usuario/add/avance/', viewuser.craeteAvance, name="craeteAvance"),
+    path('usuario/update/avance/<int:idavance>/', viewuser.updateAvance, name="updateAvance"),
+    path('usuario/delete/avance/<int:idavance>/', viewuser.deleteAvance, name="deleteAvance"),
+    
     #====================================Apis=======================================================================
-   
+    
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

@@ -36,3 +36,7 @@ from .modelos.comptenciascursos import CompetenciaCurso
 from .modelos.formador_empresa import FormadorEmpresa
 
 from .modelos.calificacionformador import CalificacionFormador
+
+#=========== avances de compromiso ====
+from .modelos.avancecompromisos import AvanceCompromisos
+from .modelos.fechascompromiso import FechasCompromisos
