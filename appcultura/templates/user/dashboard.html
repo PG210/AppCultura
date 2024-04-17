@@ -11,6 +11,18 @@
           </ol>
         </nav>
       </div><!-- End Page Title -->  
+        <!--============================================-->
+        <div class="filter">
+          <a type="button" class="icon btn btn-outline-success btn-sm mb-2" data-bs-toggle="dropdown"><i class="bi bi-funnel"></i></a>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+            <li class="dropdown-header text-start">
+              <h6>Curso</h6>
+            </li> 
+            {% for curso in info.grupocurso %}
+            <li><a class="dropdown-item" href="{% url 'filtrarCurso' idcurso=curso.idcurso.id %}">{{ curso.idcurso.nombre }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
        <!--==========================================-->
        <section class="section dashboard">
         <div class="row">
@@ -44,7 +56,7 @@
                               <div class="card card-body">
                                <!--===== aqui itera-->
                                 <div class="activity mt-3">
-                                  {% for asistencia_item in asistencia %}
+                                  {% for asistencia_item in info.asistencia %}
                                       {% for tema_sesion in asistencia_item.idsesioncurso.temassesion_set.all %}
                                           <div class="activity-item d-flex">
                                               <div class="activite-label">{{ asistencia_item.fecha_asistencia | date:'d/m/Y' }}</div>
@@ -97,7 +109,7 @@
                   </div>
                   <!--===============================-->
                   <div class="card-body">
-                    <h5 class="card-title">Asistencias </span></h5>
+                    <h5 class="card-title">Asistencias </span><span>{{curso.idsesioncurso.idcurso.nombre}} {{curso.nombre}}</span></h5>
                     <div class="d-flex align-items-center">
                       <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                         <i class="bi bi-person-check"></i>
@@ -106,13 +118,13 @@
                         <!--=========================================-->
                         <div class="row">
                           <div class="col-lg-12">
-                            <div class="small text-muted pt-1 fw-bold"><span>Asistencias: <b>{{tasis}}</b></span></div>
+                            <div class="small text-muted pt-1 fw-bold"><span>Asistencias: <b>{{info.tasis}}</b></span></div>
                           </div>
                           <div class="col-lg-12 small text-muted pt-1 fw-bold">
-                            <span>No asistencias: <b>{{noasis.totfaltantes}}</b></span>
+                            <span>No asistencias: <b>{{info.noasis.totfaltantes}}</b></span>
                           </div>
                           <div class="col-lg-12">
-                            <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{totalasis}}</b></span></div>
+                            <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{info.totalasis}}</b></span></div>
                           </div>
                         </div>
                         <!--=============================================-->
@@ -141,7 +153,7 @@
                       <li class="dropdown-header text-start">
                         <h6>Sesiones</h6>
                       </li>
-                      {% for ses in sesion %}
+                      {% for ses in info.sesion %}
                       <li><a class="dropdown-item" href="{% url 'verformusesion' idsesion=ses.idsesion %}">Ver sesión {{ forloop.counter }}</a></li>
                       {% endfor %}
                     </ul>
@@ -157,13 +169,13 @@
                       <div class="ps-3">
                         <div class="row">
                           <div class="col-lg-12">
-                            <div class="small text-muted pt-1 fw-bold"><span>Contestados: <b>{{totforms}}</b></span></div>
+                            <div class="small text-muted pt-1 fw-bold"><span>Contestados: <b>{{info.totforms}}</b></span></div>
                           </div>
                           <div class="col-lg-12">
-                            <div class="small text-muted pt-1 fw-bold"><span>Pendientes: <b>{{formpendientes}}</b></span></div>
+                            <div class="small text-muted pt-1 fw-bold"><span>Pendientes: <b>{{info.formpendientes}}</b></span></div>
                           </div>
                           <div class="col-lg-12">
-                            <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{formtotal}}</b></span></div>
+                            <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{info.formtotal}}</b></span></div>
                           </div>
                         </div>
                       
@@ -204,7 +216,7 @@
                     </div>
                     <div class="col-lg-3 mt-3">
                       <div class="small text-muted fw-bold"><span>Total: 
-                         <b> {{totcompromisos}}</b></span> 
+                         <b> {{ compromisos.totcompromisos}}</b></span> 
                       </div>
                     </div>
                     </div>
@@ -219,17 +231,17 @@
                           </div>
                           <div class="col-lg-3">
                             <div class="small text-muted fw-bold"><span>Cumplidos: </span>
-                              <br><b>{{total_cumplido}}</b>
+                              <br><b>{{compromisos.total_cumplido}}</b>
                             </div>
                           </div>
                           <div class="col-lg-3">
                             <div class="small text-muted fw-bold"><span>Pendientes:</span>
-                              <br><b>{{total_pendientes}}</b>
+                              <br><b>{{compromisos.total_pendientes}}</b>
                             </div>
                           </div>
                           <div class="col-lg-3">
                             <div class="small text-muted fw-bold"><span>No cumplidos: </span> 
-                              <br> <b>{{total_nocumplido}}</b>
+                              <br> <b>{{compromisos.total_nocumplido}}</b>
                             </div>
                           </div>
                                                 
@@ -237,7 +249,7 @@
                         <!--=========================-->   
                          <!---========== calcular barras de progreso ==========-->
                         <div class="progress mt-3" role="progressbar" aria-label="Success example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                          <div id="barra-progreso-compromisos" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{porcomp | floatformat:"2"}}%</div>
+                          <div id="barra-progreso-compromisos" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">{{compromisos.porcomp | floatformat:"2"}}%</div>
                         </div>
                         <!--===============--> 
                       </div>
@@ -278,18 +290,20 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% for com in compromisos %}
+                        {% for com in compromisos.compromisos %}
                         <tr>
                           <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
                           <td>
                             <!--Personas a colaborar en un compromiso-->
+                            <ul>
                             {% if com.personascompromisos_set.all %}
                             {% for personas in com.personascompromisos_set.all %}
-                                {{personas.id_usuario.nombre}}  {{personas.id_usuario.apellido}}
+                               <li>{{personas.id_usuario.nombre}}  {{personas.id_usuario.apellido}}</li> 
                             {% endfor %}
                             {% else %}
                                 <span>Sin colaboradores.</span>
                             {% endif %}
+                             </ul>
                             <!--====================================-->
                           </td>
                           <td><span class="text-primary">{{ com.compromiso }}</span></td>
@@ -351,7 +365,9 @@
                         <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
                         <td>
                           <!--Personas a colaborar en un compromiso-->
+                            <li>
                               {{per.idcompromiso.id_usuario.nombre}}  {{per.idcompromiso.id_usuario.apellido}}
+                            </li>  
                           <!--======================================-->
                         </td>
                         <td><a href="#" class="text-primary">{{ per.id_compromiso.compromiso }}</a></td>
@@ -406,8 +422,8 @@
                 <h5 class="card-title">Proximas sesiones</h5>
   
                 <div class="activity">
-                  {% if sesiones %}
-                  {% for sesion in sesiones %}
+                  {% if info.sesiones %}
+                  {% for sesion in info.sesiones %}
                   <div class="activity-item d-flex">
                     <div class="activite-label">{{ sesion.fechainicio |date:"d/m/Y"  }}</div>
                     <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
@@ -448,7 +464,15 @@
                 <canvas id="graficoTorta" style="min-height: 250px;" class="echart"></canvas>
               </div>
             </div><!-- End Website Traffic -->
-  
+
+            <!--===============================================================-->
+            <div class="card">
+              <div class="card-body pb-0">
+                <h5 class="card-title">Aceptación del formador <span>{{curso.idsesioncurso.idcurso.nombre}}</span></h5>
+                <div id="aceptacion_formador" style="min-height: 480px;" class="echart"></div>
+              </div>
+            </div>
+            <!--===============================================================-->
           </div><!-- End Right side columns -->
   
         </div>
@@ -489,9 +513,9 @@
 </script>
 <script>
      // Obtener el valor de porasis y porform desde el template y convertirlos a números
-  let porasis = parseFloat('{{ porasis|floatformat:"2"|safe }}');
-  let porform = parseFloat('{{ porform|floatformat:"2"|safe }}');
-  let porcomp = parseFloat('{{ porcomp|floatformat:"2"|safe }}');
+  let porasis = parseFloat('{{ info.porasis|floatformat:"2"|safe }}');
+  let porform = parseFloat('{{ info.porform|floatformat:"2"|safe }}');
+  let porcomp = parseFloat('{{ compromisos.porcomp|floatformat:"2"|safe }}');
 
   // Actualizar el ancho de la barra de progreso
   document.addEventListener("DOMContentLoaded", function() {
@@ -541,5 +565,56 @@
     }
   });
 </script>
-
+<!--==============================aceptacion formador=============================-->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+      // Definir los valores numéricos para las categorías
+      new ApexCharts(document.querySelector("#aceptacion_formador"), {
+          series: [{
+              name: 'Porcentaje',
+              data: ['{{ valorescurso.vfclaridad }}', '{{ valorescurso.vfcapacidad }}', '{{ valorescurso.vfdominio }}'],
+          }],
+          chart: {
+              height: 350,
+              type: 'bar',
+              toolbar: {
+                  show: false
+              },
+          },
+          colors: ['#ff771d'],
+          plotOptions: {
+              bar: {
+                  horizontal: false, // Cambiado a vertical para no girar el gráfico
+              }
+          },
+          dataLabels: {
+              enabled: true,
+              style: {
+                    colors: ["#000000"]
+                }
+          },
+          xaxis: {
+              categories:['Claridad', 'Capacidad', 'Dominio'], // Utilizar los valores numéricos como categorías
+              title: {
+                  text: 'Aspectos evaluados',
+                  offsetX: 0,
+                  offsetY: -10
+              },
+              labels: {
+                  show: true,
+              }
+          },
+          yaxis: {
+              title: {
+                  text: 'Rango Porcentaje',
+                  offsetX: 0,
+                  offsetY: 0
+              }
+          },
+          legend: {
+              show: false // Ocultar la leyenda
+          }
+      }).render();
+  });
+</script>
 {% endblock %} 

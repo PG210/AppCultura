@@ -1,0 +1,566 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Dashboard</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item active">Dashboard</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+
+        <!-- Left side columns -->
+        <div class="col-lg-8">
+          <div class="row">
+
+            <!-- Sales Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card sales-card">
+
+                <div class="filter">
+                  <a class="icon" href="#" data-bs-toggle="dropdown">&nbsp;<i class="bi bi-three-dots"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                      <h6>Curso</h6>
+                    </li>
+                    {% for curso in cursos %}
+                    <li><a class="dropdown-item" href="{% url 'filtrarCurso' idcurso=curso.id %}">{{curso.nombre}}</a></li>
+                    {% endfor %}
+                  </ul>
+                </div>
+
+                <div class="card-body">
+                  <h5 class="card-title mt-2">Curso <span>| {{asisadmin.curso.nombre}}</span></h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-person-check"></i>
+                    </div>
+                    <div class="ps-3">
+                      <!--datos-->
+                      <div class="row">
+                        <div class="col-lg-12">
+                          <div class="small text-muted pt-1 fw-bold"><span>Asistencias: <b>{{ asisadmin.total_asistencias }}</b></span> | <span class="text-success small pt-1 fw-bold">{{asisadmin.porasis}}%</span></div>
+                        </div>
+                        <div class="col-lg-12 small text-muted pt-1 fw-bold">
+                          <span>Faltas: <b>{{ asisadmin.faltas }}</b></span> | <span class="text-success small pt-1 fw-bold">{{asisadmin.porfaltas}}%</span>
+                        </div>
+                        <div class="col-lg-12">
+                          <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{ asisadmin.total_users }}</b></span> | <span class="text-success small pt-1 fw-bold">{{asisadmin.portotal}}%</span></div>
+                        </div>
+                      </div>
+                      <!--end datos-->
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- End Sales Card -->
+
+            <!-- Revenue Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card revenue-card">
+
+                <div class="card-body">
+                  <h5 class="card-title mt-2">Formularios <span> | {{formularios.curso.nombre}}</span></h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-pencil-square"></i>
+                    </div>
+                    <div class="ps-3">
+                       <!---informacion de formularos-->
+                       <div class="row">
+                        <div class="col-lg-12">
+                          <div class="small text-muted pt-1 fw-bold"><span>Contestados: <b> {{formularios.completados}} </b></span> | <span class="text-success small pt-1 fw-bold">{{formularios.porcom}}%</span></div>
+                        </div>
+                        <div class="col-lg-12 small text-muted pt-1 fw-bold">
+                          <span>Pendientes: <b>{{formularios.falta}}</b></span> | <span class="text-success small pt-1 fw-bold">{{formularios.porfalta}}%</span>
+                        </div>
+                        <div class="col-lg-12">
+                          <div class="small text-muted pt-1 fw-bold"><span>Total: <b>{{formularios.total}}</b></span> | <span class="text-success small pt-1 fw-bold">{{formularios.portotal}}%</span></div>
+                        </div>
+                      </div>
+                       <!--end informacion -->  
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- End Revenue Card -->
+
+            <!-- Customers Card 
+            <div class="col-xxl-4 col-xl-12">
+
+              <div class="card info-card customers-card">
+
+                <div class="filter">
+                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                      <h6>Filter</h6>
+                    </li>
+
+                    <li><a class="dropdown-item" href="#">Today</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                  </ul>
+                </div>
+
+                <div class="card-body">
+                  <h5 class="card-title">Customers <span>| This Year</span></h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-people"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6>1244</h6>
+                      <span class="text-danger small pt-1 fw-bold">12%</span> <span class="text-muted small pt-2 ps-1">decrease</span>
+
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>---->
+
+            <!-- Reports -->
+            <div class="col-12">
+              <div class="card">
+
+                <div class="card-body">
+                  <h5 class="card-title">Rango de avance <span>| {{asisadmin.curso.nombre}} </span></h5>
+              
+                  <div id="reportsChart"></div> 
+                  <!-- End Line Chart -->
+                </div>
+
+              </div>
+            </div><!-- End Reports -->
+
+            <!-- Recent Sales -->
+            <div class="col-12">
+              <div class="card recent-sales overflow-auto">
+                <div class="card-body">
+                  <h5 class="card-title">Colaboradores con la calificación mas alta <span>|  {{asisadmin.curso.nombre}}  </span></h5>
+                 
+                  <table class="table table-borderless datatable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Colaborador</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                       <!---imprimir listado de datos-->
+                        {% for clave, valor in calificacion.primeros_valores %}
+                          {% for user in users %}
+                          {% if user.id == clave %}
+                            <tr>
+                              <td>{{ user.nombre }} {{user.apellido}}</td>
+                              <td>{{ user.user.username}}</td>
+                              <td>{{ valor }}</td>
+                            </tr>
+                            {% endif %}
+                          {% endfor %} 
+                        {% endfor %}              
+                  <!---================================-->
+                    </tbody>
+                  </table>
+
+                </div>
+
+              </div>
+            </div><!-- End Recent Sales -->
+
+            <!-- Top Selling -->
+            <div class="col-12">
+              <div class="card top-selling overflow-auto">
+                <!--============================-->
+                <div class="filter">
+                  <a class="icon"  href="#" data-bs-toggle="modal" data-bs-target="#curso">
+                    <i class="bi bi-three-dots"></i>
+                  </a>
+                  <!-- Button trigger modal -->
+                  <!-- Modal -->
+                  <div class="modal fade" id="curso" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Compromisos Colaboradores</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <!--=================== datos===============-->
+                          <table class="table table-borderless datatable">
+                            <thead>
+                              <tr>
+                                <th scope="col">No</th>
+                                <th scope="col">Colaborador</th>
+                                <th scope="col">Detalle</th>
+                                <th scope="col">Fecha final</th>
+                                <th scope="col">Estado</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for com in compromisos.comusu %}
+                              <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{com.id_usuario.nombre}} {{com.id_usuario.apellido}}</td>
+                                <td>{{com.compromiso}}</td>
+                                <td>{{com.fecha_final|date:'d/m/Y'}}</td>
+                                <td>
+                                  {% if com.id_estado.id == 1 %}
+                                    <span class="badge bg-success">{{com.id_estado.descripcion}}</span>
+                                  {% elif com.id_estado.id == 2 %}
+                                    <span class="badge bg-warning">{{com.id_estado.descripcion}}</span>
+                                  {% elif com.id_estado.id == 3 %}
+                                    <span class="badge bg-danger">{{com.id_estado.descripcion}}</span>
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                          <!--========================================-->
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <!---=====================-->
+                </div>
+                <!---==============-->
+                <div class="card-body pb-0">
+                  <h5 class="card-title">Compromisos <span>| {{asisadmin.curso.nombre}}</span></h5>
+                  <!--============== grafico ===============-->
+                  <div id="comportamientos"></div> 
+                  <!---=====================================-->
+                </div>
+              </div>
+            </div><!-- End Top Selling -->
+
+          </div>
+        </div><!-- End Left side columns -->
+
+        <!-- Right side columns -->
+        <div class="col-lg-4">
+
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Proximas sesiones</h5>
+
+              <div class="activity">
+              <!--===================================-->
+              {% if sesiones %}
+              {% for sesion in sesiones %}
+              <div class="activity-item d-flex">
+                <div class="activite-label">{{ sesion.fechainicio |date:"d/m/Y"  }}</div>
+                <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
+                <div class="activity-content">
+                    {% for temassesion in sesion.temassesion_set.all %}
+                    <p>Tema: {{ temassesion.competencias }}</p>
+                    {% endfor %}
+                </div>
+              </div><!-- End activity item-->
+               {% endfor %}
+               {% else %}
+               <p>No hay sesiones programadas.</p>
+               {% endif %}
+              <!--===================================-->
+              </div>
+            </div>
+          </div><!-- End Recent Activity -->
+
+          <!-- Budget Report -->
+          <div class="card">
+            <div class="card-body pb-0">
+              <h5 class="card-title">Asistencias <span>| {{asisadmin.curso.nombre}}</span></h5>
+              <canvas id="graficoTorta" style="min-height: 150px;" class="echart"></canvas>
+              <!---=======================-->
+              <!--======================-->
+            </div>
+          </div><!-- End Budget Report -->
+
+          <!-- Website Traffic -->
+          <div class="card">
+            <div class="card-body pb-0">
+              <h5 class="card-title">Aceptación del curso <span>| {{asisadmin.curso.nombre}}</span></h5>
+              {% if calificacioncurso.valorc1 %}
+              <div id="trafficChart" style="min-height: 480px;" class="echart"></div>
+              {% endif %}
+            </div>
+          </div><!-- End Website Traffic -->
+
+        <!---======================== aceptacion formador ====================-->
+          <!-- Website Traffic -->
+          <div class="card">
+            <div class="card-body pb-0">
+              <h5 class="card-title">Aceptación del formador <span>| {{asisadmin.curso.nombre}}</span></h5>
+              {% if calificacioncurso.valorc1 %}
+              <div id="aceptacion_formador" style="min-height: 480px;" class="echart"></div>
+              {% endif %}
+            </div>
+          </div>
+          <!-- =======================================00 -->
+
+        </div><!-- End Right side columns -->
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+  <!---=================Grafica de torta==========-->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      new Chart(document.querySelector('#graficoTorta'), {
+        type: 'pie',
+        data: {
+          labels: [
+            'Faltas {{asisadmin.porfaltas}}%',
+            'Asistencias {{asisadmin.porasis}}%'
+          ],
+          datasets: [{
+            data: ['{{ asisadmin.total_asistencias }}', '{{ asisadmin.faltas }}'],
+            backgroundColor: [
+              'rgb(54, 162, 235)',
+              'rgb(255, 205, 86)'
+            ]
+          }]
+        },
+        options: {
+          plugins: {
+            datalabels: {
+              color: '#fff',
+              formatter: (value) => {
+                return value + '%';
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+  <!--================grafica de barras 1===================-->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        new ApexCharts(document.querySelector("#reportsChart"), {
+            series: [{
+                name: 'Total colaboradores',
+                data: ['{{ calificacion.valor1 }}', '{{ calificacion.valor2 }}', '{{ calificacion.valor3 }}', '{{ calificacion.valor4 }}'], // Cambiado el valor para el rango 0% - 25%
+            }],
+            chart: {
+                height: 350,
+                type: 'bar', // Cambiado a tipo de gráfico de barras
+                toolbar: {
+                    show: false
+                },
+            },
+            markers: {
+                size: 2
+            },
+            colors: ['#4154f1', '#2eca6a', '#ff771d'],
+            fill: {
+                type: "gradient",
+                gradient: {
+                    shadeIntensity: 0.5,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.7,
+                    stops: [10, 50, 100]
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                style: {
+                      colors: ["#000000"] // Cambiamos el color a negro
+                  }
+            },
+            stroke: {
+                curve: 'smooth',
+                width: 1
+            },
+            xaxis: {
+                type: 'category', // Cambiado a tipo de categoría para las barras
+                categories: ['0% - 25%', '26% - 50%', '51% - 75%', '76% - 100%'], // Cambiado para mostrar los nombres de los rangos en el eje x
+                title: {
+                    text: 'Porcentaje de avance' // Agregamos etiqueta al eje X
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Colaboradores' // Agregamos etiqueta al eje Y
+                }
+            }
+        }).render();
+    });
+</script>
+<!---=============== grafica de barras dos ==================-->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+      // Definir los valores numéricos para las categorías
+      new ApexCharts(document.querySelector("#trafficChart"), {
+          series: [{
+              name: 'Porcentaje',
+              data: ['{{ calificacioncurso.valorc1 }}', '{{ calificacioncurso.valorc2 }}', '{{ calificacioncurso.valorc3 }}'],
+          }],
+          chart: {
+              height: 350,
+              type: 'bar',
+              toolbar: {
+                  show: false
+              },
+          },
+          colors: ['#2eca6a', '#2eca6a', '#ff771d'],
+          plotOptions: {
+              bar: {
+                  horizontal: false, // Cambiado a vertical para no girar el gráfico
+              }
+          },
+          dataLabels: {
+              enabled: true,
+              style: {
+                    colors: ["#000000"]
+                }
+          },
+          xaxis: {
+              categories:['Contenido', 'Presentación', 'Conceptos'], // Utilizar los valores numéricos como categorías
+              title: {
+                  text: 'Aspectos evaluados',
+                  offsetX: 0,
+                  offsetY: -10
+              },
+              labels: {
+                  show: true,
+              }
+          },
+          yaxis: {
+              title: {
+                  text: 'Rango Porcentaje',
+                  offsetX: 0,
+                  offsetY: 0
+              }
+          },
+          legend: {
+              show: false // Ocultar la leyenda
+          }
+      }).render();
+  });
+</script>
+<!--===================== grafica de comportamientos=========-->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+      new ApexCharts(document.querySelector("#comportamientos"), {
+          series: [{
+              name: 'Total compromisos',
+              data: ['{{ compromisos.cumplidos}}', '{{ compromisos.pendiente }}', '{{ compromisos.incumplido }}'], // Cambiado el valor para el rango 0% - 25%
+          }],
+          chart: {
+              height: 350,
+              type: 'bar', // Cambiado a tipo de gráfico de barras
+              toolbar: {
+                  show: false
+              },
+          },
+          markers: {
+              size: 2
+          },
+          colors: ['#CF1DFF'],
+          fill: {
+              type: "gradient",
+              gradient: {
+                  shadeIntensity: 0.5,
+                  opacityFrom: 0.4,
+                  opacityTo: 0.7,
+                  stops: [0, 50, 100]
+              }
+          },
+          dataLabels: {
+              enabled: true,
+              style: {
+                    colors: ["#000000"] // Cambiamos el color a negro
+                }
+          },
+          stroke: {
+              curve: 'smooth',
+              width: 1
+          },
+          xaxis: {
+              type: 'category', // Cambiado a tipo de categoría para las barras
+              categories: ['Cumplidos', 'Pendientes', 'Incumplidos'], // Cambiado para mostrar los nombres de los rangos en el eje x
+              title: {
+                  text: 'Estado compromisos' // Agregamos etiqueta al eje X
+              }
+          },
+          yaxis: {
+              title: {
+                  text: 'Total ' // Agregamos etiqueta al eje Y
+              }
+          }
+      }).render();
+  });
+</script>
+<!--==============================aceptacion formador=============================-->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+      // Definir los valores numéricos para las categorías
+      new ApexCharts(document.querySelector("#aceptacion_formador"), {
+          series: [{
+              name: 'Porcentaje',
+              data: ['{{ calificacioncurso.vfclaridad }}', '{{ calificacioncurso.vfcapacidad }}', '{{ calificacioncurso.vfdominio }}'],
+          }],
+          chart: {
+              height: 350,
+              type: 'bar',
+              toolbar: {
+                  show: false
+              },
+          },
+          colors: ['#ff771d'],
+          plotOptions: {
+              bar: {
+                  horizontal: false, // Cambiado a vertical para no girar el gráfico
+              }
+          },
+          dataLabels: {
+              enabled: true,
+              style: {
+                    colors: ["#000000"]
+                }
+          },
+          xaxis: {
+              categories:['Claridad', 'Capacidad', 'Dominio'], // Utilizar los valores numéricos como categorías
+              title: {
+                  text: 'Aspectos evaluados',
+                  offsetX: 0,
+                  offsetY: -10
+              },
+              labels: {
+                  show: true,
+              }
+          },
+          yaxis: {
+              title: {
+                  text: 'Rango Porcentaje',
+                  offsetX: 0,
+                  offsetY: 0
+              }
+          },
+          legend: {
+              show: false // Ocultar la leyenda
+          }
+      }).render();
+  });
+</script>
+{% endblock %} 

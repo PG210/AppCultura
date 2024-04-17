@@ -167,7 +167,8 @@ urlpatterns = [
     path('usuario/update/avance/<int:idavance>/', viewuser.updateAvance, name="updateAvance"),
     path('usuario/delete/avance/<int:idavance>/', viewuser.deleteAvance, name="deleteAvance"),
     
-    #====================================Apis=======================================================================
+    #====================================Dashboard de admin=======================================================================
+    path('administracion/filtrar/curso/<int:idcurso>/', views.filtrarcurso, name="filtrarCurso"),
     
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

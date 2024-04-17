@@ -157,7 +157,7 @@
                                               {% if comp.personascompromisos_set.all %}
                                                 {% for respuesta in comp.personascompromisos_set.all %} 
                                                   <li>
-                                                      {{ persona.nombre }} {{ persona.apellido }}
+                                                      {{ respuesta.id_usuario.nombre }} {{ respuesta.id_usuario.apellido }}
                                                   </li>  
                                                 {% endfor %}
                                               {% else %}
