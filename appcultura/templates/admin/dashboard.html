@@ -44,7 +44,11 @@
                     </div>
                     <div class="ps-3">
                       <!--datos-->
+                      <span class="small text-muted pt-1 fw-bold">No Sesiones: {{asisadmin.nsesiones}}</span>
                       <div class="row">
+                        <div class="col-lg-12">
+                          <span class="small text-muted pt-1 fw-bold">No. colaboradores: {{asisadmin.nusu}}</span>
+                        </div>
                         <div class="col-lg-12">
                           <div class="small text-muted pt-1 fw-bold"><span>Asistencias: <b>{{ asisadmin.total_asistencias }}</b></span> | <span class="text-success small pt-1 fw-bold">{{asisadmin.porasis}}%</span></div>
                         </div>
@@ -76,7 +80,11 @@
                     </div>
                     <div class="ps-3">
                        <!---informacion de formularos-->
+                       <span class="small text-muted pt-1 fw-bold">Formularios asignados: {{formularios.formupersona}}</span>
                        <div class="row">
+                        <div class="col-lg-12">
+                          <span class="small text-muted pt-1 fw-bold">No. colaboradores: {{formularios.npersonas}}</span>
+                        </div>
                         <div class="col-lg-12">
                           <div class="small text-muted pt-1 fw-bold"><span>Contestados: <b> {{formularios.completados}} </b></span> | <span class="text-success small pt-1 fw-bold">{{formularios.porcom}}%</span></div>
                         </div>
@@ -333,7 +341,7 @@
             'Asistencias {{asisadmin.porasis}}%'
           ],
           datasets: [{
-            data: ['{{ asisadmin.total_asistencias }}', '{{ asisadmin.faltas }}'],
+            data: ['{{ asisadmin.faltas }}', '{{ asisadmin.total_asistencias }}'],
             backgroundColor: [
               'rgb(54, 162, 235)',
               'rgb(255, 205, 86)'

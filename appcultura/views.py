@@ -158,17 +158,20 @@ def verificarasis(asistencias):
     return valorasis
 #=========== buscar los cursos totales apara el admin =============
 def totalasistencias_admin(curso):
-    total_asistencias, total_users, faltas, porasis, porfaltas, portotal = 0, 0, 0, 0, 0, 0
+    total_asistencias, total_users, faltas, porasis, porfaltas, portotal, total_sesiones, total_users_n = 0, 0, 0, 0, 0, 0, 0, 0
     sesiones = Sesioncurso.objects.filter(idcurso=curso)
     #======= obtener el numero de asistencias del curso ============
     for nsesion in sesiones:
+         tot_sesiones = SesionAsistencia.objects.filter(idsesioncurso=nsesion).values('idsesioncurso').distinct().count()
          asistencia = SesionAsistencia.objects.filter(idsesioncurso=nsesion).count()
          total_asistencias += asistencia
+         total_sesiones += tot_sesiones
     #====== obtener el total colaboradores en el curso ===================
     grupos = GruposCursos.objects.filter(idcurso=curso)
     for ngrupos in grupos:
         n_user = GruposUser.objects.filter(idgrupo=ngrupos.idgrupo).count()
-        total_users += n_user
+        total_users_n += n_user
+    total_users = total_users_n*total_sesiones
     #====== faltas =========
     faltas = total_users - total_asistencias
     if total_users != 0:
@@ -183,7 +186,9 @@ def totalasistencias_admin(curso):
         'porasis': porasis,
         'porfaltas': porfaltas,
         'portotal': portotal,
-        'curso': curso
+        'curso': curso,
+        'nsesiones': total_sesiones,
+        'nusu': total_users_n
     }
     return datos_funcion
 
@@ -194,16 +199,24 @@ def sesionesproximas():
     return sesiones
 #=============== funcion para retornar los formularios contestados ============
 def formulariosCompletos(curso):
-    formularios, totform, falta, porcom, porfalta, portotal  = 0, 0, 0, 0, 0, 0
+    formularios, totform, falta, porcom, porfalta, portotal, total_formularios, npersonas  = 0, 0, 0, 0, 0, 0, 0, 0
     sesiones = Sesioncurso.objects.filter(idcurso=curso)
     for sesion in sesiones:
+        tot_formu = SesionFormulario.objects.filter(idsesion=sesion.id).values('idsesion').count() #== total de seiones 
         formu = RespuestaForm.objects.filter(idsesion=sesion.id).values('iduser').distinct().count()
         formularios += formu
-    #==== total de formularios =====
+        total_formularios += tot_formu
+    #==== total de formularios ========
+    #print('total formularios asignados', total_formularios)
     grupos = GruposCursos.objects.filter(idcurso=curso)
     for ngrupos in grupos:
         n_user = GruposUser.objects.filter(idgrupo=ngrupos.idgrupo).count()
         totform += n_user
+    #=========== cantidad de formularios * numero de personas =========
+    npersonas = totform
+    #print('total de personas', totform)
+    totform = totform*total_formularios
+    #print('total de formularios que deben haber', totform)
     falta = totform - formularios #=== formularios faltantes por responder
     if totform != 0:
         porcom = round(formularios*100/totform, 1)
@@ -216,7 +229,9 @@ def formulariosCompletos(curso):
         'porcom': porcom,
         'porfalta': porfalta,
         'portotal': portotal,
-        'curso': curso
+        'curso': curso,
+        'formupersona': total_formularios,
+        'npersonas': npersonas
     }
     return datos
 #=====================================================================
