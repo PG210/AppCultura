@@ -69,7 +69,7 @@
                       <tr>
                           <th>Asignados</th>
                           <th>Contestados</th>
-                          <th>Asignados</th>
+                          <th>Global</th>
                           <th>Contestados</th>
                       </tr>
                   </thead>
@@ -99,7 +99,7 @@
                       <!--% de calificacion asignado-->
                       {% for userperfil, porcentajes in datos.valores.items %}
                         {% if userperfil.id == user.id %}
-                        <span> {{ porcentajes.porespuesta }}%  </span> 
+                        <span>{{ porcentajes.porglobal }}%</span> 
                         {% endif %}
                       {% endfor %}
                       <!--======================-->
@@ -108,7 +108,7 @@
                       <!--=============% de calificacion global==============-->
                       {% for userperfil, porcentajes in datos.valores.items %}
                         {% if userperfil.id == user.id %}
-                        <span>{{ porcentajes.porglobal }}%</span> 
+                        <span> {{ porcentajes.porespuesta }}%  </span> 
                         {% endif %}
                       {% endfor %}
                     </td>
