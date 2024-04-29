@@ -80,11 +80,16 @@
                     </div>
                     <div class="col-12">
                       <label for="yourPassword" class="form-label">Contraseña</label>
-                      <input type="password" name="password" class="form-control" id="password" required>
+                      <div class="input-group">
+                        <span class="input-group-text" id="inputGroupPrepend02"><a type="button" id="showPasswordButton" onclick="togglePassword()"><i class="bi bi-eye-slash-fill"></i></a></span>
+                        <input type="password" name="password" class="form-control" id="password" required>
+                      </div>
                     </div>
+                    <!--==================rememvber me=======================-->
                     <div class="col-12">
-                      <input type="checkbox" id="showPassword" onchange="togglePassword()"> Mostrar contraseña
+                      <input type="checkbox" id="remember_me" name="remember_me"> <span>Recordar datos</span>
                     </div>
+                    <!--======================================================-->
                     <div class="col-12">
                       <button class="btn w-100" type="submit" style="background-color: #3f45a3; color: white;"><b>Iniciar</b></button>
                     </div>
@@ -105,10 +110,11 @@
 <script>
   function togglePassword() {
     var passwordInput = document.getElementById('password');
-    var showPasswordCheckbox = document.getElementById('showPassword');
-    // Cambiar el tipo de input basado en la casilla de verificación
-    passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
+    var showPasswordButton = document.getElementById('showPasswordButton');
+    // Cambiar el tipo de input basado en el estado del botón
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+    // Cambiar el contenido HTML del botón basado en el estado del input
+    showPasswordButton.innerHTML = passwordInput.type === 'password' ? '<i class="bi bi-eye-slash-fill"></i>' : '<i class="bi bi-eye-fill"></i>';
   }
 </script>
-
 {% endblock %}

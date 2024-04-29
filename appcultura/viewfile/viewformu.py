@@ -12,6 +12,8 @@ from ..models import UserPerfil, Formulario, Preguntas, Opciones, Curso, Sesionc
 from django.http import Http404
 from django.db import transaction
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q, Sum
+from datetime import date
 #importar modelos 
 
 from appcultura.viewfile.fadmin.functionadmin import generar_qr
@@ -422,15 +424,199 @@ def eliminarForm(request, idform):
     return render(request, 'formularios/listarformu.html', {'usu':perfil_usuario, 'formu':formu, 'newmensaje':newmensaje, 'cursos_sesiones': cursos_sesiones, 'preg':preg, 'agregados':agregados})
 
 #listar los formularios completados de los usuarios
+#====================================================
+def porcentajes_totales(nvalor, usuarios_tot_form):
+     valores = {}
+     for usuario, formularios_data in nvalor.items():
+        acum, totacum = 0, 0
+        for formulario_data in formularios_data:
+            acum += formulario_data['nota']
+            totacum += formulario_data['valorform']  # Sumar el valor de cada formulario
+
+        porglobal = round((acum * 100) / usuarios_tot_form[usuario], 1) if usuarios_tot_form.get(usuario) else 0  # Calcular el porcentaje global si el usuario tiene un valor total
+        porespuesta = round((acum * 100) / totacum, 1) if totacum != 0 else 0  # Calcular el porcentaje de respuesta si el total acumulado no es cero
+
+        valores[usuario] = {'porglobal': porglobal, 'porespuesta': porespuesta}  # Guardar los porcentajes para el usuario
+     return valores
+#======================nvalor===============================
+def datos_nvalor(usuarios_con_formularios):
+    nvalor = {}
+    for usuario, formularios in usuarios_con_formularios.items():
+        for formu in formularios:
+            valor_total, valor_total_nota = 0, 0
+            valor = Preguntas.objects.filter(idform=formu.id).aggregate(total=Sum('valor'))['total'] #=== valor del formulario
+            valor_total += valor
+            valor_nota = RespuestaForm.objects.filter(idpreg__idform=formu.id, iduser=usuario.id).aggregate(total_puntaje=Sum('valores'))['total_puntaje']
+            valor_total_nota += valor_nota
+            fecha_unica = RespuestaForm.objects.filter(idpreg__idform=formu.id, iduser=usuario.id).values_list('fechaenvio', flat=True).first()
+            #====== porcentaje ========
+            porcentaje = round((valor_total_nota * 100) / valor_total, 1)
+            datos_form = {
+                'form': formu,
+                'fecha': fecha_unica,
+                'nota': valor_total_nota,
+                'valorform': valor_total,
+                'porcentaje': porcentaje
+            }
+            # Aquí deberías agregar los datos a una lista, no convertir el diccionario a lista
+            if usuario in nvalor:
+                nvalor[usuario].append(datos_form)
+            else:
+                nvalor[usuario] = [datos_form]
+    return nvalor   
+#===========================================
+def usuariosFormulario():
+    usuarios_con_formularios = {}
+    usuarios_cursos = {}
+    formularios_del_usuario = {}
+    nformu = {}
+    usuarios_sesiones = {}
+    fecha_hoy = date.today()
+    usuarios_en_sesion = UserPerfil.objects.all()
+    #=======================
+    for usuid in usuarios_en_sesion:
+        formularios_del_usuario = Formulario.objects.filter(preguntas__respuestaform__iduser_id=usuid).distinct()
+        cursos_usuario = Curso.objects.filter(sesioncurso__respuestaform__iduser_id=usuid).distinct()
+        # Agregar el usuario y sus formularios al diccionario
+        usuarios_con_formularios[usuid] = list(formularios_del_usuario)
+        if cursos_usuario:
+           usuarios_cursos[usuid] = list(cursos_usuario) # alamacena los cursos de los usuarios
+    #================ hacer el calculo de los datos ======================
+    for usuario, formularios in usuarios_con_formularios.items():
+        nformu[usuario] = len(formularios)
+    #======  obtener la nota por cada formulario ====================
+    nvalor = datos_nvalor(usuarios_con_formularios)
+    #=============================================================
+    #==== aqui se obtiene todos las sesiones asociadas a un curso del usuario =====
+    usuarios_sesiones = {}
+    usuarios_total_forms = {}
+    for user, cursos in usuarios_cursos.items():
+        sesiones_por_usuario = []
+        for curso in cursos:
+            sesiones = Sesioncurso.objects.filter(idcurso=curso.id, fechainicio__lt=fecha_hoy) #=== solo obtiene las sesiones anteriores a la fecha de hoy
+            sesiones_por_usuario.extend(list(sesiones))
+        usuarios_sesiones[user] = sesiones_por_usuario
+    
+    n_formularios = {}
+    for user, sesiones in usuarios_sesiones.items():
+        total_forms = 0
+        lista_formularios = []
+        for sesion in sesiones:
+            n_forms_sesion = Formulario.objects.filter(sesionformulario__idsesion_id=sesion.id).count()
+            total_forms += n_forms_sesion
+            formu_usuario = Formulario.objects.filter(sesionformulario__idsesion_id=sesion.id)
+            lista_formularios.extend(list(formu_usuario))
+        usuarios_total_forms[user] = total_forms
+        n_formularios[user] =lista_formularios
+    
+    #========== sumar los valores de formularios ====
+    usuarios_tot_form = {}
+    for user_perfil, formularios_u in n_formularios.items():
+        total_contador = 0
+        for formulario_n in formularios_u:
+            valor_f = Preguntas.objects.filter(idform=formulario_n.id).aggregate(total=Sum('valor'))['total'] #=== valor del formulario
+            total_contador += valor_f
+            usuarios_tot_form[user_perfil] = total_contador
+    #print("Datos", usuarios_tot_form) # == total de valor que debe tener cada usuario
+    #print('datos', usuarios_total_forms) #== numero de formularios que debe tener cada usuario
+    #=======================porcentaje de formularios completados====================
+    valores = porcentajes_totales(nvalor, usuarios_tot_form)
+    #====================================================================
+    info = {
+        'usuarios_con_formularios':usuarios_con_formularios,
+        'users':usuarios_en_sesion,
+        'nformu': nformu,
+        'nvalor': nvalor,
+        'valores': valores,
+        'formutotal': usuarios_total_forms
+    }
+    return info
+#======================================================
 @login_required #proteger la ruta
 def usersFomularios(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    if perfil_usuario.idrol.id == 4:
+    if perfil_usuario.idrol.id == 4: #=== datos para el formador
           empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
           cursosvin = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
-    else:  
-          cursosvin = Curso.objects.all()
-    return render(request, 'formularios/listcurso.html', {'usu':perfil_usuario, 'cursosvin':cursosvin })
+          return render(request, 'formularios/listcurso.html', {'usu':perfil_usuario, 'cursosvin':cursosvin })
+    else:  #==== datos para el admin
+          cursos = Curso.objects.all()
+          datos = usuariosFormulario()
+          return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
+
+#======================filtrar curso================================
+#============================ funcion para filtrar datos por usuario ==============
+def usuariosPorCurso(idcurso):
+    cursos_sesiones = Sesioncurso.objects.filter(idcurso=idcurso)
+    usuarios_con_formularios, usuarios_cursos,  formularios_del_usuario, nformu, usuarios_sesiones,   = {}, {}, {}, {}, {}
+    fecha_hoy = date.today()
+    usuarios_en_sesion = UserPerfil.objects.all()
+    #=======================
+    for sesiones in cursos_sesiones:
+        usuarios_en_sesion = UserPerfil.objects.filter
+
+    for usuid in usuarios_en_sesion:
+        formularios_del_usuario = Formulario.objects.filter(preguntas__respuestaform__iduser_id=usuid).distinct()
+        usuarios_con_formularios[usuid] = list(formularios_del_usuario)
+    #================ hacer el calculo de los datos ======================
+    for usuario, formularios in usuarios_con_formularios.items():
+        nformu[usuario] = len(formularios)
+    #======  obtener la nota por cada formulario ====================
+    nvalor = datos_nvalor(usuarios_con_formularios)
+    #=============================================================
+    #==== aqui se obtiene todos las sesiones asociadas a un curso del usuario =====
+    usuarios_sesiones = {}
+    usuarios_total_forms = {}
+    for user, cursos in usuarios_cursos.items():
+        sesiones_por_usuario = []
+        for curso in cursos:
+            sesiones = Sesioncurso.objects.filter(idcurso=curso.id, fechainicio__lt=fecha_hoy) #=== solo obtiene las sesiones anteriores a la fecha de hoy
+            sesiones_por_usuario.extend(list(sesiones))
+        usuarios_sesiones[user] = sesiones_por_usuario
+    
+    n_formularios = {}
+    for user, sesiones in usuarios_sesiones.items():
+        total_forms = 0
+        lista_formularios = []
+        for sesion in sesiones:
+            n_forms_sesion = Formulario.objects.filter(sesionformulario__idsesion_id=sesion.id).count()
+            total_forms += n_forms_sesion
+            formu_usuario = Formulario.objects.filter(sesionformulario__idsesion_id=sesion.id)
+            lista_formularios.extend(list(formu_usuario))
+        usuarios_total_forms[user] = total_forms
+        n_formularios[user] =lista_formularios
+    
+    #========== sumar los valores de formularios ====
+    usuarios_tot_form = {}
+    for user_perfil, formularios_u in n_formularios.items():
+        total_contador = 0
+        for formulario_n in formularios_u:
+            valor_f = Preguntas.objects.filter(idform=formulario_n.id).aggregate(total=Sum('valor'))['total'] #=== valor del formulario
+            total_contador += valor_f
+            usuarios_tot_form[user_perfil] = total_contador
+    #print("Datos", usuarios_tot_form) # == total de valor que debe tener cada usuario
+    #print('datos', usuarios_total_forms) #== numero de formularios que debe tener cada usuario
+    #=======================porcentaje de formularios completados====================
+    valores = porcentajes_totales(nvalor, usuarios_tot_form)
+    #====================================================================
+    info = {
+        'usuarios_con_formularios':usuarios_con_formularios,
+        'users':usuarios_en_sesion,
+        'nformu': nformu,
+        'nvalor': nvalor,
+        'valores': valores,
+        'formutotal': usuarios_total_forms
+    }
+    return info
+
+@login_required
+def filtroCurso(request, idcurso):
+     perfil_usuario = UserPerfil.objects.get(user=request.user)
+     cursos = Curso.objects.all()
+     datos = usuariosFormulario()
+     datos_users = usuariosPorCurso(idcurso)
+
+     return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
 
 @login_required #proteger la ruta
 def verFomrsesion(request, idsesion):

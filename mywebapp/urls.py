@@ -136,6 +136,7 @@ urlpatterns = [
     #=============================== ver compromisos de cada usuario ================================0
     path('administracion/compromisos/ver/usuario/<int:iduser>/', viewadmin.vercompromisos, name="vercompromisos"),
     path('administracion/compromisos/savecompromiso/<int:idcom>/', viewadmin.savecompromiso, name="savecompromiso"),
+    path('administracion/compromisos/buscar/<int:idcur>/', viewadmin.filtroCompromisos, name="filtroCompromisos"),
     
     #================================= Rutas de Usuario =============================================================
     path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario"),
@@ -169,7 +170,8 @@ urlpatterns = [
     
     #====================================Dashboard de admin=======================================================================
     path('administracion/filtrar/curso/<int:idcurso>/', views.filtrarcurso, name="filtrarCurso"),
-    
-
+    #=== ruta para filtrar los cursos de resultados de aprendizaje ====
+    path('administracion/filter/cursos/<int:idcurso>/', viewformu.filtroCurso, name="filtroCurso"),
+  
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

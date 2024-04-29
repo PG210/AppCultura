@@ -20,6 +20,7 @@ from .models import UserPerfil, GruposUser, Sesioncurso, GruposCursos
 from django.utils import timezone
 from django.db.models import Q, Sum
 from collections import defaultdict
+from django.conf import settings
 
 
 # Create your views here.
@@ -43,7 +44,18 @@ def loginuser(request):
              
               if perfilusu.estado == 1:
                   login(request, user) #crear la sesion
-                  return redirect('administracion') # redirecciona a otra vista
+                  #====================================
+                  try:
+                     remember = request.POST.get('remember_me')
+                     if remember:
+                        request.session.set_expiry(604800)  # Establecer la duración de la sesión a una semana
+                     else:
+                        request.session.set_expiry(0)  # Establecer la duración de la sesión a la expiración del navegador
+                  except KeyError:
+                        # No se proporcionó la clave 'remember_me' en la solicitud POST
+                        pass     
+                  #==================================
+                  return redirect('administracion') # redirecciona a la funcion administracion
               else:
                  print('El usuario esta desactivado:', perfilusu.estado)
                  return render(request, 'layoutsinicio/login.html', {

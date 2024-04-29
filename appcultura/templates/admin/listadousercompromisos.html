@@ -21,17 +21,36 @@
         <div class="card">
           <div class="card-body mt-3">
             <!--==================================-->
-            <div class="alert alert-primary" role="alert">
+          <!---  <div class="alert alert-primary" role="alert">
               <h5 class="text-center">Listado de usuarios y compromisos</h5>
+            </div>-->
+            <!---============================ Filtro ================-->
+            <div class="col-8">
+              <div class="btn-group" role="group" aria-label="Basic outlined example">
+                <!--------------------- boton -------------------->
+                <!-- Default dropend button -->
+                  <div class="btn-group dropend">
+                    <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="bi bi-funnel-fill"></i> Filtrar
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="/administracion/compromisos/">Todos</a></li>
+                      {% for curso in cursos %}
+                      <li><a class="dropdown-item {% if curso_ac.id == curso.id %} active {% endif %}" href="{% url 'filtroCompromisos' idcur=curso.id %}">{{ curso.nombre }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                <!------------------------------------------------>
+              </div>
             </div>
-            <small><b>Nota:</b> Seleccione un usuario para ver sus compromisos, si los tiene.</small>
+            <!--===============================-->
+            <div >
+            </div>
               <!--alertar-->
-            {% if messages %}
-              <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                {% for message in messages %}
-                  <strong>{{ message }}</strong>
+            {% if mensaje %}
+              <div class="alert alert-warning alert-dismissible fade show mb-2 mt-2" role="alert" id="mensajeAlert">
+                  <strong>{{ mensaje }}</strong>
                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                {% endfor %}
               </div>
              {% endif %}
               <!--end alertar-->
@@ -41,28 +60,183 @@
                     <thead>
                     <tr>
                         <th>Nombres</th>
-                        <th>Apellido</th>
-                        <th>Usuario</th>
-                        <th>Cedula</th>
-                        <th>Rol</th>
+                        <th>Compromisos</th>
+                        <th>Terminados</th>
+                        <th>Pendientes</th>
+                        <th>No realizados</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
                   <tbody>
-                    {% for usu in usuarios %}
+                    {% for usu, compromiso  in usuarios.items %}
                      <!--aqui datos de usuarios--> 
                      {% if formador.idempresa.id == usu.idepart.idarea.idempresa.id or formador.idempresa.id == usu.idarea.idempresa.id %}
                       <tr>
-                        <td>{{usu.nombre}}</td>
-                        <td>{{usu.apellido}}</td>
-                        <td>{{usu.user.username}}</td>
-                        <td>{{usu.cedula}}</td>
-                        <td>{{usu.idrol.descrip}}</td>
+                        <td>{{usu.nombre}} {{usu.apellido}}</td>
+                        <td>{{compromiso.total}}</td>
+                        <td>{{compromiso.terminados}}</td>
+                        <td>{{compromiso.pendientes}}</td>
+                        <td>{{compromiso.incumplidos}}</td>
                         <td>
                           {% if usu.compromisos_set.all %}
-                          <a class="btn btn-outline-info" href="{% url 'vercompromisos' iduser=usu.id %}"data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar los compromisos del usuario {{usu.nombre}} {{usu.apellido}}"><i class="bi bi-card-checklist"></i></a>
+                         <!---========================modal compromisos====================================-->
+                          <a type="button"  class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#compromiso{{usu.id}}">
+                            <i class="bi bi-card-checklist"></i> Ver mas
+                          </a>  
+                          <div class="modal fade" id="compromiso{{usu.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Compromisos adquiridos por: {{usu.nombre}} {{usu.apellido}}</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="container mb-3">
+                                      <span style="font-size: small;" >
+                                          <i class="bi bi-circle-fill" style="color: #14BD00;"></i>&nbsp;Cumplido&nbsp;&nbsp;
+                                          <i class="bi bi-circle-fill" style="color: #FFE400;"></i>&nbsp;Pendiente&nbsp;&nbsp;
+                                          <i class="bi bi-circle-fill" style="color: #FF2700;"></i>&nbsp;No cumplido&nbsp;
+                                      </span>
+                                  </div>
+                                  {% for compro in usu.compromisos_set.all %}
+                                  <div class="accordion mt-2" id="accordionExample">
+                                    <div class="accordion-item">
+                                      <h2 class="accordion-header" id="headingThree">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#descom{{compro.id}}" aria-expanded="false" aria-controls="descom{{compro.id}}" style="background-color: #E1E0E1;">
+                                         <span>
+                                            {% if compro.id_estado.id == 1 %} 
+                                                <i class="bi bi-circle-fill" style="color: #14BD00;"></i> 
+                                            {% elif compro.id_estado.id == 2 %}
+                                                <i class="bi bi-circle-fill" style="color: #FFE400;"></i> 
+                                            {% elif compro.id_estado.id == 3 %}
+                                                <i class="bi bi-circle-fill" style="color: #FF2700;"></i> 
+                                            {% endif %}
+                                            {{compro.id_sesion.idcurso.nombre}} | Sesión: {{compro.id_sesion.fechainicio |  date:"Y-m-d" }}
+                                           </span>
+                                        </button>
+                                      </h2>
+                                      <div id="descom{{compro.id}}" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                        <!---========= datos ==================-->
+                                        <form method="post" action="{% url 'savecompromiso' idcom=compro.id %}">
+                                          {% csrf_token %}
+                                          <div class="form-control">
+                                            <!--===========fechas de inicio y final============-->
+                                            <div class="row mt-2">
+                                              <div class="col-lg-6 col-md-12">
+                                                    <h6>Fecha inicial: {{compro.fecha_compromiso |  date:"Y-m-d" }} </h6>
+                                                </div>
+                                                <div class="col-lg-6 col-md-12">
+                                                  <h6>Fecha final: {{compro.fecha_final |  date:"Y-m-d" }}</h6>
+                                              </div>
+                                              </div>
+                                              <hr>
+                                            <!--============================================-->
+                                           <div class="row">
+                                            <div class="col-4">
+                                                <h6>¿Qué vas a hacer?</h6>
+                                            </div>
+                                            <div class="col-8">
+                                                <textarea class="form-control" rows="3" name="des" readonly>{{compro.compromiso}}</textarea>
+                                            </div>
+                                          </div>
+                                          <hr>
+                                          <div class="row">
+                                              <div class="col-4">
+                                                <h6>¿Con quién? </h6>
+                                              </div>
+                                              <div class="col-8">
+                                                {% if compro.personascompromisos_set.all %}
+                                                  <ul>
+                                                  {% for per in compro.personascompromisos_set.all %}
+                                                      <li> {{per.id_usuario.nombre}} {{per.id_usuario.nombre}}</li>  
+                                                  {% endfor %}
+                                                  </ul>
+                                                {% else %}
+                                                  <p>No hay colaboradores.</p>
+                                                {% endif %}
+                                              </div>
+                                          </div>
+                                          <hr>
+                                          <!---===============-->
+                                          <div class="row mt-2">
+                                              <div class="col-4">
+                                                <h6>Respuesta:</h6>
+                                              </div>
+                                              <div class="col-8">
+                                                {% if compro.respuesta %}
+                                                <textarea class="form-control" rows="3" name="respuesta">{{compro.respuesta}}</textarea>
+                                                {% else %}
+                                                <textarea class="form-control" rows="3" name="respuesta" required></textarea>
+                                                {% endif %} 
+                                              </div>
+                                          </div>
+                                          <hr>
+                                          <div class="row mt-2">
+                                              <div class="col-4">
+                                                <h6>Puntaje:</h6>
+                                              </div>
+                                              <div class="col-8">
+                                                  <input type="number" class="form-control" name="puntaje" min="0" value="{{compro.puntaje}}">
+                                              </div>
+                                          </div>
+                                          <hr>
+                                          <div class="row mt-2">
+                                              <div class="col-4">
+                                                <h6>Estado:</h6>
+                                              </div>
+                                              <div class="col-8">
+                                                  <select class="form-select" aria-label="Default select example" name="estado" id="estado">
+                                                      <option value="{{compro.id_estado.id}}" selected>{{compro.id_estado.descripcion}}</option>
+                                                      {% for estado in estados %}
+                                                        {% if compro.id_estado.id != estado.id  %}
+                                                        <option value="{{estado.id}}">{{estado.descripcion}}</option>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                  </div>
+                                          </div>
+                                        <!--===================== datos de actividades a realizar-->
+                                          <hr>
+                                          <h6 class="mb-4">Actividades a realizar para este compromiso</h6>
+                                          <div class="activity">
+                                            {% for avances in compro.avancecompromisos_set.all %}
+                                              <div class="activity-item d-flex">
+                                                <div class="activite-label">{{ avances.fechafin|date:'Y-m-d' }}</div>
+                                                {% if avances.estado == 'Completada' %}
+                                                  <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
+                                                {% elif avances.estado == 'Pendiente' %}
+                                                <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
+                                                {% endif %}
+                                                <div class="activity-content">
+                                                  <span>{{ avances.actividad }}.</span> <span class="fw-bold text-dark">{{ avances.estado }}</span>
+                                                </div>
+                                              </div><!-- End activity item-->
+                                            {% endfor %}
+                                            </div>
+                                          </div>
+                                          <!---================= boton ============-->
+                                          <div class="text-end">
+                                             <button type="submit" class="btn btn-outline-primary mt-2"><i class="bi bi-send-fill"></i> Enviar</button>
+                                          </div>
+                                        </form>
+                                      <!--=============end datos ================-->
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                               
+                                  {% endfor %}
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!--=================================================-->
                           {% else %}
-                          <a class="btn btn-outline-secondary" disable data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="El Usuario {{usu.nombre}} {{usu.apellido}} no tiene compromisos" >Sin compromisos</a>
+                          <a class="btn btn-outline-secondary btn-sm" disable data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="El Usuario {{usu.nombre}} {{usu.apellido}} no tiene compromisos" >Sin compromisos</a>
                           {% endif %}
                         </td>
                       </tr>
@@ -82,4 +256,13 @@
       </div>
     </section>
 </main><!-- End #main -->
+<script>
+  // Función para ocultar el mensaje después de 3 segundos
+  setTimeout(function() {
+      var mensajeAlert = document.getElementById('mensajeAlert');
+      if (mensajeAlert) {
+          mensajeAlert.style.display = 'none';
+      }
+  }, 3000); // 3000 milisegundos = 3 segundos
+</script>
 {% endblock %} 

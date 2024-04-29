@@ -1,0 +1,371 @@
+{% extends 'admin/inicio.html' %}
+{% block content %}
+
+<main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Resultados de aprendizaje</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+          <li class="breadcrumb-item active">Resultado</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+       <!--registro de cursos forms-->   
+       <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+               <div class="row mt-2">
+                <div class="col-12 alert alert-primary" role="alert">
+                  <div class="row">
+                    
+                      <div class="col-8">
+                        <div class="btn-group" role="group" aria-label="Basic outlined example">
+                          <!--------------------- boton -------------------->
+                          <!-- Default dropend button 
+                            <div class="btn-group dropend">
+                              <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-funnel-fill"></i> Filtrar
+                              </button>
+                              <ul class="dropdown-menu">
+                                {% for curso in cursos %}
+                                <li><a class="dropdown-item" href="{% url 'filtroCurso' idcurso=curso.id %}">{{ curso.nombre }}</a></li>
+                                {% endfor %}
+                              </ul>
+                            </div>-->
+                          <!------------------------------------------------>
+                        </div>
+                      </div>
+                      <div class="col-4 text-end">
+                        <a href="/administracion/formu/list/cursos/" class="btn btn-warning btn-sm "><i class="bi bi-box-arrow-left"></i> | Volver</a>
+                      </div>
+                  </div>
+                </div>
+               </div>
+              <br>
+               <!--alertar-->
+               {% if mensajeExito %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>{{ mensajeExito }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+               {% endif %}
+               <!--end alertar-->
+               <!-- Table with stripped rows -->
+               <div class="table-responsive" style="font-size: 14px;">
+               <table class="table" id="tablareactiva">
+                   <thead>
+                      <tr>
+                          <th rowspan="2">Nombre</th>
+                          <th rowspan="2">Empresa</th>
+                          <th colspan="2" data-dt-order="disable" class="text-center">Formularios</th>
+                          <th colspan="2" data-dt-order="disable" class="text-center">% de Calificación</th>
+                          <th rowspan="2">Formulario</th>
+                      </tr>
+                      <tr>
+                          <th>Asignados</th>
+                          <th>Contestados</th>
+                          <th>Asignados</th>
+                          <th>Contestados</th>
+                      </tr>
+                  </thead>
+                <tbody>  
+                  {% for user in datos.users %}
+                  <tr>
+                    <td>{{ user.nombre }} {{ user.apellido }}</td>
+                    <td>{{ user.idarea.idempresa.nombre }} {{ user.idepart.idearea.idempresa.nombre }}</td>
+                    <td class="text-center">
+                        <!--=========== formularios asignados =======-->  
+                        {% for userperfil, cantidad in datos.formutotal.items %}
+                           {% if userperfil.id == user.id %}
+                            <span>{{ cantidad }} </span>
+                           {% endif %}
+                        {% endfor %}
+                       <!---=================================================-->
+                    </td>
+                    <td class="text-center">
+                      <!---===========numero de formularios================-->   
+                      {% for userperfil, value in datos.nformu.items %}
+                          {% if userperfil.id == user.id %}
+                          <span>{{ value }} </span> 
+                          {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-center">
+                      <!--% de calificacion asignado-->
+                      {% for userperfil, porcentajes in datos.valores.items %}
+                        {% if userperfil.id == user.id %}
+                        <span> {{ porcentajes.porespuesta }}%  </span> 
+                        {% endif %}
+                      {% endfor %}
+                      <!--======================-->
+                    </td>
+                    <td class="text-center">
+                      <!--=============% de calificacion global==============-->
+                      {% for userperfil, porcentajes in datos.valores.items %}
+                        {% if userperfil.id == user.id %}
+                        <span>{{ porcentajes.porglobal }}%</span> 
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                    <!--========================-->
+                    <td>
+                      {% for userperfil, value in datos.nformu.items %}
+                             {% if userperfil.id == user.id and value > 0 %}
+                              <!--aqui modal-->
+                              <button type="button" class="btn btn-outline-primary text-center" data-bs-toggle="modal" data-bs-target="#userFormu{{user.id}}">
+                                  <i class="bi bi-ui-checks" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver formularios completados."></i>
+                              </button>
+                              {% endif %}
+                        {% endfor %}
+                           <!---end usuarios pendientes-->
+                          <div class="modal fade" id="userFormu{{user.id}}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-scrollable modal-xl ">
+                              <div class="modal-content">
+                                <div class="modal-header alert alert-warning" role="alert">
+                                  <h5 class="modal-title">Formularios completados por: <b>{{ user.nombre }} {{ user.apellido }}</b></h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <p>En esta sección, puedes revisar las respuestas de cada usuario y además agregar retroalimentación en el campo 'Comentario'.</p>
+                                 <!--acordion -->
+                                 <form action="#" method="post">
+                                  {% csrf_token %}
+                                 <div class="accordion accordion-flush" id="accordionFlushExample">
+                                  <!-- Mostrar información del formulario -->
+                                  {% for usuario, formularios in datos.usuarios_con_formularios.items %}
+                                      {% if usuario.id == user.id %} <!--aqui compara para que esta -->
+                                          {% for formu in formularios %}
+                                              <!--==============================================-->
+                                              <div class="accordion-item mt-2">
+                                                  <div class="container" style="background-color: rgb(212, 212, 218);">
+                                                    <!--========================-->
+                                                    <h2 class="accordion-header" id="flush-headingOne" >
+                                                      <a class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acordionFormulario{{user.id}}{{ forloop.counter }}" aria-expanded="false" aria-controls="acordionFormulario{{user.id}}{{ forloop.counter }}">
+                                                        <b><i class="bi bi-hand-index-thumb"></i>
+                                                        {% for usuario, formularios_data in datos.nvalor.items %}
+                                                            {% for formulario_data in formularios_data %}
+                                                              {% if usuario.id == user.id and  formulario_data.form.id == formu.id %}
+                                                                  <span>
+                                                                    &nbsp; Fecha: {{ formulario_data.fecha | date:"Y-m-d" }} &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                                                                  </span>
+                                                                   <span>
+                                                                    &nbsp; Formulario: {{ formulario_data.form.nombre }} &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                                                                   </span>
+                                                                   <span>
+                                                                    &nbsp; Nota Obtenida: {{ formulario_data.nota }} / {{ formulario_data.valorform }} &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                                                                   </span>
+                                                                   <span>
+                                                                    &nbsp; Porcentaje: {{ formulario_data.porcentaje }}%
+                                                                  </span>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                      </b>
+                                                    </a>
+                                                  </h2>
+                                                
+                                                  <!--==========================-->
+                                                  </div>
+                                                  <div id="acordionFormulario{{user.id}}{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                                                    <div class="accordion-body">
+                                                       <!--desde aqui formulario-->
+                                                       <br>
+                                                       <h5 class="text-center"><b>Información del Formulario</b></h5>
+                                                       <div class="container form-control">
+                                                        <div class="row">
+                                                          <div class="col-lg-12 col-md-12">
+                                                            <b>Nombre:</b> {{ formu.nombre }}
+                                                          </div>  
+                                                      </div>
+                                                      <hr>
+                                                      <div class="row mt-2">
+                                                        <div class="col-lg-12 col-md-12">
+                                                            <b>Descripción:</b> {{ formu.descrip }}
+                                                            <!--==================================================-->
+                                                            <!--===============================================================-->
+                                                        </div>  
+                                                      </div>
+                                                    </div>
+                                                      <!-- Mostrar preguntas asociadas al formulario -->
+                                                      <h5 class="text-center"><b>Preguntas</b></h5>
+                                                      <!--aqui preguntas-->
+                                                      {% for preguntas in user.respuestaform_set.all %}
+                                                         {% if preguntas.idpreg.idform.id == formu.id %}
+                                                          <!--============================================-->
+                                                             <!--=========================================================-->
+                                                           <div class="container form-control mt-2">
+                                                              <div class="row">
+                                                                  <div class="col-lg-6 col-md-12">
+                                                                    <p><b>Pregunta: </b> {{ preguntas.idpreg.descrip }}</p>
+                                                                    <input type="text" id="pregunta{{preguntas.idpreg.id}}" name="pregunta{{preguntas.idpreg.id}}" aria-label="Sizing example input" value="{{ preguntas.idpreg.id }}" required hidden><!--no borrar este contrala todas las llegadas-->
+                                                                    {% if preguntas.idpreg.tipo != '6' %}
+                                                                    <p><b>Puntos: {{preguntas.idpreg.valor}}</b></p>
+                                                                    {% endif %}
+                                                                    <p><b>Comentario: </b> <textarea class="form-control mt-2" id="comentario_{{preguntas.id}}" name="comentario_{{preguntas.id}}" placeholder="Ingrese comentario" required>{% if preguntas.comentario != 'None' %} {{preguntas.comentario}} {% endif %}</textarea></p>
+                                                                  </div>
+                                                                <div class="col-lg-6 col-md-12">
+                                                              <!-- Aquí puedes agregar más detalles según el tipo de pregunta -->
+                                                              {% if preguntas.idpreg.tipo == '1' %}  {# Pregunta de respuesta corta #}
+                                                                <p><b>Respuesta Corta:</b></p>
+                                                                <p class="form-control"> {{preguntas.respuesta}} </p> 
+                                                                {% elif preguntas.idpreg.tipo == '2' %}
+                                                                <p><b>Respuesta Larga:</b></p>
+                                                                <p class="form-control"> {{preguntas.respuesta}} </p> 
+                                                                {% elif preguntas.idpreg.tipo == '3' %} {# Pregunta de opciones múltiples #}
+                                                                <!--=================================-->
+                                                                <p><b>Opciones: Selección múltiple</b></p> 
+                                                                  {% for respuestasopc in preguntas.idpreg.opciones_set.all %}
+                                                                      <div class="form-control">
+                                                                      <div class="form-check">
+                                                                        {% for seluser in preguntas.respuestaopciones_set.all %}
+                                                                          {% if seluser.idopcion.id == respuestasopc.id %}
+                                                                          <input class="form-check-input" type="checkbox" value="" id="{{respuestasopc.id}}" checked >
+                                                                          {% else %}
+                                                                          <input class="form-check-input" type="checkbox" value="" id="{{respuestasopc.id}}" >
+                                                                          {% endif %}
+                                                                        {% endfor %}
+                                                                          <label class="form-check-label" for="{{respuestasopc.id}}">
+                                                                              {{ respuestasopc.descrip }} 
+                                                                          </label>
+                                                                        </div>    
+                                                                      </div>                              
+                                                                  {% endfor %}
+                                                              <!--=================================================-->
+                                                              {% elif preguntas.idpreg.tipo == '4' %} {# Pregunta de opciones múltiples con una verdadera #}
+                                                                <!---=============================================-->
+                                                                  <p><b>Opciones: Opciones múltiples con una verdadera</b></p> 
+                                                                  {% for respuestasopc in preguntas.idpreg.opciones_set.all %}
+                                                                  <div class="form-control">
+                                                                    <div class="form-check">
+                                                                      {% for seluser in preguntas.respuestaopciones_set.all %}
+                                                                        {% if seluser.idopcion.id == respuestasopc.id %}
+                                                                        <input class="form-check-input" type="radio"  id="opradio{{respuestasopc.id}}" checked>
+                                                                        {% else %}
+                                                                        <input class="form-check-input" type="radio"  id="opradio{{respuestasopc.id}}">
+                                                                        {% endif %}
+                                                                      {% endfor %}
+                                                                      {% if respuestasopc.correcta  %}
+                                                                      <label class="form-check-label" for="opradio{{respuestasopc.id}}">
+                                                                        {{ respuestasopc.descrip }}   <span style="background-color: yellow;">  Correcta</span> 
+                                                                      </label> 
+                                                                      {% else %}
+                                                                      <label class="form-check-label" for="opradio{{respuestasopc.id}}">
+                                                                        {{ respuestasopc.descrip }}  
+                                                                      </label> 
+                                                                      {% endif %}
+                                                                    </div>
+                                                                  </div>
+                                                                  {% endfor %}
+                                                                <!--================================================-->
+                                                              {% elif preguntas.idpreg.tipo == '5' %} {# Pregunta de opciones múltiples con varias verdaderas (Checkbox) #}
+                                                                  <!--============================================-->
+                                                                  <p><b>Opciones: Selección múltiple con varias respuestas</b></p>
+                                                                  {% for respuestasopc in preguntas.idpreg.opciones_set.all %}
+                                                                  <div class="form-control">
+                                                                  <div class="form-check">
+                                                                    {% for seluser in preguntas.respuestaopciones_set.all %}
+                                                                      {% if seluser.idopcion.id == respuestasopc.id %}
+                                                                      <input class="form-check-input" type="checkbox" value="" id="mulver{{respuestasopc.id}}" checked >
+                                                                      {% endif %}
+                                                                    {% endfor %}
+                                                                    {% if respuestasopc.correcta  %}
+                                                                    <label class="form-check-label" for="mulver{{respuestasopc.id}}">
+                                                                      {{ respuestasopc.descrip }} <span style="background-color: yellow;">  Correcta</span> 
+                                                                    </label>
+                                                                    {% else %}
+                                                                    <label class="form-check-label" for="mulver{{respuestasopc.id}}">
+                                                                      {{ respuestasopc.descrip }}  
+                                                                    </label>
+                                                                    {% endif %}
+                                                                    </div>
+                                                                  </div>
+                                                                  {% endfor %}
+                                                                  <!--================= aqui preguntas tipo 6 ========-->
+                                                                  {% elif preguntas.idpreg.tipo == '6' %}
+                                                                  <!----==============================-->
+                                                                  {% for comp in preguntas.compromisos_set.all  %}
+                                                                    <p><b>¿Qué vas a hacer?</b></p>
+                                                                    <p class="form-control"> {{comp.compromiso}} </p> 
+                                                                      <div class="row">
+                                                                          <div class="col-lg-6 col-md-12">
+                                                                              <p><b>Fecha de inicio:</b></p>
+                                                                              <p class="form-control"> {{comp.fecha_final|date:'Y-m-d'}} </p> 
+                                                                            </div>
+                                                                          <div class="col-lg-6 col-md-12">
+                                                                              <p><b>Prioridad:</b></p>
+                                                                              <p class="form-control"> {{comp.prioridad}} </p> 
+                                                                          </div>
+                                                                      </div>
+                                                                      <div class="row">
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                              <p><b>Estado de revisión:</b></p>
+                                                                                <p class="form-control"> {{comp.id_estado.descripcion}}</p> 
+                                                                            </div>
+                                                                            <div class="col-lg-6 col-md-12">
+                                                                              <p><b>Calificación:</b></p>
+                                                                              <p class="form-control"> {{comp.puntaje}} </p> 
+                                                                            </div>
+                                                                      </div>
+                                                                      <p><b>Colaboradores</b></p>
+                                                                      {% if comp.personascompromisos_set.all %}
+                                                                      <ul>
+                                                                        {% for personas in comp.personascompromisos_set.all  %} 
+                                                                          <li>{{personas.id_usuario.nombre}} {{personas.id_usuario.apellido}}</li>
+                                                                        {% endfor %}
+                                                                      </ul>
+                                                                      {% else %}
+                                                                        <p>No hay colaboradores disponibles.</p>
+                                                                      {% endif %}
+                                                                    {% endfor %}
+                                                                  <!----==============================-->
+                                                                  <!--==================end preguntas ===============-->
+                                                                  {% endif %}
+                                                                  <!--============================================-->
+                                                              </div><!--cerrar el div de columna-->
+                                                              </div>
+                                                              <hr>
+                                                            </div>
+                                                            
+                                                            <!--============================================-->
+                                                          {% endif %}
+                                                      {% endfor %}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              <!--==============================================-->
+                                          {% endfor %}
+                                      {% endif %}
+                                    {% endfor %}
+                                  </div>
+                                 <!--end acordion-->
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="submit" class="btn btn-primary mt-2">Enviar</button>
+                                  <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                                </div>
+                              </form> <!--final del formulario-->
+                              </div>
+                            </div>
+                          </div><!-- End Modal Dialog Scrollable-->
+                        <!--end modal-->
+                      </td>
+                    <!--botones de acciones-->                
+                  </tr>
+                  {% endfor %} 
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+               </div>
+            </div>
+          </div>
+       </div>
+      </div>
+    </section>
+</main><!-- End #main -->
+  <!-- Aqui se encuentran las instrucciones para formularios -->
+  {% endblock %} 

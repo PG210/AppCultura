@@ -1204,15 +1204,34 @@ def borrarcalificacion(request, idcali):
         messages.success(request, "Lo sentimos, ocurrio un error en la eliminación.")
     return redirect('listarcalificacion', idsesion=sesion)
 
+def compromisos_listar(usuarios):
+    usuarios_con_compromisos = {}
+    for usuario in usuarios:
+        conta_total = Compromisos.objects.filter(id_usuario=usuario.id).count()
+        conta_total_terminados = Compromisos.objects.filter(id_usuario=usuario.id, id_estado=1).count()
+        conta_total_pendientes = Compromisos.objects.filter(id_usuario=usuario.id, id_estado=2).count()
+        conta_total_incum = Compromisos.objects.filter(id_usuario=usuario.id, id_estado=3).count()
+        usuarios_con_compromisos[usuario] = {
+                                                'total': conta_total,
+                                                'terminados': conta_total_terminados,
+                                                'pendientes': conta_total_pendientes,
+                                                'incumplidos': conta_total_incum
+                                            }
+    return usuarios_con_compromisos
+
 @login_required # aqui permite retornar el listado de usuarios para elegir y ver los compromisos
 def listar_compromisos(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
     formador = ''
     #=====================================================
     if perfil_usuario.idrol.id == 4:
         formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
-    return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios, 'formador':formador})
+    #======== obtener los compromisos por cada usuario========================
+    estados = EstadoCompromisos.objects.all()
+    usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
+    usuarios_con_compromisos = compromisos_listar(usuarios) #=== llama a la funcion compromisos
+    cursos = Curso.objects.all()
+    return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios_con_compromisos, 'formador':formador, 'estados':estados, 'cursos':cursos})
 
 # aqui permite ver los compromisos por cada usuario 
 @login_required
@@ -1223,10 +1242,38 @@ def  vercompromisos(request, iduser):
      estados = EstadoCompromisos.objects.all()
      return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'estados':estados, 'usuario':usu})
 
+#========filtrar los compromisos por curso =======
+@login_required
+def filtroCompromisos(request, idcur):
+    #=== buscar el cuso asociado ====
+    curso = Curso.objects.get(id=idcur)
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    grupoasociado = GruposCursos.objects.filter(idcurso=idcur)
+    formador = ''
+    users_com = GruposUser.objects.none() 
+    users_total = UserPerfil.objects.none()
+    for grup in grupoasociado:
+        users = GruposUser.objects.filter(idgrupo=grup.idgrupo.id).values('iduser').distinct()
+        users_com = users_com.union(users)  # Unir los conjuntos de usuarios
+    
+    for user in users_com:
+        usu = UserPerfil.objects.filter(id=user['iduser'])
+        users_total = users_total.union(usu)
+    
+    usuarios_con_compromisos = compromisos_listar(users_total) #=== llama a la funcion compromisos
+    estados = EstadoCompromisos.objects.all()
+    cursos = Curso.objects.all()
+    #=====================================================
+    if perfil_usuario.idrol.id == 4:
+        formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+    #======== obtener los compromisos por cada usuario========================
+    return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios_con_compromisos, 'formador':formador, 'estados':estados, 'cursos':cursos, 'curso_ac':curso})
+
 #aqui actualiza el compromiso de cada usuario
 @login_required
 def savecompromiso(request, idcom):
     if request.method == 'POST':
+        formador = ''
         #obtener estado
         idestado = request.POST.get("estado")
         compromiso = Compromisos.objects.get(id=idcom)
@@ -1236,14 +1283,16 @@ def savecompromiso(request, idcom):
         compromiso.save()
     #====================================================
         #obtener usuario
-        comActu = Compromisos.objects.get(id=idcom)
         perfil_usuario = UserPerfil.objects.get(user=request.user)
-        usu = UserPerfil.objects.get(id=comActu.id_usuario.id)
-        compromisos = Compromisos.objects.filter(id_usuario=usu)
         estados = EstadoCompromisos.objects.all()
         mensaje = "Información ingresada de manera exitosa"
-        return render(request, 'admin/usuariocompromiso.html', {'usu':perfil_usuario, 'compromisos':compromisos, 'mensaje':mensaje, 'estados':estados, 'usuario':usu})
-
+        estados = EstadoCompromisos.objects.all()
+        usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
+        usuarios_con_compromisos = compromisos_listar(usuarios) #=== llama a la funcion compromisos
+        #=====================================================
+        if perfil_usuario.idrol.id == 4:
+            formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+        return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios_con_compromisos, 'formador':formador, 'estados':estados, 'mensaje':mensaje})
 
 @login_required
 def addrespuesta(request, idcomp):
