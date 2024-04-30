@@ -26,17 +26,18 @@
                       <div class="col-8">
                         <div class="btn-group" role="group" aria-label="Basic outlined example">
                           <!--------------------- boton -------------------->
-                          <!-- Default dropend button 
+                          <!-- Default dropend button  -->
                             <div class="btn-group dropend">
                               <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-funnel-fill"></i> Filtrar
                               </button>
                               <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/administracion/formu/list/cursos/">Todos</a></li>
                                 {% for curso in cursos %}
-                                <li><a class="dropdown-item" href="{% url 'filtroCurso' idcurso=curso.id %}">{{ curso.nombre }}</a></li>
+                                <li><a class="dropdown-item {% if curso_ac.id == curso.id %} active {% endif %}" href="{% url 'filtroCurso' idcurso=curso.id %}">{{ curso.nombre }}</a></li>
                                 {% endfor %}
                               </ul>
-                            </div>-->
+                            </div>
                           <!------------------------------------------------>
                         </div>
                       </div>
@@ -133,7 +134,7 @@
                                 <div class="modal-body">
                                   <p>En esta sección, puedes revisar las respuestas de cada usuario y además agregar retroalimentación en el campo 'Comentario'.</p>
                                  <!--acordion -->
-                                 <form action="#" method="post">
+                                 <form action="{% url 'savecomentarioadmin' %}" method="post">
                                   {% csrf_token %}
                                  <div class="accordion accordion-flush" id="accordionFlushExample">
                                   <!-- Mostrar información del formulario -->

@@ -7,6 +7,7 @@ from django.db import IntegrityError #errores de la base de datos
 from django.utils import timezone
 from django.contrib import messages
 
+from appcultura.modelos.grupouser import GruposUser
 from appcultura.modelos.sesionasistencia import SesionAsistencia #mensajes para la vista
 from ..models import UserPerfil, Formulario, Preguntas, Opciones, Curso, Sesioncurso, SesionFormulario, GruposCursos, RespuestaForm, FormadorEmpresa, Empresa
 from django.http import Http404
@@ -465,14 +466,13 @@ def datos_nvalor(usuarios_con_formularios):
                 nvalor[usuario] = [datos_form]
     return nvalor   
 #===========================================
-def usuariosFormulario():
+def usuariosFormulario(usuarios_en_sesion):
     usuarios_con_formularios = {}
     usuarios_cursos = {}
     formularios_del_usuario = {}
     nformu = {}
     usuarios_sesiones = {}
     fecha_hoy = date.today()
-    usuarios_en_sesion = UserPerfil.objects.all()
     #=======================
     for usuid in usuarios_en_sesion:
         formularios_del_usuario = Formulario.objects.filter(preguntas__respuestaform__iduser_id=usuid).distinct()
@@ -540,8 +540,9 @@ def usersFomularios(request):
           cursosvin = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
           return render(request, 'formularios/listcurso.html', {'usu':perfil_usuario, 'cursosvin':cursosvin })
     else:  #==== datos para el admin
+          usuarios_en_sesion = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
           cursos = Curso.objects.all()
-          datos = usuariosFormulario()
+          datos = usuariosFormulario(usuarios_en_sesion)
           return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
 
 #======================filtrar curso================================
@@ -611,12 +612,24 @@ def usuariosPorCurso(idcurso):
 
 @login_required
 def filtroCurso(request, idcurso):
+     curso = Curso.objects.get(id=idcurso)
      perfil_usuario = UserPerfil.objects.get(user=request.user)
      cursos = Curso.objects.all()
-     datos = usuariosFormulario()
-     datos_users = usuariosPorCurso(idcurso)
-
-     return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
+     #datos_users = usuariosPorCurso(idcurso)
+     #============ datos de usuarios ===========
+     grupoasociado = GruposCursos.objects.filter(idcurso=idcurso)
+     users_com = GruposUser.objects.none() 
+     users_total = UserPerfil.objects.none()
+     for grup in grupoasociado:
+        users = GruposUser.objects.filter(idgrupo=grup.idgrupo.id).values('iduser').distinct()
+        users_com = users_com.union(users)  # Unir los conjuntos de usuarios
+    
+     for user in users_com:
+        usu = UserPerfil.objects.filter(id=user['iduser'])
+        users_total = users_total.union(usu)
+     #================= end datos usuarios ===========
+     datos = usuariosFormulario(users_total)
+     return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos, 'curso_ac':curso })
 
 @login_required #proteger la ruta
 def verFomrsesion(request, idsesion):
@@ -648,6 +661,21 @@ def verFomrsesion(request, idsesion):
                 RespuestaForm.objects.filter(id=respuesta_id).update(comentario=comentario, estado=False)
         mensajeExito = "Comentarios agregados de manera exitosa."
     return render(request, 'formularios/formucompletos.html', {'usu':perfil_usuario, 'users':usuarios_en_sesion, 'formularios':formulario_sesion, 'usuarios_con_formularios':usuarios_con_formularios, 'idsesion':idsesion, 'mensajeExito':mensajeExito, 'usuarios_asistencia':usuarios_asistencia, 'usuarios_confirmar':usuarios_confirmar})
+
+#============== gruardar el comentarios desdes el admin =============0
+@login_required
+def savecomentarioadmin(request):
+    if request.method == 'POST':
+        #print(request.POST)
+        comentarios_dict = dict(request.POST.lists())
+        for key, value in comentarios_dict.items():
+            if key.startswith('comentario_'):
+                respuesta_id = int(key.split('_')[1])
+                comentario = value[0]
+                #actualizar la respuesta
+                RespuestaForm.objects.filter(id=respuesta_id).update(comentario=comentario, estado=False)
+        mensajeExito = "Comentarios agregados de manera exitosa."
+    return redirect('usersFomularios')
 
 # Qr para compartir formulario
 def qr_formulario(request, idsesion):

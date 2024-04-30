@@ -95,7 +95,9 @@ urlpatterns = [
     #=================== rutas para revisar formularios ==================
     path('administracion/formu/list/cursos/', viewformu.usersFomularios, name='usersFomularios'), #agregar formularios a la sesion
     path('administracion/formu/list/forms/sesion/<int:idsesion>/', viewformu.verFomrsesion, name='verFomrsesion'), #agregar formularios a la sesion
+    path('administracion/revision/formu/', viewformu.savecomentarioadmin, name='savecomentarioadmin'),
     
+
     #============= end formularios ==================
     path('administracion/empresa/vincular/list/', viewadmin.visualizarAreaDepto, name='visualizarAreaDepto'),
     path('administracion/empresa/vincular/delete/<int:idarea>/', viewadmin.eliminavinculo, name='eliminarvinculo'),
