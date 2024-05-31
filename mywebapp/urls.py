@@ -148,6 +148,7 @@ urlpatterns = [
     path('usuarios/inscribiruser/<int:idsesion>/', viewadmin.inscribir_asistente, name="inscribirasistente"),
     path('usuarios/calificaciones/view/<int:idcurso>/', viewuser.calificacionCurso, name="calificacionCurso"),
     path('usuarios/formu/all/view/<int:idcurso>/', viewuser.formulariosCurso, name="formulariosCurso"),
+    path('usuarios/compromiso/<int:idcom>/', viewuser.detalleCompromisoUser, name="detalleCompromisoUser"),
     
     #============================ Fin de Rutas de usuario ===========================================================
     

@@ -46,8 +46,7 @@
                 <thead>
                   <tr>
                     <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Precio</th>
+                    <th>Grupo</th>
                     <th>Objetivos</th>
                     <th>Sesiones</th>
                     <th>Acciones</th>
@@ -57,8 +56,17 @@
                   {% for curso in cursos %}
                   <tr>
                     <td><small>{{ curso.nombre }}</small></td>
-                    <td><small>{{ curso.descrip }}</small></td>
-                    <td><small>{{ curso.precio }}</small></td>
+                    <td><small>
+                      <ul class="list-group">
+                        {% if curso.gruposcursos_set.all %}
+                          {% for grupos in curso.gruposcursos_set.all %}
+                            <li class="list-group-item">{{grupos.idgrupo.nombre}}</li>
+                          {% endfor %}
+                          {% else %}
+                            <li class="list-group-item">Sin grupo asignado.</li>
+                         {% endif %}
+                      </ul></small>
+                    </td>
                     <td>
                       <!--aqui modal-->
                       <!-- Modal Dialog Scrollable -->
@@ -99,8 +107,14 @@
                                   {% for objetivo in objetivos %}
                                   {% if objetivo.idcurso == curso %}
                                   <tr>
-                                    <td><small>{{ objetivo.descrip }}</small></td>
-                                    <td><small>{{ objetivo.competencias }}</small></td>
+                                    <td>
+                                      <!---============-->
+                                      <small>{{ objetivo.descrip }}</small>
+                                      <!--=================-->
+                                    </td>
+                                    <td>
+                                      <small>{{ objetivo.competencias }}</small>
+                                    </td>
                                   </tr>
                                   {% endif %}
                                   {% endfor %}

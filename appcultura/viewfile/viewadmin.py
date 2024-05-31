@@ -47,6 +47,7 @@ def registroCursos(request):
   perfil_usuario = UserPerfil.objects.get(user=request.user)
   comp = Competencias.objects.all()
   formadores = UserPerfil.objects.filter(idrol=4)
+  grupos = Grupos.objects.all()
   if request.method == 'POST':
       #=== Get data lists =======
       fechas_inicio = request.POST.getlist('fecha_inicio[]')
@@ -58,6 +59,7 @@ def registroCursos(request):
       nombre_curso = request.POST['nombre']
       formador_select = request.POST.get('formador', '')
       empresa_select = request.POST.get('empresa', '')
+      precio = 0
       
       #================ verify that all variables have data ==============
       if not any(fechas_inicio) or not any(fechas_final) or not any(lugares):
@@ -86,7 +88,7 @@ def registroCursos(request):
               id_formador = None
               id_empresa = None
 
-      regcurso = Curso(nombre=request.POST['nombre'], descrip=request.POST['descrip'], precio=request.POST['precio'], idempresa=id_empresa, idusu=id_formador)
+      regcurso = Curso(nombre=request.POST['nombre'], descrip=request.POST['descrip'], precio=precio, idempresa=id_empresa, idusu=id_formador)
       regcurso.save()
       idcurso = Curso.objects.get(id=regcurso.id)
 
@@ -125,11 +127,16 @@ def registroCursos(request):
             regtema = TemasSesion(descrip=tema, competencias=destema, recursos=recur, ruta=ruta_destino, idsesion=regsesion)
             regtema.save()
       #========= send messaje and return the view of courses =================
+      if request.POST['grupo']:
+            grupo_objeto = Grupos.objects.get(id=request.POST['grupo'])
+            grupo_cur = GruposCursos(idgrupo=grupo_objeto, idcurso=idcurso) #======= guardar el curso a un grupo seleccionado
+            grupo_cur.save() 
+
       mensaje = "Curso registrado exitosamente"
       idcom = 1
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje, 'competencias':comp, 'idcom':idcom, 'formadores':formadores})
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'msj':mensaje, 'competencias':comp, 'idcom':idcom, 'formadores':formadores, 'grupos':grupos})
   else:
-      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':comp, 'formadores':formadores})
+      return render(request, 'admin/addcurso.html', {'usu':perfil_usuario, 'competencias':comp, 'formadores':formadores, 'grupos':grupos})
 
 #Rergistro de Empresas
 @login_required
@@ -254,17 +261,19 @@ def editarcurso(request, idcurso):
     objetivos = ObjetivosCurso.objects.filter(idcurso=curso)
     tematicas = TemasSesion.objects.all()
     formadores = UserPerfil.objects.filter(idrol=4)
+    grupos = Grupos.objects.all()
     if request.method == 'POST':
         #=== tomar las variables de empresa y formador ==========
         formador_select = request.POST.get('formador', '')
         empresa_select = request.POST.get('empresa', '')
+        precio = 0
         if formador_select and empresa_select:
            perfil_formador = UserPerfil.objects.get(id=formador_select)
            empresa_sel = Empresa.objects.get(id=empresa_select)
         #===================================================
         curso.nombre = request.POST.get('nombre')
         curso.descrip = request.POST.get('descrip')
-        curso.precio = request.POST.get('precio')
+        curso.precio = precio
         if formador_select and empresa_select:
            curso.idempresa = empresa_sel
            curso.idusu = perfil_formador
@@ -352,7 +361,7 @@ def editarcurso(request, idcurso):
         messages.success(request, 'Curso actualizado exitosamente.')
         return redirect('listarcursos')
     else:
-        return render(request, 'admin/updatecurso.html', {'usu':perfil_usuario, 'curso': curso, 'sesiones': sesiones, 'objetivos': objetivos, 'temas':tematicas, 'formadores':formadores})
+        return render(request, 'admin/updatecurso.html', {'usu':perfil_usuario, 'curso': curso, 'sesiones': sesiones, 'objetivos': objetivos, 'temas':tematicas, 'formadores':formadores, 'grupos':grupos})
      
 #crear funcion para crear kpi de area o departamento  
 @login_required #proteger la ruta
@@ -1224,13 +1233,19 @@ def listar_compromisos(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     formador = ''
     #=====================================================
-    if perfil_usuario.idrol.id == 4:
+    if perfil_usuario.idrol.id == 4: #=== si el usuario es formador
         formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+        cursos = Curso.objects.filter(idusu=perfil_usuario.id)
+        grupos_cursos = GruposCursos.objects.filter(idcurso__in=cursos).values('idgrupo').distinct()
+        usuarios_grupo = GruposUser.objects.filter(idgrupo__in=grupos_cursos).values('iduser').distinct()
+        usuarios = UserPerfil.objects.filter(id__in=usuarios_grupo)
+
+    elif perfil_usuario.idrol.id == 1: #=== si el usuario es administrador
+        cursos = Curso.objects.all()
+        usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
     #======== obtener los compromisos por cada usuario========================
     estados = EstadoCompromisos.objects.all()
-    usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
     usuarios_con_compromisos = compromisos_listar(usuarios) #=== llama a la funcion compromisos
-    cursos = Curso.objects.all()
     return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios_con_compromisos, 'formador':formador, 'estados':estados, 'cursos':cursos})
 
 # aqui permite ver los compromisos por cada usuario 
@@ -1262,10 +1277,12 @@ def filtroCompromisos(request, idcur):
     
     usuarios_con_compromisos = compromisos_listar(users_total) #=== llama a la funcion compromisos
     estados = EstadoCompromisos.objects.all()
-    cursos = Curso.objects.all()
     #=====================================================
     if perfil_usuario.idrol.id == 4:
         formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+        cursos = Curso.objects.filter(idusu=perfil_usuario.id)
+    else:
+        cursos = Curso.objects.all()
     #======== obtener los compromisos por cada usuario========================
     return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios_con_compromisos, 'formador':formador, 'estados':estados, 'cursos':cursos, 'curso_ac':curso})
 

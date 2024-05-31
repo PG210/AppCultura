@@ -224,27 +224,24 @@
                       <div class="ps-3">
                         <!--========================-->
                         <div class="row">
-                          <div class="col-lg-2">
+                          <div class="col-lg-3">
                             <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                               <i class="bi bi-people"></i>
                             </div>
                           </div>
-                          <div class="col-lg-3">
+                          <div class="col-lg-9">
                             <div class="small text-muted fw-bold"><span>Cumplidos: </span>
-                              <br><b>{{compromisos.total_cumplido}}</b>
+                              <b>{{compromisos.total_cumplido}}</b>
                             </div>
-                          </div>
-                          <div class="col-lg-3">
+                            <!----------->
                             <div class="small text-muted fw-bold"><span>Pendientes:</span>
-                              <br><b>{{compromisos.total_pendientes}}</b>
+                              <b>{{compromisos.total_pendientes}}</b>
                             </div>
-                          </div>
-                          <div class="col-lg-3">
                             <div class="small text-muted fw-bold"><span>No cumplidos: </span> 
-                              <br> <b>{{compromisos.total_nocumplido}}</b>
+                              <b>{{compromisos.total_nocumplido}}</b>
                             </div>
-                          </div>
-                                                
+                            <!-------------------------->
+                          </div>                      
                         </div>
                         <!--=========================-->   
                          <!---========== calcular barras de progreso ==========-->
@@ -262,28 +259,15 @@
               <!-- ============== compromisos de la personas -->
               <div class="col-12">
                 <div class="card recent-sales overflow-auto">
-                  <!--
-                  <div class="filter">
-                    <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                      <li class="dropdown-header text-start">
-                        <h6>Filter</h6>
-                      </li>
-  
-                      <li><a class="dropdown-item" href="#">Today</a></li>
-                      <li><a class="dropdown-item" href="#">This Month</a></li>
-                      <li><a class="dropdown-item" href="#">This Year</a></li>
-                    </ul>
-                  </div>-->
-  
+                 
                   <div class="card-body">
-                    <h5 class="card-title">Colaboradores elegidos para cumplir un compromiso.</h5>
-  
+                    <h5 class="card-title">Compromisos Adquiridos.</h5>
+                    <div class="table-responsive">
                     <table class="table table-borderless datatable">
                       <thead>
                         <tr>
                           <th scope="col">No</th>
-                          <th scope="col">Colaborador</th>
+                          <th scope="col">Curso / Sesión </th>
                           <th scope="col">Detalle</th>
                           <th scope="col">Fecha final</th>
                           <th scope="col">Estado</th>
@@ -294,19 +278,9 @@
                         <tr>
                           <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
                           <td>
-                            <!--Personas a colaborar en un compromiso-->
-                            <ul>
-                            {% if com.personascompromisos_set.all %}
-                            {% for personas in com.personascompromisos_set.all %}
-                               <li>{{personas.id_usuario.nombre}}  {{personas.id_usuario.apellido}}</li> 
-                            {% endfor %}
-                            {% else %}
-                                <span>Sin colaboradores.</span>
-                            {% endif %}
-                             </ul>
-                            <!--====================================-->
+                            {{ com.id_sesion.idcurso.nombre }} 
                           </td>
-                          <td><span class="text-primary">{{ com.compromiso }}</span></td>
+                          <td><span class="text-primary"><a href="{% url 'detalleCompromisoUser' idcom=com.id %}">{{ com.compromiso }}</a></span></td>
                           <td>{{ com.fecha_final|date:'d/m/Y'}}</td>
                           <td>
                             {% if com.id_estado.id == 1 %}
@@ -322,7 +296,7 @@
                        
                       </tbody>
                     </table>
-  
+                    </div>
                   </div>
   
                 </div>
@@ -331,28 +305,15 @@
              <!--=========== compromisos a los cuales te han viculado ============-->
              <div class="col-12">
               <div class="card recent-sales overflow-auto">
-               <!--
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-              -->
+              
                 <div class="card-body">
                   <h5 class="card-title">Compromisos en los cuales fuiste elegido.</h5>
-
+                  <div class="table-responsive">
                   <table class="table table-borderless datatable">
                     <thead>
                       <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Colaborador</th>
+                        <th scope="col">Curso / Sesión</th>
                         <th scope="col">Detalle</th>
                         <th scope="col">Fecha final</th>
                         <th scope="col">Estado</th>
@@ -364,14 +325,10 @@
                       <tr>
                         <th scope="row"><a href="#">{{ forloop.counter }}</a></th>
                         <td>
-                          <!--Personas a colaborar en un compromiso-->
-                            <li>
-                              {{per.idcompromiso.id_usuario.nombre}}  {{per.idcompromiso.id_usuario.apellido}}
-                            </li>  
-                          <!--======================================-->
+                          {{ per.id_compromiso.id_sesion.idcurso.nombre }} 
                         </td>
                         <td><a href="#" class="text-primary">{{ per.id_compromiso.compromiso }}</a></td>
-                        <td>{{ com.fecha_final|date:'d/m/Y'}}</td>
+                        <td>{{ per.id_compromiso.fecha_final|date:'d/m/Y'}}</td>
                         <td>
                           {% if per.id_compromiso.id_estado.id == 1 %}
                             <span class="badge bg-success">{{per.id_compromiso.id_estado.descripcion}}</span>
@@ -390,7 +347,7 @@
                       {% endif %}
                     </tbody>
                   </table>
-
+                  </div>
                 </div>
 
               </div>

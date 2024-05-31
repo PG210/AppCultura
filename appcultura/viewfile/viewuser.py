@@ -252,14 +252,11 @@ def saveRespuestas(request, idsesion, idformu):
        puntaje_total = puntaje_total if puntaje_total is not None else 0
     return render(request, 'user/listaformu.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'fecha_actual':fecha_actual, 'usuarios':usuarios})
 
+#========== funcion para convertir las fechas ==========
 @login_required
-def agregar_compromiso(request):
-    perfil_usuario = UserPerfil.objects.get(user=request.user)
-    grupo_user = GruposUser.objects.filter(iduser=perfil_usuario)
-    user_all = UserPerfil.objects.filter(idrol=2).exclude(id=perfil_usuario.id)
-    estadocom = EstadoCompromisos.objects.all()
+def cambiarEstadoCompromisos(perfil_usuario):
     fecha_actual = date.today()
-    #==== modificar los compromisos que estan con la fecha vencida =====
+    grupo_user = GruposUser.objects.filter(iduser=perfil_usuario)
     noterminado = EstadoCompromisos.objects.filter(descripcion__icontains="no cumplido").first()
     compromisos_anteriores = Compromisos.objects.filter(id_usuario=perfil_usuario, id_estado=2, fecha_final__lt=fecha_actual)  
     for comp in compromisos_anteriores:
@@ -272,6 +269,16 @@ def agregar_compromiso(request):
             cursos = GruposCursos.objects.filter(idgrupo=user.idgrupo)
     else:
         cursos = ""
+    return fecha_actual, compromises, cursos
+#=====================================
+@login_required
+def agregar_compromiso(request):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    user_all = UserPerfil.objects.filter(idrol=2).exclude(id=perfil_usuario.id)
+    estadocom = EstadoCompromisos.objects.all()
+    idcom = ""
+    #==== modificar los compromisos que estan con la fecha vencida =====
+    fecha_actual, compromises, cursos = cambiarEstadoCompromisos(perfil_usuario) #== informacion que retorna de la funcion
     if request.method == 'POST':
         compromiso = request.POST.get('textCompromiso')
         prioridad = request.POST.get('prioridad')
@@ -288,9 +295,19 @@ def agregar_compromiso(request):
         add_compromiso = Compromisos(id_curso=curso, compromiso=compromiso, prioridad=prioridad, fecha_final=fecha_final, con_quien=con_quien_user, id_usuario=perfil_usuario)
         add_compromiso.save()
         message ="Compromiso agregado correctamente"
-        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message, 'compromisos':compromises, 'fechamin':fecha_actual, 'estadocom':estadocom})
+        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos, 'mensaje':message, 'compromisos':compromises, 'fechamin':fecha_actual, 'estadocom':estadocom, 'idcom':idcom})
     else:
-        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises, 'fechamin':fecha_actual, 'estadocom':estadocom})
+        return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises, 'fechamin':fecha_actual, 'estadocom':estadocom, 'idcom':idcom})
+
+#============= funcion para dar clic desde el dashboard y lleve a compromisos
+@login_required
+def detalleCompromisoUser(request, idcom):
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    user_all = UserPerfil.objects.filter(idrol=2).exclude(id=perfil_usuario.id)
+    estadocom = EstadoCompromisos.objects.all()
+    fecha_actual, compromises, cursos = cambiarEstadoCompromisos(perfil_usuario) 
+    return render(request, 'user/compromisos.html',{'usu':perfil_usuario, 'user_all':user_all, 'cursos':cursos,'compromisos':compromises, 'fechamin':fecha_actual, 'estadocom':estadocom, 'idcom':idcom})
+
 
 @login_required
 def editarcompromiso(request, idcomp):

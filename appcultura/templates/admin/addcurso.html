@@ -36,7 +36,7 @@
         <div class="card">
           <div class="card-body">
              <!--==========================descripcion ========================-->
-             <div class="row mt-2 alert alert-primary" role="alert">
+             <div class="row mt-1 alert alert-primary" role="alert">
               <div class="col-8" >
                   <h5>Registrar información del curso</h5>
               </div>
@@ -47,14 +47,12 @@
              <!--======================end descripcion==========================-->
               <!--alertar-->
               {% if msj %}
-              <br>
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <strong>{{msj}}</strong>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               {% endif %}
               {% if messages %}
-              <br>
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
                   {% for message in messages %}
                     <strong>{{ message }}</strong>
@@ -105,9 +103,18 @@
                     <input type="text" class="form-control" id="nombre" name="nombre" required>
                   </div>
                   <!---=================== aqui precio =============-->
-                  <label for="precio" class="col-sm-1 col-form-label">Precio</label>
+                  <!--<label for="precio" class="col-sm-1 col-form-label">Precio</label>
                   <div class="col-sm-4">
                     <input type="number" class="form-control" id="precio" name="precio" required>
+                  </div>-->
+                  <label for="grupo" class="col-sm-1 col-form-label">Grupo</label>
+                  <div class="col-sm-4 col-lg-4">
+                      <select id="grupo" name="grupo" class="form-select" required>
+                          <option value="" selected>Elegir grupo</option>
+                         {% for grupo in grupos %}
+                          <option value="{{grupo.id}}">{{grupo.nombre}}</option>
+                         {% endfor %}
+                        </select>
                   </div>
                   <!--=============================================0-->
                 </div>
@@ -145,15 +152,18 @@
                   <div class="col-sm-8">
                     <!--competencias-->
                     <div class="form-control">
-                      <div style="column-count: 5;">
+                      <!---=================Datos info========================-->
+                      <ul class="list-group">
                         {% for com in competencias %}
-                          <label style="display: flex; align-items: center; margin-right: 10px;">
-                            <input type="checkbox" name="compe" value="{{ com.id }}">
-                            <span>&nbsp;{{ com.nombre }}</span>&nbsp;
+                        <li class="list-group-item">
+                          <span>
+                            <input type="checkbox" name="compe" value="{{ com.id }}">&nbsp;{{ com.nombre }}&nbsp;
                             <a href="{% url 'eliminarCompetencia' idcom=com.id %}" style="color: red;">x</a>
-                          </label>
+                          </span>
+                        </li>
                         {% endfor %}
-                      </div>
+                      </ul>
+                      <!--============================================-->
                     </div>
                     <!--end-->
                   </div>

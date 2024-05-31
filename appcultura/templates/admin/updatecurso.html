@@ -58,11 +58,21 @@
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <label for="precio" class="col-sm-2 col-form-label">Precio</label>
+
+                 <!---<label for="precio" class="col-sm-2 col-form-label">Precio</label>
                   <div class="col-sm-10">
                     <input type="text" class="form-control" id="precio" name="precio" value="{{ curso.precio }}"
                       required>
                   </div>
+                  <label for="grupo" class="col-sm-2 col-lg-2 col-form-label">Grupo</label>
+                  <div class="col-sm-10 col-lg-10">
+                      <select id="grupo" name="grupo" class="form-select" required>
+                          <option value="" selected>Elegir grupo</option>
+                         {% for grupo in grupos %}
+                          <option value="{{grupo.id}}">{{grupo.nombre}}</option>
+                         {% endfor %}
+                        </select>
+                  </div>-->
                 </div>
                 <!---================================-->
                 <div class="row mb-3">

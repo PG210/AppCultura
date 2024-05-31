@@ -24,10 +24,12 @@
         <ul id="components-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
             <a href="{% url 'listarcursos' %}">
-              <i class="bi bi-circle"></i><span>Listado</span>
+              <i class="bi bi-circle"></i><span>Nuevo Curso</span>
             </a>
-            <a href="{% url 'listarcompromisos' %}">
-              <i class="bi bi-circle"></i><span>Compromisos</span>
+          </li>
+          <li>
+            <a href="{% url 'listarformu' %}">
+              <i class="bi bi-circle"></i><span>Nuevas evaluaciones de aprendizaje</span>
             </a>
           </li>
         </ul>
@@ -35,17 +37,17 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
-          <i class="bi bi-layout-text-window-reverse"></i><span>Formularios</span><i class="bi bi-chevron-down ms-auto"></i>
+          <i class="bi bi-layout-text-window-reverse"></i><span>Métricas</span><i class="bi bi-chevron-down ms-auto"></i>
         </a>
         <ul id="tables-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'listarformu' %}">
-              <i class="bi bi-circle"></i><span>Crear</span>
+            <a href="{% url 'listarcompromisos' %}">
+              <i class="bi bi-circle"></i><span>Visualizar compromisos</span>
             </a>
           </li>
           <li>
             <a href="{% url 'usersFomularios' %}">
-              <i class="bi bi-circle"></i><span>Respuestas usuarios</span>
+              <i class="bi bi-circle"></i><span>Resultados de aprendizaje</span>
             </a>
           </li>
         </ul>

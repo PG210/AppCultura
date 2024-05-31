@@ -72,7 +72,7 @@
                      <!--aqui datos de usuarios--> 
                      {% if formador.idempresa.id == usu.idepart.idarea.idempresa.id or formador.idempresa.id == usu.idarea.idempresa.id %}
                       <tr>
-                        <td>{{usu.nombre}} {{usu.apellido}}</td>
+                        <td>{{usu.nombre}} {{usu.apellido}} {{usu.id}}</td>
                         <td>{{compromiso.total}}</td>
                         <td>{{compromiso.terminados}}</td>
                         <td>{{compromiso.pendientes}}</td>
