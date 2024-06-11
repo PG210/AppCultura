@@ -105,7 +105,7 @@ urlpatterns = [
     path('administracion/generarqr/<int:idsesion>/', viewadmin.generarqr, name='generarqr'),
 
     #================ valoracion del curso =========================================
-    path('administracion/curso/asistentelist/<int:idsesion>/', viewadmin.listarasistentes, name='listarasistentes'),
+    #path('administracion/curso/asistentelist/<int:idsesion>/', viewadmin.listarasistentes, name='listarasistentes'),
     path('administracion/curso/deleteasistente/<int:idasis>/', viewadmin.eliminarasistente, name='eliminarasistente'),
     path('administracion/curso/list/valoracion/<int:idsesion>/', viewadmin.listarcalificacion, name="listarcalificacion"),
     path('administracion/curso/list/deletevaloracion/<int:idcali>/', viewadmin.borrarcalificacion, name="borrarcalificacion"),
@@ -130,7 +130,7 @@ urlpatterns = [
     path('administracion/usuario/cambiarpendiente/<int:idsesion>/<int:iduser>/', viewformu.cambiar_pendiente_formulario, name="cambiar_pendiente_formulario"),
     
     path('administracion/curso/deleteasistente/<int:idasis>/', viewadmin.eliminarasistente, name='eliminarasistente'),
-    path('administracion/curso/list/valoracion/<int:idsesion>/', viewadmin.listarcalificacion, name="listarcalificacion"),
+    #path('administracion/curso/list/valoracion/<int:idsesion>/', viewadmin.listarcalificacion, name="listarcalificacion"),
     path('administracion/curso/list/deletevaloracion/<int:idcali>/', viewadmin.borrarcalificacion, name="borrarcalificacion"),
     path('administracion/compromisos/', viewadmin.listar_compromisos, name="listarcompromisos"),
     path('administracion/compromisos/editcompromiso/<int:idcomp>/', viewadmin.addrespuesta, name="editcompromiso"),
@@ -175,6 +175,9 @@ urlpatterns = [
     path('administracion/filtrar/curso/<int:idcurso>/', views.filtrarcurso, name="filtrarCurso"),
     #=== ruta para filtrar los cursos de resultados de aprendizaje ====
     path('administracion/filter/cursos/<int:idcurso>/', viewformu.filtroCurso, name="filtroCurso"),
+
+    #===================== generar archivos excel de informacion ================================
+    path('administracion/file/sesion/<int:idsesion>/', viewadmin.excelasistentes, name="excelasistentes"),
   
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
    

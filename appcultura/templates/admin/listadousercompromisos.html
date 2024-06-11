@@ -27,6 +27,7 @@
             <!---============================ Filtro ================-->
             <div class="col-8">
               <div class="btn-group" role="group" aria-label="Basic outlined example">
+                {% if usu.idrol.id != 3 %}
                 <!--------------------- boton -------------------->
                 <!-- Default dropend button -->
                   <div class="btn-group dropend">
@@ -40,6 +41,7 @@
                       {% endfor %}
                     </ul>
                   </div>
+                  {% endif %}
                 <!------------------------------------------------>
               </div>
             </div>
@@ -72,7 +74,7 @@
                      <!--aqui datos de usuarios--> 
                      {% if formador.idempresa.id == usu.idepart.idarea.idempresa.id or formador.idempresa.id == usu.idarea.idempresa.id %}
                       <tr>
-                        <td>{{usu.nombre}} {{usu.apellido}} {{usu.id}}</td>
+                        <td>{{usu.nombre}} {{usu.apellido}}</td>
                         <td>{{compromiso.total}}</td>
                         <td>{{compromiso.terminados}}</td>
                         <td>{{compromiso.pendientes}}</td>
@@ -217,7 +219,7 @@
                                           </div>
                                           <!---================= boton ============-->
                                           <div class="text-end">
-                                             <button type="submit" class="btn btn-outline-primary mt-2"><i class="bi bi-send-fill"></i> Enviar</button>
+                                             <button type="submit" class="btn btn-outline-primary mt-2"><i class="bi bi-send-fill"></i> Guardar</button>
                                           </div>
                                         </form>
                                       <!--=============end datos ================-->

@@ -1,5 +1,11 @@
 {% extends 'admin/inicio.html' %}
 {% block content %}
+<style>
+  .horizontal {
+    writing-mode: horizontal-tb;
+    text-align: justify;
+  }
+</style>
 
 <main id="main" class="main">
 
@@ -30,15 +36,17 @@
               {% endfor %}
             </div>
             {% endif %}
-            <br>
-            <div class="row">
-              <div class="mt-3 col-2">
+            {% if usu.idrol.id != 3 %}
+            <div class="row mt-3 mb-3">
+              <div class="col-2">
                 <a type="button" class="btn btn-outline-primary" href="{% url 'registroCursos' %}" data-bs-toggle="tooltip"
-                  data-bs-placement="right" data-bs-title="Agregar Nuevo Curso"> Nuevo Curso </a>
+                  data-bs-placement="right" data-bs-title="Agregar Nuevo Curso"> Nuevo Curso</a>
               </div>
               <div class="mt-3 col-10 text-end"></div>
             </div>
-            <br>
+            {% else %}
+              <br>
+            {% endif %}
             <!--end alertar-->
             <!-- Table with stripped rows -->
             <div class="table-responsive">
@@ -96,7 +104,7 @@
                               </ul>
                               <!--end competencias-->
                               <hr>
-                              <table>
+                              <table class="table">
                                 <thead>
                                   <tr>
                                     <th>Descripción</th>
@@ -109,11 +117,15 @@
                                   <tr>
                                     <td>
                                       <!---============-->
-                                      <small>{{ objetivo.descrip }}</small>
+                                      <p class="form-control-sm horizontal">
+                                        {{ objetivo.descrip }}
+                                      </p>
                                       <!--=================-->
                                     </td>
                                     <td>
-                                      <small>{{ objetivo.competencias }}</small>
+                                      <p class="form-control-sm horizontal">
+                                        {{ objetivo.competencias }}
+                                      </p>
                                     </td>
                                   </tr>
                                   {% endif %}
@@ -147,15 +159,17 @@
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body table-responsive">
-                              <table>
+                              <table class="table"> 
                                 <thead>
                                   <tr>
                                     <th></th>
                                     <th>Fecha</th>
                                     <th>Lugar</th>
+                                    {% if usu.idrol.id != 3 %}
                                     <th>Asistencia</th>
-                                    <th>Asistentes</th>
-                                    <th>Valoración</th>
+                                    {% endif %}
+                                    <th class="text-center">Asistentes</th>
+                                    <th class="text-center">Valoración</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -169,12 +183,16 @@
                                     </td>
                                     <td><small>{{ sesion.fechainicio|date:"n/j/y g:i a" }}</small></td>
                                     <td><small>{{ sesion.lugar }}</small></td>
+                                    {% if usu.idrol.id != 3 %}
                                     <td class="text-center"><a class="btn btn-outline-success btn-sm" href="{% url 'generarqr' idsesion=sesion.id %}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Comparte la asistencia mediante código QR">
                                       <i class="bi bi-share-fill"></i></a>
                                     </td>
+                                    {% endif %}
                                     <td class="text-center">
                                       {% if sesion.sesionasistencia_set.all %}
                                       <a class="btn btn-outline-primary btn-sm" href="{% url 'listarasistentes'  idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar los asistentes de la sesión">Ver</a>
+                                      <!--Descragar archivo excel de asistencias-->
+                                      <a class="btn btn-outline-info btn-sm" href="{% url 'excelasistentes'  idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Descargar archivo Excel de asistencias"><i class="bi bi-file-earmark-arrow-down-fill"></i></a>
                                       {% else %}
                                       <p style="color: black;"><small>Sin registro</small></p>
                                       {% endif %}
@@ -232,9 +250,11 @@
                        <!--===============================-->  
                        <div class="btn-group" role="group" aria-label="Basic outlined example">
                         <a type="button" class="btn btn-outline-primary" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Métricas del curso: {{curso.nombre}}" href="{% url 'metricasCurso' idcurso=curso.id %}"><i class="bi bi-bar-chart-line"></i></a>
-                        <a type="button" class="btn btn-outline-info" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el curso {{curso.nombre}}" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
-                        <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar el curso: {{curso.nombre}}"></i></a>
-                      </div>
+                        {% if usu.idrol.id != 3 %}
+                         <a type="button" class="btn btn-outline-info" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el curso {{curso.nombre}}" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
+                         <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar el curso: {{curso.nombre}}"></i></a>
+                         {% endif %}
+                       </div>
                        <!--==============================-->
                         <!--modal de validación-->
                         <div class="modal fade" id="confirmarDelete{{curso.id}}" tabindex="-1">

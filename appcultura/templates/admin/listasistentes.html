@@ -49,30 +49,32 @@
                       <th>Telefono</th>
                       <th>Correo</th>
                       <th>Pendiente</th>
+                      {% if usu.idrol.id != 3 %}
                       <th>Acciones</th>
+                      {% endif %}
                     </tr>
                   </thead>
                   <tbody>
-                    {% for usu in usuarios %}
+                    {% for usuar in usuarios %}
                       <tr>
-                        <td>{{ usu.idusuario.nombre }}</td>
-                        <td>{{usu.idusuario.apellido}}</td>
-                        <td>{{usu.idusuario.cedula}}</td>
-                        <td>{{usu.idusuario.telefono}}</td>
-                        <td>{{usu.idusuario.user.username}}</td>
+                        <td>{{ usuar.idusuario.nombre }}</td>
+                        <td>{{usuar.idusuario.apellido}}</td>
+                        <td>{{usuar.idusuario.cedula}}</td>
+                        <td>{{usuar.idusuario.telefono}}</td>
+                        <td>{{usuar.idusuario.user.username}}</td>
                         
                         <td>
-                          {% if usu.asistencia_pendiente %}
-                          <form method="post" action="{% url 'cambiarpendiente' iduser=usu.idusuario.id idsesion=sesion %}">
+                          {% if usuar.asistencia_pendiente %}
+                          <form method="post" action="{% url 'cambiarpendiente' iduser=usuar.idusuario.id idsesion=sesion %}">
                             {% csrf_token %}
                             <!-- Button trigger modal -->
                             
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalpendiente{{usu.id}}">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalpendiente{{usuar.id}}">
                               <i class="bi bi-check-all"></i>
                             </button>
 
                             <!-- Modal -->
-                            <div class="modal fade" id="modalpendiente{{usu.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="modalpendiente{{usuar.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                               <div class="modal-dialog">
                                 <div class="modal-content">
                                   <div class="modal-header">
@@ -98,10 +100,11 @@
                           No
                           {% endif %}
                         </td>
+                        {% if usu.idrol.id != 3 %}
                         <td>
                           <!-- modal de validación -->
-                          <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAsistente{{ usu.id }}"><i class="bi bi-trash3-fill"></i></a>
-                          <div class="modal fade" id="deleteAsistente{{ usu.id }}" tabindex="-1">
+                          <a type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteAsistente{{ usuar.id }}"><i class="bi bi-trash3-fill"></i></a>
+                          <div class="modal fade" id="deleteAsistente{{ usuar.id }}" tabindex="-1">
                             <div class="modal-dialog modal-dialog-centered">
                               <div class="modal-content">
                                 <div class="modal-header">
@@ -110,7 +113,7 @@
                                 </div>
                                 <div class="modal-body">¿Estás seguro de que deseas eliminar este asistente?</div>
                                 <div class="modal-footer">
-                                  <a class="btn btn-primary" href="{% url 'eliminarasistente' idasis=usu.id %}">Si</a>
+                                  <a class="btn btn-primary" href="{% url 'eliminarasistente' idasis=usuar.id %}">Si</a>
                                   <button type="button" class="btn btn-warning" data-bs-dismiss="modal">No</button>
                                 </div>
                               </div>
@@ -118,6 +121,7 @@
                           </div>
                           <!-- end validacion -->
                         </td>
+                        {% endif %}
                       </tr>
                     {% endfor %}
                   </tbody>

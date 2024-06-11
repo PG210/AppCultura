@@ -535,16 +535,22 @@ def usuariosFormulario(usuarios_en_sesion):
 @login_required #proteger la ruta
 def usersFomularios(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
+    cursos = ''
     if perfil_usuario.idrol.id == 4: #=== datos para el formador
-          empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
-          cursosvin = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
-          return render(request, 'formularios/listcurso.html', {'usu':perfil_usuario, 'cursosvin':cursosvin })
-    else:  #==== datos para el admin
+        cursos = Curso.objects.filter(idusu=perfil_usuario.id)
+        grupos_cursos = GruposCursos.objects.filter(idcurso__in=cursos).values('idgrupo').distinct()
+        usuarios_grupo = GruposUser.objects.filter(idgrupo__in=grupos_cursos).values('iduser').distinct()
+        usuarios_en_sesion = UserPerfil.objects.filter(id__in=usuarios_grupo)
+    #==== datos para el admin =======================
+    elif perfil_usuario.idrol.id == 1: 
           usuarios_en_sesion = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
           cursos = Curso.objects.all()
-          datos = usuariosFormulario(usuarios_en_sesion)
-          return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
-
+    #=== si el usuario es jefe ============
+    elif perfil_usuario.idrol.id == 3: 
+          areajefe = perfil_usuario.idarea.id
+          usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4])
+    datos = usuariosFormulario(usuarios_en_sesion)
+    return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
 #======================filtrar curso================================
 #============================ funcion para filtrar datos por usuario ==============
 def usuariosPorCurso(idcurso):
@@ -614,7 +620,10 @@ def usuariosPorCurso(idcurso):
 def filtroCurso(request, idcurso):
      curso = Curso.objects.get(id=idcurso)
      perfil_usuario = UserPerfil.objects.get(user=request.user)
-     cursos = Curso.objects.all()
+     if perfil_usuario.idrol.id == 4: #=== datos para el formador
+        cursos = Curso.objects.filter(idusu=perfil_usuario.id)
+     else:
+        cursos = Curso.objects.all()
      #datos_users = usuariosPorCurso(idcurso)
      #============ datos de usuarios ===========
      grupoasociado = GruposCursos.objects.filter(idcurso=idcurso)

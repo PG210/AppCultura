@@ -38,6 +38,8 @@ from django.views import View
 from django.http import JsonResponse
 from django.core.serializers import serialize
 from django.urls import reverse
+from io import BytesIO
+
 
 from appcultura.viewfile.fadmin.functionadmin import generar_qr
 #Fin Codigo Jhon
@@ -1083,7 +1085,11 @@ def generarqr(request, idsesion):
 def listarasistentes(request, idsesion):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     sesion = Sesioncurso.objects.get(id=idsesion)
-    usuarios = SesionAsistencia.objects.filter(idsesioncurso=sesion)
+    if perfil_usuario.idrol.id == 3:
+       areajefe = perfil_usuario.idarea.id
+       usuarios = SesionAsistencia.objects.filter(Q(idusuario__idarea=areajefe) | Q(idusuario__idepart__idarea=areajefe), idsesioncurso=sesion).order_by('-fecha_asistencia')
+    else:
+       usuarios = SesionAsistencia.objects.filter(idsesioncurso=sesion)
     return render(request, 'admin/listasistentes.html', {'usuarios':usuarios, 'usu':perfil_usuario, 'sesion':idsesion})
 
 @login_required #proteger la ruta
@@ -1100,16 +1106,24 @@ def eliminarasistente(request, idasis):
 
 @login_required
 def listarcalificacion(request, idsesion):
-    perfil_usuario = UserPerfil.objects.get(user=request.user)
-    datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=idsesion)
-    sesion = Sesioncurso.objects.get(id=idsesion) #==== listar el curso ===
-    formador = CalificacionFormador.objects.filter(sesion_curso=idsesion) #== calificacion de los formadores
+    #==== variables ===============
     totaplicabilidad, totalclaridad, totrelevancia, promaplicabilidad, promclaridad, promrlevancia  = 0, 0, 0, 0, 0, 0
-    
     #==== variables ==
     totclaridad, totcapacidad, totdominio = 0, 0, 0
     formclaridad, formcapacidad,  formdominio = 0, 0, 0
     valoresformador = ''
+    #=========== informacion ===========
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    sesion = Sesioncurso.objects.get(id=idsesion) #==== listar el curso ===
+    #==== validar si el usuario es jefe ==============
+    if perfil_usuario.idrol.id == 3:
+        areajefe = perfil_usuario.idarea.id
+        datos = CalificacionUsuarios.objects.filter(Q(idusuario__idarea=areajefe) | Q(idusuario__idepart__idarea=areajefe), id_sesiones_curso=idsesion)
+        formador = CalificacionFormador.objects.filter(Q(usuario__idarea=areajefe) | Q(usuario__idepart__idarea=areajefe), sesion_curso=idsesion)
+    else:
+       datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=idsesion)
+       formador = CalificacionFormador.objects.filter(sesion_curso=idsesion) #== calificacion de los formadores
+    
     if datos:
         for dat in datos:
             totaplicabilidad += dat.aplicabilidad  # Sumar aplicabilidad
@@ -1153,13 +1167,18 @@ def metricasCurso(request, idcurso):
     sumaplicabilidad, sumclaridad, sumrelevancia = 0, 0, 0
     sumclaridadfor, sumcapacidad, sumdominio = 0, 0, 0
     valorescurso, barras, valoresformador, barraform = '', '', '', ''
+    datos, formador = [], []
 
     #=== obtener el total de calificaciones por sesion =========
     for sesion in totalsesiones:
-        datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
+        datos_sesion = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion.id)
+        if datos_sesion.exists():
+           datos.extend(list(datos_sesion))
     #====== obtener  el total de calificacion de formador =======
     for ses in totalsesiones:
-        formador = CalificacionFormador.objects.filter(sesion_curso=ses) 
+        formador_sesion = CalificacionFormador.objects.filter(sesion_curso=ses.id) 
+        if formador_sesion.exists():
+            formador.extend(list(formador_sesion))
     #========= calcular los datos de porcentaje ===============
     if datos:
         for dat in datos:  
@@ -1232,6 +1251,7 @@ def compromisos_listar(usuarios):
 def listar_compromisos(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     formador = ''
+    cursos = ''
     #=====================================================
     if perfil_usuario.idrol.id == 4: #=== si el usuario es formador
         formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
@@ -1243,6 +1263,10 @@ def listar_compromisos(request):
     elif perfil_usuario.idrol.id == 1: #=== si el usuario es administrador
         cursos = Curso.objects.all()
         usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
+    
+    elif perfil_usuario.idrol.id == 3: #==== si el usuario es jefe
+         areajefe = perfil_usuario.idarea.id
+         usuarios = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4])
     #======== obtener los compromisos por cada usuario========================
     estados = EstadoCompromisos.objects.all()
     usuarios_con_compromisos = compromisos_listar(usuarios) #=== llama a la funcion compromisos
@@ -1304,11 +1328,15 @@ def savecompromiso(request, idcom):
         estados = EstadoCompromisos.objects.all()
         mensaje = "Información ingresada de manera exitosa"
         estados = EstadoCompromisos.objects.all()
-        usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
-        usuarios_con_compromisos = compromisos_listar(usuarios) #=== llama a la funcion compromisos
         #=====================================================
         if perfil_usuario.idrol.id == 4:
             formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+        elif perfil_usuario.idrol.id == 3:
+            areajefe = perfil_usuario.idarea.id
+            usuarios = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4])
+        else:
+            usuarios = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
+        usuarios_con_compromisos = compromisos_listar(usuarios) #=== llama a la funcion compromisos
         return render(request, 'admin/listadousercompromisos.html', {'usu':perfil_usuario, 'usuarios':usuarios_con_compromisos, 'formador':formador, 'estados':estados, 'mensaje':mensaje})
 
 @login_required
@@ -1578,3 +1606,32 @@ def updateUser(request, idusu):
               mensajeUpdate = "Error: El sistema no puede encontrar el usuario."
       messages.error(request, mensajeUpdate)
       return HttpResponseRedirect(reverse('registroUser'))
+    
+#============= generar excel de los asistentes a la sesion 
+@login_required
+def excelasistentes(request, idsesion):
+    total_datos = []
+    perfil_usuario = UserPerfil.objects.get(user=request.user)
+    sesion = Sesioncurso.objects.get(id=idsesion)
+    if perfil_usuario.idrol.id == 3:
+       areajefe = perfil_usuario.idarea.id
+       usuarios = SesionAsistencia.objects.filter(Q(idusuario__idarea=areajefe) | Q(idusuario__idepart__idarea=areajefe), idsesioncurso=sesion).order_by('-fecha_asistencia')
+    else:
+       usuarios = SesionAsistencia.objects.filter(idsesioncurso=sesion)
+    #=== iterar sobre todos los usuarios =============
+    for usuinfo in usuarios:
+        total_datos.append({
+            'Nombre': usuinfo.idusuario.nombre,
+            'Apellido': usuinfo.idusuario.apellido,
+            'No Identificación': usuinfo.idusuario.cedula,
+            'Correo': usuinfo.idusuario.user.username,
+            'Cargo': usuinfo.idusuario.cargo,
+        })
+    df = pd.DataFrame(total_datos) #convertir los datos a data frame
+    archivo_excel = BytesIO()
+    df.to_excel(archivo_excel, index=False)
+    archivo_excel.seek(0)
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(archivo_excel, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="asistencia_usuarios.xlsx"'
+    return response

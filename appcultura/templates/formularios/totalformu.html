@@ -8,7 +8,7 @@
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Inicio</a></li>
-          <li class="breadcrumb-item active">Resultado</li>
+          <li class="breadcrumb-item active">Resultados</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -27,6 +27,7 @@
                         <div class="btn-group" role="group" aria-label="Basic outlined example">
                           <!--------------------- boton -------------------->
                           <!-- Default dropend button  -->
+                           {% if usu.idrol.id != 3 %}
                             <div class="btn-group dropend">
                               <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-funnel-fill"></i> Filtrar
@@ -38,6 +39,7 @@
                                 {% endfor %}
                               </ul>
                             </div>
+                            {% endif %}
                           <!------------------------------------------------>
                         </div>
                       </div>
@@ -78,7 +80,7 @@
                   {% for user in datos.users %}
                   <tr>
                     <td>{{ user.nombre }} {{ user.apellido }}</td>
-                    <td>{{ user.idarea.idempresa.nombre }} {{ user.idepart.idearea.idempresa.nombre }}</td>
+                    <td>{{ user.idarea.idempresa.nombre }} {{ user.idepart.idarea.idempresa.nombre }}</td>
                     <td class="text-center">
                         <!--=========== formularios asignados =======-->  
                         {% for userperfil, cantidad in datos.formutotal.items %}
@@ -331,10 +333,16 @@
                                                               </div>
                                                               <hr>
                                                             </div>
-                                                            
                                                             <!--============================================-->
                                                           {% endif %}
                                                       {% endfor %}
+                                                       <!---boton enviar-->
+                                                       <div class="row">
+                                                        <div class="col-lg-12 col-md-12 text-end">
+                                                            <button type="submit" class="btn btn-primary mt-2" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="Enviar retroalimentación al usuario."><i class="bi bi-send"></i> Enviar</button>
+                                                         </div>
+                                                        </div>
+                                                        <!---end boton enviar-->
                                                     </div>
                                                   </div>
                                                 </div>
@@ -346,7 +354,6 @@
                                  <!--end acordion-->
                                 </div>
                                 <div class="modal-footer">
-                                  <button type="submit" class="btn btn-primary mt-2">Enviar</button>
                                   <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
                                 </div>
                               </form> <!--final del formulario-->
