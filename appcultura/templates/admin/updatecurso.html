@@ -39,6 +39,130 @@
             </div>
             {% endif %}
             <!--end alertar-->
+            <!---============== registrar user =================-->
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="nuevoUsuario" aria-labelledby="offcanvasRightLabel">
+              <div class="offcanvas-header alert alert-primary">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">Completa la información del usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+              </div>
+              <div class="offcanvas-body">
+                <!--canpos de formulario-->
+                  <form id="formularioUsu">
+                   {% csrf_token %}
+                   {% include 'admin/plantilla/formulariouser.html' %}
+                    <!--botones---->
+                      <div class="mt-4 mb-3 row">
+                        <div class="col-sm-12 text-center">
+                            <button type="button" class="btn btn-primary" id="addusu">Guardar</button>
+                            <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
+                        </div>
+                      </div>
+                    <!--end form-->
+                  </form>
+                  <br><br>
+              </div>
+            </div>
+               <!---new build -->
+               <div class="offcanvas offcanvas-end" tabindex="-1" id="newbuild" aria-labelledby="offcanvasRightLabel">
+                <div class="offcanvas-header alert alert-primary">
+                  <h5 class="offcanvas-title" id="offcanvasRightLabel">Completa los datos de la empresa.</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                <!--canpos de formulario-->
+                 <form id="formnuewbuild">
+                     {% csrf_token %}
+                     <hr>
+                     <div class="mb-2 row">
+                      <label for="nombre" class="col-sm-4 col-form-label">Nombre entidad (*)</label>
+                      <div class="col-sm-8">
+                        <input type="text" class="form-control" id="entidad" name="entidad" required>
+                      </div>
+                      </div>
+                      <div class="mb-2 row">
+                          <label for="apellido" class="col-sm-4 col-form-label">Nit (*)</label>
+                          <div class="col-sm-8">
+                            <input type="number" class="form-control" id="nit" name="nit" required>
+                          </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="nombre" class="col-sm-4 col-form-label">Correo (*)</label>
+                        <div class="col-sm-8">
+                          <input type="email" class="form-control" id="emailbuild" name="emailbuild" required>
+                        </div>
+                    </div>
+                      <div class="mb-2 row">
+                        <label for="apellido" class="col-sm-4 col-form-label">Celular (*)</label>
+                        <div class="col-sm-8">
+                          <input type="number" class="form-control" id="phonebuild" name="phonebuild" required>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="apellido" class="col-sm-4 col-form-label">Dirección (*)</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control" id="addressbuild" name="addressbuild" required>
+                        </div>
+                      </div>
+                      <div class="mb-2 row">
+                        <label for="empresa" class="col-sm-4 col-form-label">Sector (*)</label>
+                        <div class="col-sm-8">
+                          <select class="form-select" aria-label="Default select example" id="fieldsector" name="fieldsector" required>
+                            <option selected value="">Elegir ...</option>
+                            {% for sector in sectores %}
+                            <option value="{{sector.id}}">{{sector.nombre}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <!---tamanio-->
+                      <div class="mb-2 row">
+                        <label for="empresa" class="col-sm-4 col-form-label">Tamaño (*)</label>
+                        <div class="col-sm-8">
+                          <select class="form-select" aria-label="Default select example" id="fieldtam" name="fieldtam" required>
+                            <option selected value="">Elegir ...</option>
+                            {% for tam in tamanios %}
+                            <option value="{{tam.id}}">{{tam.descrip}}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+                      <!--botones---->
+                      <hr>
+                        <div class="mt-3 mb-3 row">
+                          <div class="col-sm-12 text-center">
+                              <button type="button" class="btn btn-primary" id="addbuild">Guardar</button>
+                              <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
+                          </div>
+                        </div>
+                      <!--end form-->
+                 </form>
+                <br><br>
+                </div>
+              </div>
+              <!--end new build-->
+            <!---======================modal para grupos=======-->
+            <div class="modal fade" id="registrarGrupo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+               <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="exampleModalLabel">Registrar Grupo</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+              <form id="formulariogrupo">
+                  {% csrf_token %}
+                  <div class="modal-body">
+                  <!--registro de grupos-->
+                  {% include 'admin/plantilla/formulariogrupo.html' %}
+                  <!--end formulario-->
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Salir</button>
+                      <a type="button" class="btn btn-primary" id="enviarDatos">Guardar</a>
+                  </div>
+              </form>
+              </div>
+              </div>
+             </div>
             <!-- Horizontal Form -->
             <form action="{% url 'editarcurso' idcurso=curso.id %}" method="post" enctype="multipart/form-data">
               {% csrf_token %}
@@ -58,44 +182,74 @@
                   </div>
                 </div>
                 <div class="row mb-3">
-
                  <!---<label for="precio" class="col-sm-2 col-form-label">Precio</label>
                   <div class="col-sm-10">
                     <input type="text" class="form-control" id="precio" name="precio" value="{{ curso.precio }}"
                       required>
-                  </div>
-                  <label for="grupo" class="col-sm-2 col-lg-2 col-form-label">Grupo</label>
-                  <div class="col-sm-10 col-lg-10">
-                      <select id="grupo" name="grupo" class="form-select" required>
-                          <option value="" selected>Elegir grupo</option>
-                         {% for grupo in grupos %}
-                          <option value="{{grupo.id}}">{{grupo.nombre}}</option>
-                         {% endfor %}
-                        </select>
                   </div>-->
+                <!---===================================-->
+                <label for="grupo" class="col-sm-2 col-lg-2 col-form-label">Grupo (*)</label>
+                  <div class="col-sm-10 col-lg-10">
+                    <!---grupo dropdown-->
+                    <a class="btn-sm form-control" data-bs-toggle="collapse" href="#grupos" role="button" aria-expanded="false" aria-controls="collapseExample">
+                        Elegir ....
+                    </a>
+                    <div class="collapse" id="grupos">
+                      <div class="card card-body">
+                        <!----------------------------------->
+                        <ul class="list-group mt-2" id="gruposn">
+                          {% for grupo in grupos %}
+                             <li class="list-group-item">
+                                <input type="checkbox" id="grupo" name="grupo" value="{{grupo.id}}" {% for grasoc in curso.gruposcursos_set.all %}  {% if grasoc.idgrupo.id == grupo.id %} checked {% endif %} {% endfor %}>&nbsp;{{grupo.nombre}}
+                             </li>
+                          {% endfor %}
+                          <div class="checkgrupo"></div>
+                          </ul>
+                        <!----------------------------------->
+                        <p class="small">¿Desea crear un nuevo grupo de formación? Clic 
+                          <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#registrarGrupo">Aquí</a>
+                        </p>
+                      </div>
+                    </div>
+                    <!------------------>
+                  </div>
                 </div>
                 <!---================================-->
+                {% if usu.idrol.id != '4' %}
                 <div class="row mb-3">
                   <!--formador-->
-                  <label for="formador" class="col-sm-2 col-form-label">Formador</label>
+                  <label for="formador" class="col-sm-2 col-form-label">Formador 
+                    <a href="#" type="button" data-bs-toggle="offcanvas" data-bs-target="#nuevoUsuario" aria-controls="offcanvasRight"><i class="bi bi-person-fill-add"></i></a>
+                  </label>
                   <div class="col-sm-5">
                       <select id="formador" name="formador" class="form-select">
-                          <option value="" selected>Elegir formador</option>
+                          <option value="{{curso.idusu.id}}" selected>{{curso.idusu.nombre}} {{curso.idusu.apellido}}</option>
                         {% for formador in formadores %}
+                          {% if curso.idusu.id != formador.id  %}
                           <option value="{{formador.id}}">{{formador.nombre}} {{formador.apellido}}</option>
+                          {% endif %}
                          {% endfor %}
                         </select>
                   </div>
                   <!--end formador-->
                   <!---======== empresa ========= -->
-                  <label for="empresa" class="col-sm-2 col-form-label">Empresa</label>
+                  <label for="empresa" class="col-sm-2 col-form-label">Empresa
+                     {% if usu.idrol.id  == 1 %}
+                     <a href="#"  type="button" data-bs-toggle="offcanvas" data-bs-target="#newbuild" aria-controls="offcanvasRight"><i class="bi bi-building-fill-add"></i></a>
+                     {% endif %}
+                  </label>
                   <div class="col-sm-3">
-                    <select id="empresa" name="empresa" class="form-select">
+                    <select id="empresa" name="empresa" class="form-select" required>
+                        <option value="">Elegir ...</option>
+                      {% for emp in empresa %}
+                         <option value="{{emp.id}}">{{emp.nombre}}</option>
+                      {% endfor %}
                     </select>
                   </div>
                 </div>
+                {% endif %}
                 <!--=================================-->
-              </div>
+                </div>
               <!--objetivos del curso-->
               <!-- Default Accordion -->
               <div class="accordion" id="accordionExample">
@@ -120,14 +274,6 @@
                           <div class="col-sm-10">
                             <textarea type="text" class="form-control" id="descripobj"
                               name="descripobj_{{ objetivo.id }}" rows="3" required>{{ objetivo.descrip }} </textarea>
-                          </div>
-                        </div>
-                        <div class="row mb-3">
-                          <label for="competencias" class="col-sm-2 col-form-label">Competencias</label>
-                          <div class="col-sm-10">
-                            <textarea type="text" class="form-control" id="competencias"
-                              name="competencias_{{ objetivo.id }}" rows="3"
-                              required>{{ objetivo.competencias }} </textarea>
                           </div>
                         </div>
                         <hr>
@@ -244,5 +390,12 @@
   </section>
 </main><!-- End #main -->
 <script src="{% static 'admin/assets/js/updatesesion.js' %} "></script>
-<script src="{% static 'admin/assets/js/buscarempresa.js' %} "></script>
+<script src="{% static 'admin/assets/js/grupo.js' %} "></script>
+<!---user-->
+<script src="/static/admin/assets/js/savearea.js"></script>
+<script src="/static/admin/assets/js/buscarareas.js"></script>
+<script src="/static/admin/assets/js/seepass.js"></script>
+<script src="/static/admin/assets/js/formador.js"></script>
+<!--empresa-->
+<script src="/static/admin/assets/js/newempresa.js"></script>
 {% endblock %}

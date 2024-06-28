@@ -193,7 +193,12 @@
                                       <div class="">
                                        <!--tabla de usuarios-->
                                        <div class="table-responsive mt-2">
-                                       <table class="table" id="tablareactiva">
+                                        <div class="row">
+                                          <div class="col-12 text-end">
+                                            <input type="text" class="form-control" id="searchInput" placeholder="Buscar colaborador..." name="table" style="border-color: #04AA6D;">
+                                          </div>
+                                        </div>
+                                       <table class="table" id="tablaDatos">
                                           <thead>
                                             <tr>
                                               <th scope="col">Nombres</th>
@@ -443,7 +448,6 @@
       </div>
     </section>
 </main><!-- End #main -->
-  <!-- Aqui se encuentran las instrucciones para formularios -->
-
-  {% endblock %} 
+<!-- Aqui se encuentran las instrucciones para formularios -->
+{% endblock %} 
 

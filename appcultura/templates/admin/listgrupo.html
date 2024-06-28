@@ -7,7 +7,7 @@
       <h1>Grupos de formación</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/administracion">Inicio</a></li>
+          <li class="breadcrumb-item"><a href="/administracion/">Inicio</a></li>
           <li class="breadcrumb-item active">Listado</li>
         </ol>
       </nav>
@@ -94,6 +94,17 @@
                                     <div class="mb-3">
                                       <label for="descrip" class="form-label"><b>Descripción</b></label>
                                       <textarea type="text" class="form-control" id="descrip" name="descrip" rows="5">{{gr.descrip}}</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                      <label for="descrip" class="form-label"><b>Empresa</b></label>
+                                      <div class="col-sm-12">
+                                          <select class="form-select" aria-label="Default select example" id="gemp" name="gemp" required>
+                                              <option value="">Elegir empresa</option>
+                                              {% for emp in empresa %}
+                                              <option value="{{emp.id}}">{{emp.nombre}}</option>
+                                              {% endfor %}
+                                            </select>
+                                      </div>
                                     </div>
                                     <div class="text-end">
                                       <input value="{{gr.id}}" name="idgrupo" id="idgrupo" hidden>

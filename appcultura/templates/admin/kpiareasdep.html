@@ -86,8 +86,15 @@
               <div class="row mb-3">
                 <label for="area" class="col-sm-2 col-form-label">Area</label>
                 <div class="col-sm-4">
-                      <select id="area" name="area" class="form-select" required></select>
-                      <input type="checkbox" id="botonCheck"> Aplicar KPI exclusivamente al area.
+                      <select id="area" name="area" class="form-select" required>
+                        <option value="">Elegir ...</option>
+                        {% if usu.idrol.id == 5 or  usu.idrol.id == 3 %}
+                          {% for ar in area %}
+                            <option value="{{ar.id}}">{{ar.nombre}}</option>
+                          {% endfor %}
+                        {% endif %}
+                      </select>
+                      <input type="checkbox" id="botonCheck"><span class="form-control-sm">&nbsp;Aplicar KPI exclusivamente al area.</span> 
                 </div>
                 <!--inicio de departamento-->
                 <label for="depar" class="col-sm-2 col-form-label">

@@ -19,35 +19,34 @@
        <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
-               <div class="row mt-2">
-                <div class="col-12 alert alert-primary" role="alert">
-                  <div class="row">
-                    
-                      <div class="col-8">
-                        <div class="btn-group" role="group" aria-label="Basic outlined example">
-                          <!--------------------- boton -------------------->
-                          <!-- Default dropend button  -->
-                           {% if usu.idrol.id != 3 %}
-                            <div class="btn-group dropend">
-                              <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-funnel-fill"></i> Filtrar
-                              </button>
-                              <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/administracion/formu/list/cursos/">Todos</a></li>
-                                {% for curso in cursos %}
-                                <li><a class="dropdown-item {% if curso_ac.id == curso.id %} active {% endif %}" href="{% url 'filtroCurso' idcurso=curso.id %}">{{ curso.nombre }}</a></li>
-                                {% endfor %}
-                              </ul>
-                            </div>
-                            {% endif %}
-                          <!------------------------------------------------>
+               <div class="row mt-3">
+                <!----====================-->
+                <div class="row">
+                  <div class="col-lg-8 col-md-6">
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                      <!--------------------- boton -------------------->
+                      <!-- Default dropend button  -->
+                       {% if usu.idrol.id != 3 %}
+                        <div class="btn-group dropend">
+                          <button type="button" class="btn btn-outline-success dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-funnel-fill"></i> Filtrar
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/administracion/formu/list/cursos/">Todos</a></li>
+                            {% for curso in cursos %}
+                            <li><a class="dropdown-item {% if curso_ac.id == curso.id %} active {% endif %}" href="{% url 'filtroCurso' idcurso=curso.id %}">{{ curso.nombre }}</a></li>
+                            {% endfor %}
+                          </ul>
                         </div>
-                      </div>
-                      <div class="col-4 text-end">
-                        <a href="/administracion/formu/list/cursos/" class="btn btn-warning btn-sm "><i class="bi bi-box-arrow-left"></i> | Volver</a>
-                      </div>
+                        {% endif %}
+                      <!------------------------------------------------>
+                    </div>
                   </div>
-                </div>
+                  <div class="col-lg-4 col-md-6 text-end">
+                    <a href="/administracion/formu/list/cursos/" class="btn btn-warning btn-sm "><i class="bi bi-box-arrow-left"></i> | Volver</a>
+                  </div>
+              </div>
+                <!---=========================-->
                </div>
               <br>
                <!--alertar-->

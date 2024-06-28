@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from appcultura.modelos.area import Area
 from .roluser import RolUser
 from .departamento import Departamento
+from .empresa import Empresa
 
 class UserPerfil(models.Model):
     nombre = models.CharField(max_length=255)
@@ -15,5 +16,6 @@ class UserPerfil(models.Model):
     idrol = models.ForeignKey(RolUser, on_delete=models.CASCADE)  # Permitir múltiples usuarios con el mismo rol
     idepart = models.ForeignKey(Departamento, on_delete=models.CASCADE,  null=True)
     idarea = models.ForeignKey(Area, on_delete=models.CASCADE,  null=True)
+    idempresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     pendiente = models.BooleanField(null=True)

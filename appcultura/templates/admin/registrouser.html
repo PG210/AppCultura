@@ -43,11 +43,66 @@
             <div class="btn-group" role="group" aria-label="Basic outlined example">
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="offcanvas" data-bs-target="#canvasNuevoUser" aria-controls="offcanvasRight"><i class="bi bi-person-plus-fill"></i> Nuevo</button>
-
                 <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#ImportarUser"><i class="bi bi-file-earmark-excel-fill"></i> Importar</button>
                 <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#formadores"><i class="bi bi-share-fill"></i> Formadores</button>
+                <!--===================Filtrar==================-->
+                <div class="dropend">
+                  <button type="button" class="btn btn-outline-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                    <i class="bi bi-funnel-fill"></i> Filtro
+                  </button>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="{% url 'registroUser' %}">Todos</a>
+                    <hr class="dropdown-divider">
+                    <!---========= empresas submenu=======-->
+                    <div class="dropend">
+                      <a type="button" class="dropdown-toggle dropdown-item" data-bs-toggle="dropdown" aria-expanded="false">Empresa</a>
+                      <ul class="dropdown-menu">
+                        {% for empr in empresa %}
+                        <li>
+                          <form action="{% url 'filterUser' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" id="idempresa{{empr.id}}" name="idempresa" value="{{ empr.id }}">
+                            <button type="submit" class="dropdown-item"> {{ empr.nombre }} </button>
+                          </form>
+                        </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    <hr class="dropdown-divider">
+                    <!---=======grupos=====-->
+                    <div class="dropend">
+                      <a type="button" class="dropdown-toggle dropdown-item" data-bs-toggle="dropdown" aria-expanded="false">Grupos</a>
+                      <ul class="dropdown-menu">
+                        {% for grupo in grupos %}
+                        <li>
+                          <form action="{% url 'filterUser' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" id="idgrupo{{grupo.id}}" name="idgrupo" value="{{grupo.id}}">
+                            <button type="submit" class="dropdown-item"> {{grupo.nombre}} </button>
+                          </form>
+                        </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    <hr class="dropdown-divider">
+                    <!---=======cursos=======-->
+                    <div class="dropend">
+                      <a type="button" class="dropdown-toggle dropdown-item" data-bs-toggle="dropdown" aria-expanded="false">Cursos</a>
+                      <ul class="dropdown-menu">
+                        {% for curso in cursos %}
+                        <li>
+                          <form action="{% url 'filterUser' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" id="idcurso{{curso.id}}" name="idcurso" value="{{curso.id}}">
+                            <button type="submit" class="dropdown-item"> {{curso.nombre}} </button>
+                          </form>
+                        </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
                 <!--=================== nuevo user =========-->
-                <!-- Button trigger modal -->
                 <!-- Modal -->
                 <div class="modal fade" id="formadores" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                   <div class="modal-dialog">
@@ -91,112 +146,17 @@
                     <p><small>Nota: (*) Los campos con este simbolo son requeridos para hacer el registro.</small></p>
                     <form class="form-control" action="{% url 'addNewUser' %}" method="post">
                       {% csrf_token %}
-                      <div class="alert alert-secondary" role="alert">
-                        Información personal
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="nombre" class="col-sm-4 col-form-label">Nombre (*)</label>
-                        <div class="col-sm-8">
-                          <input type="text" class="form-control" id="nombre" name="nombre" required>
-                        </div>
-                    </div>
-                      <div class="mb-2 row">
-                        <label for="apellido" class="col-sm-4 col-form-label">Apellido (*)</label>
-                        <div class="col-sm-8">
-                          <input type="text" class="form-control" id="apellido" name="apellido" required>
-                        </div>
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="email" class="col-sm-4 col-form-label">Correo (*)</label>
-                        <div class="col-sm-8">
-                          <input type="text" class="form-control" id="email" name="email" required>
-                        </div>
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="ced" class="col-sm-4 col-form-label">Cedula</label>
-                        <div class="col-sm-8">
-                          <input type="text" class="form-control" id="ced" name="ced">
-                        </div>
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="tel" class="col-sm-4 col-form-label">Teléfono</label>
-                        <div class="col-sm-8">
-                          <input type="text" class="form-control" id="tel" name="tel">
-                        </div>
-                      </div>
-                      <div class="alert alert-secondary" role="alert">
-                        Información laboral
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="empresa" class="col-sm-4 col-form-label">Empresa (*)</label>
-                        <div class="col-sm-8">
-                          <select class="form-select" aria-label="Default select example" id="emp" name="emp" required>
-                            <option selected value="">Elegir ...</option>
-                            {% for emp in empresa %}
-                            <option value="{{emp.id}}">{{emp.nombre}}</option>
-                            {% endfor %}
-                          </select>
-                        </div>
-                      </div>
-                      <!--=======================-->
-                      <div id="formadorOcultar">
-                      <div class="mb-2 row">
-                        <label for="area" class="col-sm-4 col-form-label">Area (*)</label>
-                        <div class="col-sm-8">
-                          <select class="form-select" aria-label="Default select example" id="area" name="area"></select>
-                        </div>
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="depar" class="col-sm-4 col-form-label">
-                         <div id="ocudepar" style="display: block;">Dto.</div>
-                         </label>
-                        <div class="col-sm-8">
-                          <div id="ocudepardos" style="display: block;">
-                          <select class="form-select" aria-label="Default select example" id="depar" name="depar">
-                          </select>
+                      {% include 'admin/plantilla/formulariouser.html' %}
+                       <!--botones---->
+                        <div class="mt-4 mb-3 row">
+                          <div class="col-sm-12 text-end">
+                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                              <button type="submit" class="btn btn-outline-primary">Guardar</button>
+                              <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      </div>
-                      <!--==============================-->
-                      <div class="mb-2 row">
-                        <label for="cargo" class="col-sm-4 col-form-label">Cargo</label>
-                        <div class="col-sm-8">
-                          <input class="form-control" id="cargo" name="cargo">
-                           <p><small> El cargo pertenece unicamente al area seleccionada?&nbsp;<input type="checkbox" id="checkboxOcultar"> Si</small></p>
-                        </div>
-                      </div>
-                      <div class="alert alert-secondary" role="alert">
-                        Información de la plataforma
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="rol" class="col-sm-4 col-form-label">Rol (*)</label>
-                        <div class="col-sm-8">
-                          <select class="form-select" aria-label="Default select example" id="rol" name="rol" required>
-                            <option selected value="">Elegir ...</option>
-                            {% for rol in roles %}
-                            <option value="{{rol.id}}">{{rol.descrip}}</option>
-                            {% endfor %}
-                          </select>
-                        </div>
-                      </div>
-                      <div class="mb-2 row">
-                        <label for="pass" class="col-sm-4 col-form-label">Passw. (*)</label>
-                        <div class="col-sm-8">
-                          <input type="password" class="form-control" id="pass" name="pass" required>
-                          <input type="checkbox" id="showPassword" onchange="togglePassword()"> Mostrar contraseña
-                        </div>
-                      </div>
-                      <!--botones---->
-                      <div class="mt-4 mb-3 row">
-                        <div class="col-sm-12 text-end">
-                          <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-                            <button type="submit" class="btn btn-outline-primary">Guardar</button>
-                            <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
-                          </div>
-                        </div>
-                      </div>
-                      <!--end botones-->
+                      <!--end form-->
                     </form>
                     <!--end form-->
                   </div>
@@ -232,6 +192,9 @@
                 <!--end modals-->
             </div>
             <!--================end botones ========================-->
+            {% if mensajefil %}
+              <p class="form-control-sm mt-2"><b>{{ mensajefil }}</b></p>
+            {% endif %}
             <hr>
             <div class="table-responsive">
               <table class="table" id="tablareactiva">
@@ -274,31 +237,31 @@
                               <div class="mb-2 row">
                                 <label for="nombreUsu" class="col-sm-4 col-form-label">Nombre</label>
                                 <div class="col-sm-8">
-                                  <input type="text" class="form-control" id="nombreUsu" name="nombreUsu" value="{{usu.nombre}}">
+                                  <input type="text" class="form-control" id="nombreUsu_{{usu.id}}" name="nombreUsu" value="{{usu.nombre}}">
                                 </div>
                             </div>
                               <div class="mb-2 row">
                                 <label for="apellidoUsu" class="col-sm-4 col-form-label">Apellido</label>
                                 <div class="col-sm-8">
-                                  <input type="text" class="form-control" id="apellidoUsu" name="apellidoUsu" value="{{usu.apellido}}">
+                                  <input type="text" class="form-control" id="apellidoUsu_{{usu.id}}" name="apellidoUsu" value="{{usu.apellido}}">
                                 </div>
                               </div>
                               <div class="mb-2 row">
                                 <label for="emailUsu" class="col-sm-4 col-form-label">Correo</label>
                                 <div class="col-sm-8">
-                                  <input type="text" class="form-control" id="emailUsu" name="emailUsu" value="{{usu.user.username}}" readonly>
+                                  <input type="text" class="form-control" id="emailUsu_{{usu.id}}" name="emailUsu" value="{{usu.user.username}}" readonly>
                                 </div>
                               </div>
                               <div class="mb-2 row">
                                 <label for="cedUsu" class="col-sm-4 col-form-label">Cedula</label>
                                 <div class="col-sm-8">
-                                  <input type="text" class="form-control" id="cedUsu" name="cedUsu" value="{{usu.cedula}}">
+                                  <input type="text" class="form-control" id="cedUsu_{{usu.id}}" name="cedUsu" value="{{usu.cedula}}">
                                 </div>
                               </div>
                               <div class="mb-2 row">
                                 <label for="telUsu" class="col-sm-4 col-form-label">Teléfono</label>
                                 <div class="col-sm-8">
-                                  <input type="text" class="form-control" id="telUsu" name="telUsu" value="{{usu.telefono}}">
+                                  <input type="text" class="form-control" id="telUsu_{{usu.id}}" name="telUsu" value="{{usu.telefono}}">
                                 </div>
                               </div>
                               <div class="alert alert-secondary" role="alert">
@@ -375,7 +338,7 @@
                               <div class="mb-2 row">
                                 <label for="cargoUsu" class="col-sm-4 col-form-label"><small>Cargo</small></label>
                                 <div class="col-sm-8">
-                                 <small><input type="text" class="form-control" id="cargoUsu" name="cargoUsu" value="{{usu.cargo}}"></small>
+                                 <small><input type="text" class="form-control" id="cargoUsu_{{usu.id}}" name="cargoUsu" value="{{usu.cargo}}"></small>
                                 </div>
                               </div>
                               <div class="alert alert-secondary" role="alert">
@@ -384,7 +347,7 @@
                               <div class="mb-2 row">
                                 <label for="rolUsu" class="col-sm-4 col-form-label">Rol (*)</label>
                                 <div class="col-sm-8">
-                                  <select class="form-select" aria-label="Default select example" id="rolUsu" name="rolUsu">
+                                  <select class="form-select" aria-label="Default select example" id="rolUsu_{{usu.id}}" name="rolUsu">
                                     <option selected value="{{usu.idrol.id}}">{{usu.idrol.descrip}}</option>
                                     {% for rol in roles %}
                                       {% if usu.idrol.id != rol.id %}
@@ -398,7 +361,7 @@
                               <div class="mb-2 row">
                                 <label for="passUsu" class="col-sm-4 col-form-label">Passw. (*)</label>
                                 <div class="col-sm-8">
-                                  <input type="password" class="form-control" id="passwUsu" name="passwUsu">
+                                  <input type="password" class="form-control" id="passwUsu_{{usu.id}}" name="passwUsu">
                                 </div>
                               </div>
                               <!--botones---->
@@ -482,44 +445,5 @@
 <!-- End #main -->
 <script src="/static/admin/assets/js/savearea.js"></script>
 <script src="/static/admin/assets/js/buscarareas.js"></script>
-<script>
-  function togglePassword() {
-      var passwordInput = document.getElementById('pass');
-      var showPasswordCheckbox = document.getElementById('showPassword');
-      // Cambiar el tipo de input basado en la casilla de verificación
-      passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
-  }
-  //================ funcion para registrar============
-  function copiarRuta() {
-      var inputElement = document.getElementById("ruta_input");
-
-      // Seleccionar el texto dentro del campo de entrada
-      inputElement.select();
-      inputElement.setSelectionRange(0, 99999); // Para dispositivos móviles
-
-      // Copiar el texto al portapapeles
-      document.execCommand("copy");
-      // Alerta
-       // Muestra el toast
-       toastr.success("Ruta copiada al portapapeles", "", { progressBar: true });
-    }
-  //============================ ocultar =======================
-  $(document).ready(function() {
-    $('#checkboxOcultar').change(function() {
-        // Si el checkbox está marcado, ocultar el div; de lo contrario, mostrarlo
-        if ($(this).is(':checked')) {
-            $('#ocudepar').hide();
-            $('#ocudepardos').hide();
-            let deparSel = $("#depar");
-            deparSel.empty(); //==limpiar datos
-            deparSel.append(`<option value="">Sin departamento ...</option>`);
-        } else {
-            $('#ocudepar').show();
-            $('#ocudepardos').show();
-        }
-    });
-});
-//===========================
-
-</script>
+<script src="/static/admin/assets/js/seepass.js"></script>
 {% endblock %}

@@ -30,6 +30,11 @@ def listarformu(request):
         empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
         formu = Formulario.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
         cursos = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+    #======== el usuario es gerente =================
+    elif perfil_usuario.idrol.id == 5:
+        idempresa = perfil_usuario.idempresa.id
+        formu = Formulario.objects.filter(idempresa=idempresa) #=== filtrar los formularios asociados unicamente a la empresa
+        cursos = Curso.objects.filter(idempresa=idempresa) 
     else:  
         formu = Formulario.objects.filter()
         cursos = Curso.objects.all()
@@ -80,14 +85,24 @@ def addsesionform(request, idform):
 @login_required #proteger la ruta
 def crearformu(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    formadores = UserPerfil.objects.filter(idrol=4)
+    #==== formadores pertenecientes a una empresa (gerente) ========
+    if perfil_usuario.idrol.id == 5:
+        idempresa = perfil_usuario.idempresa.id
+        formador_ids = FormadorEmpresa.objects.filter(idempresa=idempresa).values_list('idusu', flat=True).distinct()
+        formadores = UserPerfil.objects.filter(id__in=formador_ids)
+    else:
+        formadores = UserPerfil.objects.filter(idrol=4)
+    #================================================================
     if request.method == 'POST':
         # Acceder a los datos principales del formulario
         nomform = request.POST.get('nomform')
         desform = request.POST.get('desform')
-        empresa_select = request.POST.get('empresa')
         formador_select = request.POST.get('formador')
-        
+        #========= si es gerente debe tomar la empresa a la que pertenece ======
+        if perfil_usuario.idrol.id == 5:
+            empresa_select = perfil_usuario.idempresa.id
+        else:
+            empresa_select = request.POST.get('empresa')
         # Validar que el nombre no se repita
         if Formulario.objects.filter(nombre=nomform).exists():
             msj= 'El nombre del formulario debe ser único.'
@@ -182,9 +197,15 @@ def crearformu(request):
 @login_required #proteger la ruta
 def editarform(request, idform):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    formadores = UserPerfil.objects.filter(idrol=4)
     formu = Formulario.objects.get(id=idform)
     preguntas = Preguntas.objects.filter(idform=formu)
+    #=========== si el usuario es administrador (gerente)==========0
+    if perfil_usuario.idrol.id == 5:
+        idempresa = perfil_usuario.idempresa.id
+        formador_ids = FormadorEmpresa.objects.filter(idempresa=idempresa).values_list('idusu', flat=True).distinct()
+        formadores = UserPerfil.objects.filter(id__in=formador_ids)
+    else:
+        formadores = UserPerfil.objects.filter(idrol=4)
     return render(request, 'formularios/editarform.html', {'usu':perfil_usuario, 'formu':formu, 'preguntas':preguntas, 'formadores':formadores})
 
 @login_required #proteger la ruta
@@ -202,7 +223,13 @@ def addNewPreguntas(request, idform):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     formu = Formulario.objects.get(id=idform)
     preguntasnew = Preguntas.objects.filter(idform=formu)
-    formadores = UserPerfil.objects.filter(idrol=4)
+    #============ para formador =========0
+    if perfil_usuario.idrol.id == 5:
+        idempresa = perfil_usuario.idempresa.id
+        formador_ids = FormadorEmpresa.objects.filter(idempresa=idempresa).values_list('idusu', flat=True).distinct()
+        formadores = UserPerfil.objects.filter(id__in=formador_ids)
+    else:
+        formadores = UserPerfil.objects.filter(idrol=4)
     if request.method == 'POST':
         formu = Formulario.objects.get(id=idform) #aqui encuentra el id del formulario
         # Procesar preguntas y tipos de formulario
@@ -272,7 +299,13 @@ def eliminarRespuesta(request, idres, idform):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     formu = Formulario.objects.get(id=idform)
     preguntasnew = Preguntas.objects.filter(idform=formu)
-    formadores = UserPerfil.objects.filter(idrol=4)
+    #=========== para nuevos formadores =============
+    if perfil_usuario.idrol.id == 5:
+        idempresa = perfil_usuario.idempresa.id
+        formador_ids = FormadorEmpresa.objects.filter(idempresa=idempresa).values_list('idusu', flat=True).distinct()
+        formadores = UserPerfil.objects.filter(id__in=formador_ids)
+    else:
+        formadores = UserPerfil.objects.filter(idrol=4)
     try:
         opt = Opciones.objects.get(id=idres)
         opt.delete()
@@ -284,13 +317,24 @@ def eliminarRespuesta(request, idres, idform):
 @login_required #proteger la ruta
 def savePreguntas(request, idform):
      perfil_usuario = UserPerfil.objects.get(user=request.user)
-     formadores = UserPerfil.objects.filter(idrol=4)
+     #========== si el usuario es administrador (gerente) ==============
+     if perfil_usuario.idrol.id == 5:
+        idempresa = perfil_usuario.idempresa.id
+        formador_ids = FormadorEmpresa.objects.filter(idempresa=idempresa).values_list('idusu', flat=True).distinct()
+        formadores = UserPerfil.objects.filter(id__in=formador_ids)
+     else:
+        formadores = UserPerfil.objects.filter(idrol=4)
+    #=========== save info =====
      if request.method == 'POST':
         # Acceder a los datos del formulario
         nombre_formulario = request.POST.get('nombre', '')
         descripcion_formulario = request.POST.get('descrip', '')
-        empresa_select = request.POST.get('empresa')
         formador_select = request.POST.get('formador')
+        #========= si es gerente debe tomar la empresa a la que pertenece ======
+        if perfil_usuario.idrol.id == 5:
+            empresa_select = perfil_usuario.idempresa.id
+        else:
+            empresa_select = request.POST.get('empresa')
         # Crear el formulario
         #========== validar quien crea el formulario =====================
         if perfil_usuario.idrol.id == 4:
@@ -373,9 +417,11 @@ def copiarform(request, idform): #copiar o duplicar el formulario con todos los 
     with transaction.atomic():
         # Duplicar el formulario
         formulario_nuevo = Formulario.objects.create(
-            nombre=f"{formulario_original.nombre} (Copia)",
-            descrip=formulario_original.descrip,
-            fecha=formulario_original.fecha,
+            nombre = f"{formulario_original.nombre} (Copia)",
+            descrip = formulario_original.descrip,
+            fecha = formulario_original.fecha,
+            idempresa = formulario_original.idempresa,
+            idusu = formulario_original.idusu,
         )
         # Duplicar las preguntas asociadas
         # Duplicar las preguntas asociadas
@@ -410,6 +456,11 @@ def eliminarForm(request, idform):
         empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
         formu = Formulario.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
         cursos = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+    #===== si el usuario es gerente ==============================
+    elif perfil_usuario.idrol.id == 5:
+        idempresa = perfil_usuario.idempresa.id
+        formu = Formulario.objects.filter(idempresa=idempresa) #=== filtrar los formularios asociados unicamente a la empresa
+        cursos = Curso.objects.filter(idempresa=idempresa) 
     else:  
         formu = Formulario.objects.filter()
         cursos = Curso.objects.all()
@@ -466,22 +517,38 @@ def datos_nvalor(usuarios_con_formularios):
                 nvalor[usuario] = [datos_form]
     return nvalor   
 #===========================================
-def usuariosFormulario(usuarios_en_sesion):
+def usuariosFormulario(usuarios_en_sesion, idcurso):
     usuarios_con_formularios = {}
     usuarios_cursos = {}
     formularios_del_usuario = {}
     nformu = {}
     usuarios_sesiones = {}
     fecha_hoy = date.today()
+    formu_ids = ''
+    #============= buscar las sesiones vinculadas al curso ========
+    if idcurso != 0:
+      idcursob = Curso.objects.get(id=idcurso)
+      formu_ids = SesionFormulario.objects.filter(idsesion__idcurso=idcursob).values_list('idform', flat=True)
     #=======================
-    for usuid in usuarios_en_sesion:
-        formularios_del_usuario = Formulario.objects.filter(preguntas__respuestaform__iduser_id=usuid).distinct()
-        cursos_usuario = Curso.objects.filter(sesioncurso__respuestaform__iduser_id=usuid).distinct()
-        # Agregar el usuario y sus formularios al diccionario
-        usuarios_con_formularios[usuid] = list(formularios_del_usuario)
-        if cursos_usuario:
-           usuarios_cursos[usuid] = list(cursos_usuario) # alamacena los cursos de los usuarios
-    #================ hacer el calculo de los datos ======================
+    if idcurso != 0:
+        for usuid in usuarios_en_sesion:
+            formularios_del_usuario = Formulario.objects.filter(preguntas__respuestaform__iduser=usuid, id__in=formu_ids).distinct()
+            #==========================================
+            cursos_usuario = Curso.objects.filter(id=idcursob.id).distinct()
+            # Agregar el usuario y sus formularios al diccionario
+            usuarios_con_formularios[usuid] = list(formularios_del_usuario)
+            if cursos_usuario:
+               usuarios_cursos[usuid] = list(cursos_usuario) # alamacena los cursos de los usuarios
+    else:
+        for usuid in usuarios_en_sesion:
+            formularios_del_usuario = Formulario.objects.filter(preguntas__respuestaform__iduser=usuid).distinct()
+            #==========================================
+            cursos_usuario = Curso.objects.filter(sesioncurso__respuestaform__iduser=usuid).distinct()
+            # Agregar el usuario y sus formularios al diccionario
+            usuarios_con_formularios[usuid] = list(formularios_del_usuario)
+            if cursos_usuario:
+               usuarios_cursos[usuid] = list(cursos_usuario) # alamacena los cursos de los usuarios
+    #================ hacer el calculo de los datos para los contestados ======================
     for usuario, formularios in usuarios_con_formularios.items():
         nformu[usuario] = len(formularios)
     #======  obtener la nota por cada formulario ====================
@@ -496,7 +563,7 @@ def usuariosFormulario(usuarios_en_sesion):
             sesiones = Sesioncurso.objects.filter(idcurso=curso.id, fechainicio__lt=fecha_hoy) #=== solo obtiene las sesiones anteriores a la fecha de hoy
             sesiones_por_usuario.extend(list(sesiones))
         usuarios_sesiones[user] = sesiones_por_usuario
-    
+    #========== obtiene las sesiones de los cursos asignados ================
     n_formularios = {}
     for user, sesiones in usuarios_sesiones.items():
         total_forms = 0
@@ -537,19 +604,28 @@ def usersFomularios(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     cursos = ''
     if perfil_usuario.idrol.id == 4: #=== datos para el formador
+        formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+        idemp = formador.idempresa #=== id de la empresa que esta ubicado el usuario
         cursos = Curso.objects.filter(idusu=perfil_usuario.id)
         grupos_cursos = GruposCursos.objects.filter(idcurso__in=cursos).values('idgrupo').distinct()
         usuarios_grupo = GruposUser.objects.filter(idgrupo__in=grupos_cursos).values('iduser').distinct()
-        usuarios_en_sesion = UserPerfil.objects.filter(id__in=usuarios_grupo)
+        #======= usuarios del formador ========
+        usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea__idempresa=idemp) | Q(idepart__idarea__idempresa=idemp), id__in=usuarios_grupo).exclude(idrol__in=[1, 4, 5])
     #==== datos para el admin =======================
     elif perfil_usuario.idrol.id == 1: 
-          usuarios_en_sesion = UserPerfil.objects.filter(idrol=2).exclude(idrol__in=[1, 4])
+          usuarios_en_sesion = UserPerfil.objects.all().exclude(idrol__in=[1, 4, 5])
           cursos = Curso.objects.all()
     #=== si el usuario es jefe ============
     elif perfil_usuario.idrol.id == 3: 
           areajefe = perfil_usuario.idarea.id
-          usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4])
-    datos = usuariosFormulario(usuarios_en_sesion)
+          usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4, 5])
+    #=========== informacion para el usuario administrador 
+    elif perfil_usuario.idrol.id == 5: 
+          idempresa = perfil_usuario.idempresa.id
+          usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea__idempresa=idempresa) | Q(idepart__idarea__idempresa=idempresa)).exclude(idrol__in=[1, 4, 5])
+          cursos = Curso.objects.filter(idempresa=idempresa)
+    #=================================================      
+    datos = usuariosFormulario(usuarios_en_sesion, 0)
     return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
 #======================filtrar curso================================
 #============================ funcion para filtrar datos por usuario ==============
@@ -620,8 +696,10 @@ def usuariosPorCurso(idcurso):
 def filtroCurso(request, idcurso):
      curso = Curso.objects.get(id=idcurso)
      perfil_usuario = UserPerfil.objects.get(user=request.user)
-     if perfil_usuario.idrol.id == 4: #=== datos para el formador
-        cursos = Curso.objects.filter(idusu=perfil_usuario.id)
+     #========= informacion del usuario administrador (gerente)
+     if perfil_usuario.idrol.id == 5:
+         idempresa = perfil_usuario.idempresa.id
+         cursos = Curso.objects.filter(idempresa=idempresa)
      else:
         cursos = Curso.objects.all()
      #datos_users = usuariosPorCurso(idcurso)
@@ -632,12 +710,28 @@ def filtroCurso(request, idcurso):
      for grup in grupoasociado:
         users = GruposUser.objects.filter(idgrupo=grup.idgrupo.id).values('iduser').distinct()
         users_com = users_com.union(users)  # Unir los conjuntos de usuarios
-    
-     for user in users_com:
-        usu = UserPerfil.objects.filter(id=user['iduser'])
-        users_total = users_total.union(usu)
+     #============== usuario administrador (gerente) =================
+     if perfil_usuario.idrol.id == 5: 
+        idemp = perfil_usuario.idempresa.id
+        for user in users_com:
+            usu = UserPerfil.objects.filter(Q(idarea__idempresa=idemp) | Q(idepart__idarea__idempresa=idemp), id=user['iduser']).exclude(idrol__in=[1, 4, 5])
+            users_total = users_total.union(usu)
+     #========0 si el usuario es formador ==============
+     if perfil_usuario.idrol.id == 4: 
+         formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
+         idemp = formador.idempresa
+         curso_n = Curso.objects.filter(id=curso.id, idusu=perfil_usuario.id)
+         grupos_cursos = GruposCursos.objects.filter(idcurso__in=curso_n).values('idgrupo').distinct()
+         usuarios_grupo = GruposUser.objects.filter(idgrupo__in=grupos_cursos).values('iduser').distinct()
+         users_total = UserPerfil.objects.filter(Q(idarea__idempresa=idemp) | Q(idepart__idarea__idempresa=idemp), id__in=usuarios_grupo).exclude(idrol__in=[1, 4, 5])
+         #======== cursos para el filtro ==========
+         cursos = Curso.objects.filter(idusu=perfil_usuario.id)
+     else:
+        for user in users_com:
+            usu = UserPerfil.objects.filter(id=user['iduser'])
+            users_total = users_total.union(usu)
      #================= end datos usuarios ===========
-     datos = usuariosFormulario(users_total)
+     datos = usuariosFormulario(users_total, idcurso)
      return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos, 'curso_ac':curso })
 
 @login_required #proteger la ruta

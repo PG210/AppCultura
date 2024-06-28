@@ -1,128 +1,98 @@
-<p><small>Nota: (*) Los campos con este simbolo son requeridos para hacer el registro.</small></p>
-  <div class="alert alert-secondary" role="alert">
-    Información personal
-  </div>
-  <div class="mb-2 row">
-    <label for="nombre" class="col-sm-4 col-form-label">Nombre (*)</label>
-    <div class="col-sm-8">
-      <input type="text" class="form-control" id="nombre" name="nombre" required>
-    </div>
-</div>
-  <div class="mb-2 row">
-    <label for="apellido" class="col-sm-4 col-form-label">Apellido (*)</label>
-    <div class="col-sm-8">
-      <input type="text" class="form-control" id="apellido" name="apellido" required>
-    </div>
-  </div>
-  <div class="mb-2 row">
-    <label for="email" class="col-sm-4 col-form-label">Correo (*)</label>
-    <div class="col-sm-8">
-      <input type="text" class="form-control" id="email" name="email" required>
-    </div>
-  </div>
-  <div class="mb-2 row">
-    <label for="ced" class="col-sm-4 col-form-label">Cedula</label>
-    <div class="col-sm-8">
-      <input type="text" class="form-control" id="ced" name="ced">
-    </div>
-  </div>
-  <div class="mb-2 row">
-    <label for="tel" class="col-sm-4 col-form-label">Teléfono</label>
-    <div class="col-sm-8">
-      <input type="text" class="form-control" id="tel" name="tel">
-    </div>
-  </div>
-  <div class="alert alert-secondary" role="alert">
-    Información laboral
-  </div>
-  <div class="mb-2 row">
-    <label for="empresa" class="col-sm-4 col-form-label">Empresa (*)</label>
-    <div class="col-sm-8">
-      <select class="form-select" aria-label="Default select example" id="emp" name="emp" required>
-        <option selected value="">Elegir ...</option>
-        {% for emp in empresa %}
-        <option value="{{emp.id}}">{{emp.nombre}}</option>
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-  <div class="mb-2 row">
-    <label for="area" class="col-sm-4 col-form-label">Area (*)</label>
-    <div class="col-sm-8">
-      <select class="form-select" aria-label="Default select example" id="area" name="area" required></select>
-    </div>
-  </div>
-  <div class="mb-2 row">
-    <label for="depar" class="col-sm-4 col-form-label">
-     <div id="ocudepar" style="display: block;">Dto.</div>
-     </label>
-    <div class="col-sm-8">
-      <div id="ocudepardos" style="display: block;">
-      <select class="form-select" aria-label="Default select example" id="depar" name="depar">
-      </select>
-      </div>
-    </div>
-  </div>
-  <div class="mb-2 row">
-    <label for="cargo" class="col-sm-4 col-form-label">Cargo</label>
-    <div class="col-sm-8">
-      <input class="form-control" id="cargo" name="cargo">
-       <p><small> El cargo pertenece unicamente al area seleccionada?&nbsp;<input type="checkbox" id="checkboxOcultar"> Si</small></p>
-    </div>
-  </div>
-  <div class="alert alert-secondary" role="alert">
-    Información de la plataforma
-  </div>
-  <div class="mb-2 row">
-    <label for="rol" class="col-sm-4 col-form-label">Rol (*)</label>
-    <div class="col-sm-8">
-      <select class="form-select" aria-label="Default select example" id="rol" name="rol" required>
-        <option selected value="">Elegir ...</option>
-        {% for rols in rol %}
-          <option value="{{rols.id}}">{{ rols.descrip }}</option>
-         {% endfor %}
-      </select>
-    </div>
-  </div>
-  <div class="mb-2 row">
-    <label for="pass" class="col-sm-4 col-form-label">Passw. (*)</label>
-    <div class="col-sm-8">
-      <input type="password" class="form-control" id="pass" name="pass" required>
-      <input type="checkbox" id="showPassword" onchange="togglePassword()"> Mostrar contraseña
-    </div>
-  </div>
-  <!--botones---->
-  <div class="mt-4 mb-3 row">
-    <div class="col-sm-12 text-center">
-      <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-        <button type="button" class="btn btn-warning"  data-bs-dismiss="offcanvas" aria-label="Close">Cancelar</button>
-        <button type="submit" class="btn btn-primary">Guardar</button>
-      </div>
-    </div>
-  </div>
-  <script src="/static/admin/assets/js/savearea.js"></script>
-  <script>
-    function togglePassword() {
-      var passwordInput = document.getElementById('pass');
-      var showPasswordCheckbox = document.getElementById('showPassword');
-      // Cambiar el tipo de input basado en la casilla de verificación
-      passwordInput.type = showPasswordCheckbox.checked ? 'text' : 'password';
-  }
-  //================================================
-  $(document).ready(function() {
-    $('#checkboxOcultar').change(function() {
-        // Si el checkbox está marcado, ocultar el div; de lo contrario, mostrarlo
-        if ($(this).is(':checked')) {
-            $('#ocudepar').hide();
-            $('#ocudepardos').hide();
-            let deparSel = $("#depar");
-            deparSel.empty(); //==limpiar datos
-            deparSel.append(`<option value="">Sin departamento ...</option>`);
-        } else {
-            $('#ocudepar').show();
-            $('#ocudepardos').show();
-        }
-    });
-});
-  </script>
   <!--end botones-->
+  <div class="alert alert-secondary" role="alert">
+      Información personal
+  </div>
+    <div class="mb-2 row">
+      <label for="nombre" class="col-sm-4 col-form-label">Nombre (*)</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="nombre" name="nombre" required>
+      </div>
+  </div>
+    <div class="mb-2 row">
+      <label for="apellido" class="col-sm-4 col-form-label">Apellido (*)</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="apellido" name="apellido" required>
+      </div>
+    </div>
+    <div class="mb-2 row">
+      <label for="email" class="col-sm-4 col-form-label">Correo (*)</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="email" name="email" required>
+      </div>
+    </div>
+    <div class="mb-2 row">
+      <label for="ced" class="col-sm-4 col-form-label">Cedula</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="ced" name="ced">
+      </div>
+    </div>
+    <div class="mb-2 row">
+      <label for="tel" class="col-sm-4 col-form-label">Teléfono</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" id="tel" name="tel">
+      </div>
+    </div>
+    <div class="alert alert-secondary" role="alert">
+      Información laboral
+    </div>
+    <div class="mb-2 row">
+      <label for="empresa" class="col-sm-4 col-form-label">Empresa (*)</label>
+      <div class="col-sm-8">
+        <select class="form-select" aria-label="Default select example" id="emp" name="emp" required>
+          <option selected value="">Elegir ...</option>
+          {% for emp in empresa %}
+          <option value="{{emp.id}}">{{emp.nombre}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <!--=======================-->
+    <div id="formadorOcultar">
+    <div class="mb-2 row">
+      <label for="area" class="col-sm-4 col-form-label">Area (*)</label>
+      <div class="col-sm-8">
+        <select class="form-select" aria-label="Default select example" id="area" name="area"></select>
+      </div>
+    </div>
+    <div class="mb-2 row">
+      <label for="depar" class="col-sm-4 col-form-label">
+       <div id="ocudepar" style="display: block;">Dto.</div>
+       </label>
+      <div class="col-sm-8">
+        <div id="ocudepardos" style="display: block;">
+        <select class="form-select" aria-label="Default select example" id="depar" name="depar">
+        </select>
+        </div>
+      </div>
+    </div>
+    </div>
+    <!--==============================-->
+    <div class="mb-2 row">
+      <label for="cargo" class="col-sm-4 col-form-label">Cargo</label>
+      <div class="col-sm-8">
+        <input class="form-control" id="cargo" name="cargo">
+         <p><small> El cargo pertenece unicamente al area seleccionada?&nbsp;<input type="checkbox" id="checkboxOcultar"> Si</small></p>
+      </div>
+    </div>
+    <div class="alert alert-secondary" role="alert">
+      Información de la plataforma
+    </div>
+    <div class="mb-2 row">
+      <label for="rol" class="col-sm-4 col-form-label">Rol (*)</label>
+      <div class="col-sm-8">
+        <select class="form-select" aria-label="Default select example" id="rol" name="rol" required>
+          <option selected value="">Elegir ...</option>
+          {% for rol in roles %}
+          <option value="{{rol.id}}">{{rol.descrip}}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="mb-2 row">
+      <label for="pass" class="col-sm-4 col-form-label">Passw. (*)</label>
+      <div class="col-sm-8">
+        <input type="password" class="form-control" id="pass" name="pass" required>
+        <input type="checkbox" id="showPassword" onchange="togglePassword();"> Mostrar contraseña
+      </div>
+</div>
+   

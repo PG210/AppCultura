@@ -56,18 +56,20 @@
                           <select class="form-select" aria-label="Default select example" id="formador" name="formador">
                             <option selected value="{{formu.idusu.id}}">{{formu.idusu.nombre}} {{formu.idusu.apellido}}</option>
                             {% for formador in formadores %}
-                            {% if formador.id != formu.idusu.id %}
-                            <option value="{{formador.id}}">{{formador.nombre}} {{formador.apellido}}</option>
-                            {% endif %}
+                                {% if formador.id != formu.idusu.id %}
+                                <option value="{{formador.id}}">{{formador.nombre}} {{formador.apellido}}</option>
+                                {% endif %}
                             {% endfor %}
                           </select>
                        </div>  
                       </div>
-                      <div class="col-6">
+                      {% if usu.idrol.id != 5 %}
+                      <div class="col-md-6 col-lg-6">
                         <select class="form-select" aria-label="Default select example" id="empresa" name="empresa" required>
                           <option selected value="{{formu.idempresa.id}}">{{formu.idempresa.nombre}}</option>
                         </select>
                       </div> 
+                      {% endif %}
                   </div>
                   {% endif %}
                     <!---================================-->

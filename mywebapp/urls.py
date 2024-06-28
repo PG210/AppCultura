@@ -33,6 +33,7 @@ urlpatterns = [
     
     #========= agregar nuevo usuario desde el admin ==============
     path('administracion/save/nuevo/user/', viewadmin.saveusernuevo, name='saveusernuevo'),
+    path('administracion/add/nuevo/user/', viewadmin.addusernuevo, name='addusernuevo'),
     #=========================================================
     path('administracion/', views.administracion, name='administracion'),  #panel de administrador
     path('administracion/curso/', viewadmin.registroCursos, name='registroCursos'),  #registro curso
@@ -58,6 +59,7 @@ urlpatterns = [
     path('administracion/empresa/list', viewadmin.listarempresa, name='listarempresa'), #Listar Empresas
     path('administracion/empresa/delete/<int:idempresa>/', viewadmin.eliminarempresa, name='eliminarempresa'),  # eliminar cursos
     path('administracion/empresa/update/<int:idempresa>/', viewadmin.modificarempresa, name='modificarempresa'), #Modificar empresa
+    path('administracion/new/empresa/', viewadmin.createEmpresa, name='createEmpresa'),
     
 
     #=================== registro de grupo empresarial ============================
@@ -137,8 +139,8 @@ urlpatterns = [
     path('administracion/compromisos/deletecompromiso/<int:idcomp>/', viewadmin.delete_compromiso, name="deletecompromiso"),
     #=============================== ver compromisos de cada usuario ================================0
     path('administracion/compromisos/ver/usuario/<int:iduser>/', viewadmin.vercompromisos, name="vercompromisos"),
-    path('administracion/compromisos/savecompromiso/<int:idcom>/', viewadmin.savecompromiso, name="savecompromiso"),
-    path('administracion/compromisos/buscar/<int:idcur>/', viewadmin.filtroCompromisos, name="filtroCompromisos"),
+    path('administracion/compromisos/savecompromiso/', viewadmin.savecompromiso, name="savecompromiso"),
+    path('administracion/compromisos/buscar/', viewadmin.filtroCompromisos, name="filtroCompromisos"),
     
     #================================= Rutas de Usuario =============================================================
     path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario"),
@@ -158,6 +160,9 @@ urlpatterns = [
     path('usuarios/view/delete/user/<int:idusu>/', viewadmin.deleteUser, name="deleteUser"),
     path('usuarios/view/lock/user/<int:idusu>/', viewadmin.lockaccess, name="lockaccess"),
     path('usuarios/view/update/user/<int:idusu>/', viewadmin.updateUser, name="updateUser"),
+
+    #================================ filtrar usuarios =====================
+    path('usuarios/view/filter/', viewadmin.filterUser, name="filterUser"),
 
     #=================================== crear links de formadores =========================
     path('view/new/trainer/', viewformador.viewhome, name="viewhome"),
