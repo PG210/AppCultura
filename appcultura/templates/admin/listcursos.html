@@ -5,18 +5,30 @@
     writing-mode: horizontal-tb;
     text-align: justify;
   }
+  @media (min-width: 992px) {
+    .large-screen-margin {
+      margin-left: -3.5rem;
+    }
+  }
 </style>
 
 <main id="main" class="main">
 
   <div class="pagetitle">
-    <h1>Listado de cursos</h1>
-    <nav>
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#">Inicio</a></li>
-        <li class="breadcrumb-item active">Listado</li>
-      </ol>
-    </nav>
+    <div class="row">
+      <div class="col-lg-3 col-sm-12">
+        <h1>Listado de cursos</h1>
+        <nav>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Inicio</a></li>
+            <li class="breadcrumb-item active">Listado</li>
+          </ol>
+        </nav>
+      </div>
+      <div class="col-lg-9 col-sm-12">
+          <p class="form-control-sm large-screen-margin"><b>"Un curso es una actividad de formación orientada a la ampliación de conocimientos alrededor de un tema."</b></p>
+      </div>
+    </div>
   </div><!-- End Page Title -->
 
   <section class="section dashboard">
@@ -40,7 +52,7 @@
             <div class="row mt-3 mb-3">
               <div class="col-2">
                 <a type="button" class="btn btn-outline-primary" href="{% url 'registroCursos' %}" data-bs-toggle="tooltip"
-                  data-bs-placement="right" data-bs-title="Agregar Nuevo Curso"> Nuevo Curso</a>
+                  data-bs-placement="right" data-bs-title="Agregar un nuevo curso." data-bs-custom-class="custom-tooltip"> Nuevo Curso</a>
               </div>
               <div class="mt-3 col-10 text-end"></div>
             </div>
@@ -54,7 +66,13 @@
                 <thead>
                   <tr>
                     <th>Nombre</th>
-                    <th>Grupo</th>
+                    <th>
+                      <a type="button"
+                          data-bs-toggle="tooltip" data-bs-placement="right"
+                          data-bs-custom-class="custom-tooltip"
+                          data-bs-title="Un grupo es el conjunto de colaboradores que participarán en un curso.">
+                          Grupo
+                      </a></th>
                     <th>Objetivos</th>
                     <th>Sesiones</th>
                     <th>Acciones</th>
@@ -79,7 +97,7 @@
                       <!--aqui modal-->
                       <!-- Modal Dialog Scrollable -->
                       <span data-bs-toggle="tooltip" data-bs-placement="left"
-                        data-bs-title="Listar los objetivos de {{curso.nombre}}">
+                        data-bs-title="Listar los objetivos de {{curso.nombre}}" data-bs-custom-class="custom-tooltip">
                         <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
                           data-bs-target="#modalListaObjetivo{{curso.id}}">
                          <b>Objetivos</b> 
@@ -145,7 +163,7 @@
                       <!--aqui modal-->
                       <!-- Modal Dialog Scrollable -->
                       <span data-bs-toggle="tooltip" data-bs-placement="left"
-                        data-bs-title="Listar las sesiones del curso {{curso.nombre}}">
+                        data-bs-title="Listar las sesiones del curso {{curso.nombre}}" data-bs-custom-class="custom-tooltip">
                         <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
                           data-bs-target="#modalListaCurso{{curso.id}}">
                           <b>Sesiones</b>
@@ -249,10 +267,10 @@
                     <td>
                        <!--===============================-->  
                        <div class="btn-group" role="group" aria-label="Basic outlined example">
-                        <a type="button" class="btn btn-outline-primary" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Métricas del curso: {{curso.nombre}}" href="{% url 'metricasCurso' idcurso=curso.id %}"><i class="bi bi-bar-chart-line"></i></a>
+                        <a type="button" class="btn btn-outline-primary" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Métricas del curso: {{curso.nombre}}" href="{% url 'metricasCurso' idcurso=curso.id %}" data-bs-custom-class="custom-tooltip"><i class="bi bi-bar-chart-line"></i></a>
                         {% if usu.idrol.id != 3 %}
-                         <a type="button" class="btn btn-outline-info" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el curso {{curso.nombre}}" href="{% url 'editarcurso' idcurso=curso.id %}"><i class="bi bi-pencil-square"></i></a>
-                         <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar el curso: {{curso.nombre}}"></i></a>
+                         <a type="button" class="btn btn-outline-info" style="display: inline-block;" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Editar el curso {{curso.nombre}}" href="{% url 'editarcurso' idcurso=curso.id %}" data-bs-custom-class="custom-tooltip"><i class="bi bi-pencil-square"></i></a>
+                         <a type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#confirmarDelete{{curso.id}}"><i class="bi bi-trash3-fill"  data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Eliminar el curso: {{curso.nombre}}" data-bs-custom-class="custom-tooltip"></i></a>
                          {% endif %}
                        </div>
                        <!--==============================-->

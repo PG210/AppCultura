@@ -1,0 +1,28 @@
+<div class="container mt-4">
+    <div class="form-control">
+    <div class="row mb-3">
+    <label for="nombre" class="col-sm-2 col-form-label">Nombre</label>
+    <div class="col-sm-10">
+        <input type="text" class="form-control" id="nombreg" name="nombreg" required>
+    </div>
+    </div>
+     <div class="row mb-3">
+        <label for="descrip" class="col-sm-2 col-form-label">Descripción</label>
+        <div class="col-sm-10">
+        <textarea type="text" class="form-control" id="descripg" name="descripg" rows="3" required></textarea>
+        </div>
+     </div>
+     <!---empresa u organizacion-->
+     <div class="row mb-3">
+        <label for="descrip" class="col-sm-2 col-form-label">Empresa</label>
+        <div class="col-sm-10">
+            <select class="form-select" aria-label="Default select example" id="gemp" name="gemp" required>
+                <option selected value="">Elegir ...</option>
+                {% for emp in empresa %}
+                <option value="{{emp.id}}">{{emp.nombre}}</option>
+                {% endfor %}
+              </select>
+        </div>
+     </div>
+    </div>
+</div>

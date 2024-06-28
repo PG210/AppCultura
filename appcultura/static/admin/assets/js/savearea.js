@@ -56,9 +56,7 @@ $(document).ready(function() {
     });
     //==========================
     $('#rol').change(function() {
-      let valor = $(this).val();
-      console.log('Valor es', valor)
-      if ($(this).val() === '4') {
+      if ($(this).val() === '4' || $(this).val() === '5') {
         $('#formadorOcultar').hide();
       } else {
         $('#formadorOcultar').show();
@@ -67,6 +65,8 @@ $(document).ready(function() {
     //=======================
   });
 //======================== aqui funcionalidades del check ==============
+/*
+document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('botonCheck').addEventListener('change', function() {
     var elementoOculto = document.getElementById('elementoOculto');
     var elementoOcultoDos = document.getElementById('elementoOcultoDos');
@@ -83,6 +83,7 @@ document.getElementById('botonCheck').addEventListener('change', function() {
         elementoOcultoDos.style.display = 'block';
     }
 });
+});*/
 //=====================================0 para ocultar el campo de area y cargos===========
 
 

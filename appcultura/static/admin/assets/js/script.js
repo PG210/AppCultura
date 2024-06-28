@@ -22,45 +22,57 @@
         // Crear un nuevo grupo de inputs
         var nuevoGrupo = document.createElement('div');
         nuevoGrupo.classList.add('mt-3', 'mb-8'); // Agregar la clase al grupo
+        // crear rows and columns
+        var rowfechas = document.createElement('div');
+        rowfechas.classList.add('row');
+        // crear las columnas
+        var colfecini = document.createElement('div');
+        colfecini.classList.add('col-lg-6', 'col-md-12');
+
+        var colfecfin = document.createElement('div');
+        colfecfin.classList.add('col-lg-6', 'col-md-12');
         // Crear tres inputs y agregarlos al grupo
         var lineaHorizontal = document.createElement('hr');
         lineaHorizontal.classList.add('mt-2');
         // Etiqueta y campo para la fecha de inicio
         var etiquetaInicio = document.createElement('label');
-        etiquetaInicio.innerHTML = 'Fecha de Inicio:';
-        etiquetaInicio.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(etiquetaInicio);
-
+        etiquetaInicio.innerHTML = 'Fecha de Inicio  (*)';
+        etiquetaInicio.classList.add('col-sm-12','col-lg-4', 'col-form-label');
+        colfecini.appendChild(etiquetaInicio);
+        
         var fechaInicio = document.createElement('input');
         fechaInicio.type = 'datetime-local';
         fechaInicio.name = 'fecha_inicio[]';
-        fechaInicio.classList.add('col-sm-10');
+        fechaInicio.classList.add('col-sm-12', 'col-lg-8');
         fechaInicio.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(fechaInicio);
-
+        colfecini.appendChild(fechaInicio);
+        
+        rowfechas.appendChild(colfecini); // agregar la columna al divrow
         // Etiqueta y campo para la fecha de finalizacion
         var etiquetaFinal = document.createElement('label');
-        etiquetaFinal.innerHTML = 'Fecha final:';
-        etiquetaFinal.classList.add('col-sm-2', 'col-form-label');
-        nuevoGrupo.appendChild(etiquetaFinal);
+        etiquetaFinal.innerHTML = 'Fecha final (*)';
+        etiquetaFinal.classList.add('col-sm-12', 'col-lg-4', 'col-form-label');
+        colfecfin.appendChild(etiquetaFinal);
 
         var fechaFinal = document.createElement('input');
         fechaFinal.type = 'datetime-local';
         fechaFinal.name = 'fecha_final[]';
-        fechaFinal.classList.add('col-sm-10');
+        fechaFinal.classList.add('col-sm-12', 'col-lg-8');
         fechaFinal.setAttribute('required', 'required');
-        nuevoGrupo.appendChild(fechaFinal);
+        colfecfin.appendChild(fechaFinal);
+        rowfechas.appendChild(colfecfin);
 
+        nuevoGrupo.appendChild(rowfechas);
          // Etiqueta y campo para lugar
         var etiqueLugar = document.createElement('label');
-        etiqueLugar.innerHTML = 'Lugar:';
-        etiqueLugar.classList.add('col-sm-2', 'col-form-label');
+        etiqueLugar.innerHTML = 'Lugar (*)';
+        etiqueLugar.classList.add('col-sm-2', 'mt-2', 'col-form-label');
         nuevoGrupo.appendChild(etiqueLugar);
 
         var inputLugar = document.createElement('input');
         inputLugar.type = 'text';
         inputLugar.name = 'lugar[]';
-        inputLugar.classList.add('col-sm-10');
+        inputLugar.classList.add('col-sm-10', 'mt-2');
         fechaFinal.setAttribute('required', 'required');
         nuevoGrupo.appendChild(inputLugar);
 
@@ -75,16 +87,6 @@
 
         nuevoGrupo.appendChild(btnEliminarCampo);
         // agregar nuevos campos para tematicas
-        // Botón para agregar temáticas
-        /*var btnTematicas = document.createElement('a');
-        inputLugar.type = 'button';
-        btnTematicas.innerHTML = 'Temas';
-        btnTematicas.classList.add('col-sm-1', 'btn', 'btn-info', 'mt-2', 'float-end', 'me-2');
-        btnTematicas.onclick = function() {
-            agregarTematica(nuevoGrupo);
-        };
-        nuevoGrupo.appendChild(btnTematicas);
-        */
 
         //================abrir modal ===============
         // Botón para abrir modal de temáticas
@@ -94,6 +96,7 @@
         btnTematicas.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'mt-2', 'float-end', 'me-2');
         btnTematicas.setAttribute('data-bs-toggle', 'modal');
         btnTematicas.setAttribute('data-bs-target', '#tematicasModal-' + contadorCampos); // ID único
+        btnTematicas.setAttribute('btn-tema', 'temas'); // ID único
         nuevoGrupo.appendChild(btnTematicas);
         //=====================================
         
@@ -116,21 +119,21 @@
                               <!-- Campos de entrada para temáticas -->
                               <div class="form-control">
                               <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label" for="tematicaInput_${contadorCampos}">Temática:</label>
+                                <label class="col-sm-2 col-form-label" for="tematicaInput_${contadorCampos}">Temática (*)</label>
                                 <div class="col-sm-10">
-                                  <input type="text" class="form-control" id="tematicaInput_${contadorCampos}"  name="tematicaInput_${contadorCampos}">
+                                  <input type="text" class="form-control" id="tematicaInput_${contadorCampos}"  name="tematicaInput_${contadorCampos}" input-var="tematica" required>
                                 </div>
                               </div>
                               <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label" for="desInput_${contadorCampos}">Descripción:</label>
+                                <label class="col-sm-2 col-form-label" for="desInput_${contadorCampos}">Descripción (*)</label>
                                 <div class="col-sm-10">
-                                  <textarea class="form-control" id="desInput_${contadorCampos}" name="desInput_${contadorCampos}" rows="3"></textarea>
+                                  <textarea class="form-control" id="desInput_${contadorCampos}" name="desInput_${contadorCampos}" rows="3" input-var="des" required></textarea>
                                 </div>
                               </div>
                               <div class="row mb-3">
-                                <label class="col-sm-2 col-form-label" for="recur_${contadorCampos}">Recursos</label>
+                                <label class="col-sm-2 col-form-label" for="recur_${contadorCampos}">Recursos (*)</label>
                                 <div class="col-sm-10">
-                                  <textarea class="form-control" id="recur_${contadorCampos}" name="recur_${contadorCampos}" rows="3"></textarea>
+                                  <textarea class="form-control" id="recur_${contadorCampos}" name="recur_${contadorCampos}" rows="3" input-var="re" required></textarea>
                                 </div>
                               </div>
                               <div class="row mb-3">
@@ -171,7 +174,7 @@ function agregarObjetivo2() {
 
         // Etiqueta y campo para la fecha de inicio
         var etiquetaDes = document.createElement('label');
-        etiquetaDes.innerHTML = 'Descripción:';
+        etiquetaDes.innerHTML = 'Descripción (*)';
         etiquetaDes.classList.add('col-sm-2', 'col-form-label');
         objetivosGrupo.appendChild(etiquetaDes);
 
@@ -185,7 +188,7 @@ function agregarObjetivo2() {
 
         // Etiqueta y campo para lugar
         var etiqueCom = document.createElement('label');
-        etiqueCom.innerHTML = 'Competencias:';
+        etiqueCom.innerHTML = 'Competencias (*)';
         etiqueCom.classList.add('col-sm-2', 'col-form-label');
         objetivosGrupo.appendChild(etiqueCom);
        
@@ -219,7 +222,7 @@ function agregarObjetivo2() {
         objetivosGrupo.appendChild(desObjectivo);
 
         // Etiqueta y campo para lugar
-        var etiqueCom = document.createElement('label');
+       /* var etiqueCom = document.createElement('label');
         etiqueCom.innerHTML = 'Competencias:';
         etiqueCom.classList.add('col-sm-2', 'col-form-label');
         objetivosGrupo.appendChild(etiqueCom);
@@ -230,7 +233,7 @@ function agregarObjetivo2() {
         inputCom.classList.add('col-sm-10');
         inputCom.setAttribute('rows', '3');
         inputCom.setAttribute('required', 'required');
-        objetivosGrupo.appendChild(inputCom);
+        objetivosGrupo.appendChild(inputCom);*/
 
          // Botón para eliminar el campo
          var btnDelete = document.createElement('button');

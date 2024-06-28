@@ -159,20 +159,6 @@ function agregarObjetivo() {
     desObjectivo.setAttribute('required', 'required');
     objetivosGrupo.appendChild(desObjectivo);
 
-    // Etiqueta y campo para lugar
-    var etiqueCom = document.createElement('label');
-    etiqueCom.innerHTML = 'Competencias:';
-    etiqueCom.classList.add('col-sm-2', 'col-form-label');
-    objetivosGrupo.appendChild(etiqueCom);
-
-    var inputCom = document.createElement('textarea');
-    inputCom.type = 'text';
-    inputCom.name = 'competencias[]';
-    inputCom.classList.add('col-sm-10');
-    inputCom.setAttribute('rows', '3');
-    inputCom.setAttribute('required', 'required');
-    objetivosGrupo.appendChild(inputCom);
-
      // Botón para eliminar el campo
      var btnDelete = document.createElement('button');
      btnDelete.innerHTML = '<i class="bi bi-x-circle-fill"></i>';

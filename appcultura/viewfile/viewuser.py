@@ -2,7 +2,7 @@ from audioop import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from appcultura.modelos.avancecompromisos import AvanceCompromisos
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
 from appcultura.modelos.compromisos import Compromisos
@@ -396,6 +396,22 @@ def deleteAvance(request, idavance):
 def verFormuQR(request, idsesion):
     return render(request, 'user/formularioqr.html', {'idsesion':idsesion})
 
+#======== buscar los usuarios por empresa ==============
+def usuariosEmpresa(user):
+    try:
+        idempresa_1 = user.idarea.idempresa
+    except AttributeError:
+        idempresa_1 = None
+
+    try:
+        idempresa_2 = user.idepart.idarea.idempresa
+    except AttributeError:
+        idempresa_2 = None
+        #=========== asignar el valor que no sea nulo=========
+    idemp = idempresa_1 if idempresa_1 is not None else idempresa_2
+    usuarios = UserPerfil.objects.filter(Q(idarea__idempresa=idemp) | Q(idepart__idarea__idempresa=idemp)).exclude(idrol__in=[1, 4, 5]).exclude(id=user.id).order_by('nombre')
+    return usuarios
+
 # validar que el usuario este registrado 
 def validarasistenciaform(request, idsesion):
     #=================================================
@@ -426,30 +442,29 @@ def validarasistenciaform(request, idsesion):
             
             if Sesioncurso.objects.filter(id=idsesion).exists():
                 sesion = Sesioncurso.objects.get(id=idsesion)
-                cursos = GruposCursos.objects.filter(idcurso=sesion.idcurso)
-                grupos = GruposUser.objects.filter(iduser=user)
+                #cursos = GruposCursos.objects.filter(idcurso=sesion.idcurso)
+                #grupos = GruposUser.objects.filter(iduser=user)
                 
 
                 if SesionAsistencia.objects.filter(idsesioncurso=sesion, idusuario=user).exists():
                     mensaje="El usuario ya se encuentra registrado a esta sesión"
-                    #=================================================================
-                    usuarios = UserPerfil.objects.filter(idrol=2).exclude(id=user.id)
+                    #========================= buscar la empresa para obtener los usuarios========================================
+                    usuarios = usuariosEmpresa(user)
                     return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual})
-                    #return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False})
   
                 if verificar:
                     asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=False)
                     asistencia.save()
                     mensaje="Asistencia verificada"
                     #Aqui debe permitir redirigir y mostrar el formulario
-                    usuarios = UserPerfil.objects.filter(idrol=2).exclude(id=user.id)
+                    #========== buscar a que empresa pertenece este usuario ========
+                    usuarios = usuariosEmpresa(user)
                     return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual})
             else:
                 mensaje = f'la sesion {idsesion} no existe'
                 return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False}) 
     else:    
         return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'estado':False})
-
 
 #registrar al usuario si esta pendiente
 def inscribirasistenteform(request, idsesion):

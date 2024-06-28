@@ -99,7 +99,7 @@ def reguser(request):
  
  #vista para iniciar el admin
 #================ funcion para retornar los valores de grafica de torta en la ultima asistencia registrada ===
-def ultimaAsistencia(idcurso, idarea):
+def ultimaAsistencia(idcurso, idarea, idrol):
     valorc1, valorc2, valorc3 = 0, 0, 0
     vfclaridad, vfcapacidad, vfdominio = 0, 0, 0
     asistencia = ''
@@ -110,17 +110,23 @@ def ultimaAsistencia(idcurso, idarea):
     calif_formador = []
         #=== obtener el total de calificaciones por sesion =========
     for sesion in totalsesiones:
-        if idarea != 0:
+        if idrol == 3: #==== rol jefe y usuario
            datos_sesion = CalificacionUsuarios.objects.filter(Q(idusuario__idarea=idarea) | Q(idusuario__idepart__idarea=idarea), id_sesiones_curso=sesion)
            datos.extend(datos_sesion)
             #========== datos para formador ==================
            datos_formador = CalificacionFormador.objects.filter(Q(usuario__idarea=idarea) | Q(usuario__idepart__idarea=idarea), sesion_curso=sesion)
            calif_formador.extend(datos_formador)
-        else:
+        elif idrol == 4 or idrol == 1 or idrol == 2: #=== formador y admin total
            datos_sesion = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
            datos.extend(datos_sesion)
             #========== datos para formador ==================
            datos_formador = CalificacionFormador.objects.filter(sesion_curso=sesion)
+           calif_formador.extend(datos_formador)
+        elif idrol == 5: #=== administrador gerente
+           datos_sesion = CalificacionUsuarios.objects.filter(Q(idusuario__idarea__idempresa=idarea) | Q(idusuario__idepart__idarea__idempresa=idarea), id_sesiones_curso=sesion)
+           datos.extend(datos_sesion)
+            #========== datos para formador ==================
+           datos_formador = CalificacionFormador.objects.filter(Q(usuario__idarea__idempresa=idarea) | Q(usuario__idepart__idarea__idempresa=idarea), sesion_curso=sesion)
            calif_formador.extend(datos_formador)
         #====== obtener porcentajes ===================
         if datos:
@@ -175,31 +181,43 @@ def verificarasis(asistencias):
     valorasis = {'faltantes':sesiones_faltantes, 'totfaltantes':totfaltantes}
     return valorasis
 #=========== buscar los cursos totales apara el admin =============
-def totalasistencias_admin(curso, idarea):
+def totalasistencias_admin(curso, idarea, idrol):
     total_asistencias, total_users, faltas, porasis, porfaltas, portotal, total_sesiones, total_users_n = 0, 0, 0, 0, 0, 0, 0, 0
     sesiones = Sesioncurso.objects.filter(idcurso=curso)
     #======= obtener el numero de asistencias del curso ============
-    if idarea != 0:
+    if idrol == 3: #==== rol jefe
         for nsesion in sesiones:
             tot_sesiones = SesionAsistencia.objects.filter(idsesioncurso=nsesion).values('idsesioncurso').distinct().count()
             asistencia = SesionAsistencia.objects.filter(Q(idusuario__idarea=idarea) | Q(idusuario__idepart__idarea=idarea), idsesioncurso=nsesion).count()
             total_asistencias += asistencia
             total_sesiones += tot_sesiones
-    else:
+    elif idrol == 4 or idrol == 1: #=== formador y admin total
         for nsesion in sesiones:
             tot_sesiones = SesionAsistencia.objects.filter(idsesioncurso=nsesion).values('idsesioncurso').distinct().count()
             asistencia = SesionAsistencia.objects.filter(idsesioncurso=nsesion).count()
             total_asistencias += asistencia
             total_sesiones += tot_sesiones
+    elif idrol == 5: #=== administrador gerente
+         for nsesion in sesiones:
+            idempresa = idarea #=== aqui se hace el cambio, la variable idempresa si esta llegando de la manera coreccta
+            tot_sesiones = SesionAsistencia.objects.filter(idsesioncurso=nsesion).values('idsesioncurso').distinct().count()
+            asistencia = SesionAsistencia.objects.filter(Q(idusuario__idarea__idempresa=idempresa) | Q(idusuario__idepart__idarea__idempresa=idempresa), idsesioncurso=nsesion).count()
+            total_asistencias += asistencia
+            total_sesiones += tot_sesiones
     #====== obtener el total colaboradores en el curso ===================
     grupos = GruposCursos.objects.filter(idcurso=curso)
-    if idarea != 0:
+    if idrol == 3:
         for ngrupos in grupos:
             n_user = GruposUser.objects.filter(Q(iduser__idarea=idarea) | Q(iduser__idepart__idarea=idarea), idgrupo=ngrupos.idgrupo).count()
             total_users_n += n_user
-    else:
+    elif idrol == 4 or idrol == 1:
         for ngrupos in grupos:
             n_user = GruposUser.objects.filter(idgrupo=ngrupos.idgrupo).count()
+            total_users_n += n_user
+    elif idrol == 5: #=== si el usuario es gerente de la empresa
+        for ngrupos in grupos:
+            idempresa = idarea
+            n_user = GruposUser.objects.filter(Q(iduser__idarea__idempresa=idempresa) | Q(iduser__idepart__idarea__idempresa=idempresa), idgrupo=ngrupos.idgrupo).count()
             total_users_n += n_user
     
     total_users = total_users_n*total_sesiones
@@ -229,32 +247,44 @@ def sesionesproximas():
     sesiones = Sesioncurso.objects.filter(fechainicio__gt=fecha_hoy)
     return sesiones
 #=============== funcion para retornar los formularios contestados ============
-def formulariosCompletos(curso, idarea):
+def formulariosCompletos(curso, idarea, idrol):
     formularios, totform, falta, porcom, porfalta, portotal, total_formularios, npersonas  = 0, 0, 0, 0, 0, 0, 0, 0
     sesiones = Sesioncurso.objects.filter(idcurso=curso)
 
-    if idarea != 0:
+    if idrol == 3: #==== rol jefe
         for sesion in sesiones:
             tot_formu = SesionFormulario.objects.filter(idsesion=sesion.id).values('idsesion').count() #== total de seiones 
             formu = RespuestaForm.objects.filter(Q(iduser__idarea=idarea) | Q(iduser__idepart__idarea=idarea), idsesion=sesion.id).values('iduser').distinct().count()
             formularios += formu
             total_formularios += tot_formu
-    else:
+    elif idrol == 4 or idrol == 1: #=== formador y admin total
         for sesion in sesiones:
             tot_formu = SesionFormulario.objects.filter(idsesion=sesion.id).values('idsesion').count() #== total de seiones 
             formu = RespuestaForm.objects.filter(idsesion=sesion.id).values('iduser').distinct().count()
             formularios += formu
             total_formularios += tot_formu
+    elif idrol == 5: #=== administrador gerente
+        for sesion in sesiones:
+            idempresa = idarea
+            tot_formu = SesionFormulario.objects.filter(idsesion=sesion.id).values('idsesion').count() #== total de seiones 
+            formu = RespuestaForm.objects.filter(Q(iduser__idarea__idempresa=idempresa) | Q(iduser__idepart__idarea__idempresa=idempresa), idsesion=sesion.id).values('iduser').distinct().count()
+            formularios += formu
+            total_formularios += tot_formu
     #==== total de formularios ========
     #print('total formularios asignados', total_formularios)
     grupos = GruposCursos.objects.filter(idcurso=curso)
-    if idarea != 0:
+    if idrol == 3: #==== rol jefe
         for ngrupos in grupos:
             n_user = GruposUser.objects.filter(Q(iduser__idarea=idarea) | Q(iduser__idepart__idarea=idarea), idgrupo=ngrupos.idgrupo).count()
             totform += n_user
-    else:
+    elif idrol == 4 or idrol == 1: #=== formador y admin total
         for ngrupos in grupos:
             n_user = GruposUser.objects.filter(idgrupo=ngrupos.idgrupo).count()
+            totform += n_user
+    elif idrol == 5: #=== administrador gerente
+        for ngrupos in grupos:
+            idemp = idarea
+            n_user = GruposUser.objects.filter(Q(iduser__idarea__idempresa=idemp) | Q(iduser__idepart__idarea__idempresa=idemp), idgrupo=ngrupos.idgrupo).count()
             totform += n_user
     #=========== cantidad de formularios * numero de personas =========
     npersonas = totform
@@ -292,7 +322,7 @@ def agrupar_datos_grafico(total_por_usuario):
             rangos['76% - 100%'] += 1
     return rangos
 #========== funcion para encontrar la calificacion en rangos =========
-def calificaciones_admin(curso, idarea):
+def calificaciones_admin(curso, idarea, idrol):
     total_por_usuario = defaultdict(int)  # Diccionario con valor inicial 0 para cada usuario
     formu = []
     valor_total = 0
@@ -309,7 +339,7 @@ def calificaciones_admin(curso, idarea):
         valor_form = Preguntas.objects.filter(idform=formulario.idform).aggregate(total=Sum('valor'))['total']
         valor_total += valor_form #=== aqui valor de todos los formularios asignados al curso
     #========================================================================================
-    if idarea != 0:
+    if idrol == 3: #==== rol jefe
        for grupo in grupos:
            usuarios_grupo = GruposUser.objects.filter( Q(iduser__idarea=idarea) | Q(iduser__idepart__idarea=idarea), idgrupo=grupo.idgrupo.id).values_list('iduser', flat=True)
         
@@ -319,9 +349,20 @@ def calificaciones_admin(curso, idarea):
                  total_usuario = respuestas_usuario.aggregate(total=Sum('valores'))['total'] or 0
                  if valor_total != 0:
                      total_por_usuario[usuario_id] += round((total_usuario*100)/valor_total,0)
-    else:
+    elif idrol == 4 or idrol == 1: #=== formador y admin total
        for grupo in grupos:
            usuarios_grupo = GruposUser.objects.filter(idgrupo=grupo.idgrupo.id).values_list('iduser', flat=True)
+        
+           for usuario_id in usuarios_grupo:
+              for sesion in sesiones:
+                 respuestas_usuario = RespuestaForm.objects.filter(idsesion=sesion.id, iduser=usuario_id)
+                 total_usuario = respuestas_usuario.aggregate(total=Sum('valores'))['total'] or 0
+                 if valor_total != 0:
+                     total_por_usuario[usuario_id] += round((total_usuario*100)/valor_total,0)
+    elif idrol == 5: #=== administrador gerente
+        idempresa = idarea
+        for grupo in grupos:
+           usuarios_grupo = GruposUser.objects.filter( Q(iduser__idarea__idempresa=idempresa) | Q(iduser__idepart__idarea__idempresa=idempresa), idgrupo=grupo.idgrupo.id).values_list('iduser', flat=True)
         
            for usuario_id in usuarios_grupo:
               for sesion in sesiones:
@@ -350,13 +391,13 @@ def calificaciones_admin(curso, idarea):
     }
     return valores
 #================== valores de compromisos admin===============
-def funcioncompromisos(curso, idarea):
+def funcioncompromisos(curso, idarea, idrol):
     comusu = []
     sesiones = Sesioncurso.objects.filter(idcurso=curso)
     total_cumplido, total_pendiente, total_incum = 0, 0, 0
 
     for sesion in sesiones:
-            if idarea != 0:
+            if idrol == 3: #==== rol jefe
                 base_filter = Q(id_usuario__idarea=idarea) | Q(id_usuario__idepart__idarea=idarea)
                 #================= compromisos cumplidos ===========
                 cumplido_conta = Compromisos.objects.filter(base_filter, id_estado=1, id_sesion=sesion.id).count()
@@ -371,7 +412,7 @@ def funcioncompromisos(curso, idarea):
                 usuarios = Compromisos.objects.filter(base_filter, id_sesion=sesion.id)
                 comusu.extend(list(usuarios))
                 #comusu.extend(usuarios)
-            else:
+            elif idrol == 4 or idrol == 1: #=== formador y admin total
                 #================= compromisos cumplidos ===========
                 cumplido_conta = Compromisos.objects.filter(id_estado=1, id_sesion=sesion.id).count()
                 total_cumplido += cumplido_conta
@@ -384,6 +425,20 @@ def funcioncompromisos(curso, idarea):
                 #==== compromisos =================
                 usuarios = Compromisos.objects.filter(id_sesion=sesion.id)
                 comusu.extend(usuarios)
+            elif idrol == 5: #=== administrador gerente
+                base_filter = Q(id_usuario__idarea__idempresa=idarea) | Q(id_usuario__idepart__idarea__idempresa=idarea)
+                #================= compromisos cumplidos ===========
+                cumplido_conta = Compromisos.objects.filter(base_filter, id_estado=1, id_sesion=sesion.id).count()
+                total_cumplido += cumplido_conta
+                #================= compromisos pendientes ===========
+                pendiente_conta = Compromisos.objects.filter(base_filter, id_estado=2, id_sesion=sesion.id).count()
+                total_pendiente += pendiente_conta
+                #================== compromisos no cumplidos ===========
+                incumplido_conta = Compromisos.objects.filter(base_filter, id_estado=3, id_sesion=sesion.id).count()
+                total_incum += incumplido_conta
+                #==== compromisos =================
+                usuarios = Compromisos.objects.filter(base_filter, id_sesion=sesion.id)
+                comusu.extend(list(usuarios))
         
     compromiso = {
         'cumplidos': total_cumplido,
@@ -482,7 +537,7 @@ def administracion(request):
   perfil_usuario = UserPerfil.objects.get(user=request.user)
   nombre_cargo = perfil_usuario.cargo
   cursos = Curso.objects.all() #===== cursos para filtro
-
+  idrol = perfil_usuario.idrol.id 
   if perfil_usuario.idrol.id == 2:
       #=== consultar las sesiones ===
       idcurso, valorescurso = '', ''
@@ -493,7 +548,7 @@ def administracion(request):
       asistencia_user = SesionAsistencia.objects.filter(idusuario=perfil_usuario.id).order_by('-fecha_asistencia').first()
       if asistencia_user:
          idcurso = asistencia_user.idsesioncurso.idcurso
-         valorescurso = ultimaAsistencia(idcurso, 0)
+         valorescurso = ultimaAsistencia(idcurso, 0, idrol)
       #=============== aqui se envian los datos =========
       context = {
         'usu':perfil_usuario,
@@ -512,12 +567,12 @@ def administracion(request):
       users = UserPerfil.objects.all()
       if ultimo_dato:
         curso = ultimo_dato.idsesioncurso.idcurso
-        asisadmin = totalasistencias_admin(curso, 0) #=== 1 para que distinga del usuario jefe
+        asisadmin = totalasistencias_admin(curso, 0, idrol) #=== 1 para que distinga del usuario jefe
         proximas_sesiones = sesionesproximas()
-        formularios = formulariosCompletos(curso, 0) #== obtiene los formularios de un curso
-        calificacion = calificaciones_admin(curso, 0) #===== mostrar las calificaciones para grafica
-        calificacioncurso = ultimaAsistencia(curso, 0) #==== mostrar grafica de aceptacion
-        compromisosadmin = funcioncompromisos(curso, 0) #========= obtener datos para compromisos
+        formularios = formulariosCompletos(curso, 0, idrol) #== obtiene los formularios de un curso
+        calificacion = calificaciones_admin(curso, 0, idrol) #===== mostrar las calificaciones para grafica
+        calificacioncurso = ultimaAsistencia(curso, 0, idrol) #==== mostrar grafica de aceptacion
+        compromisosadmin = funcioncompromisos(curso, 0, idrol) #========= obtener datos para compromisos
       
       datos = {
           'usu': perfil_usuario,
@@ -534,17 +589,16 @@ def administracion(request):
       return render(request, 'admin/dashboard.html', datos)
    #============== usuario jefe ================   
   elif perfil_usuario.idrol.id == 3:
-       
        areajefe = perfil_usuario.idarea.id
        ultimo_dato = SesionAsistencia.objects.filter(Q(idusuario__idarea=areajefe) | Q(idusuario__idepart__idarea=areajefe)).order_by('-fecha_asistencia').first()
        users = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4])
        curso = ultimo_dato.idsesioncurso.idcurso
-       asisadmin = totalasistencias_admin(curso, areajefe) #=== 3 idrol del jefe
+       asisadmin = totalasistencias_admin(curso, areajefe, idrol) #=== 3 idrol del jefe
        proximas_sesiones = sesionesproximas()
-       formularios = formulariosCompletos(curso, areajefe) #== obtiene los formularios de un curso
-       calificacion = calificaciones_admin(curso, areajefe) #===== mostrar las calificaciones para grafica
-       calificacioncurso = ultimaAsistencia(curso, areajefe) #==== mostrar grafica de aceptacion
-       compromisosadmin = funcioncompromisos(curso, areajefe) #========= obtener datos para compromisos
+       formularios = formulariosCompletos(curso, areajefe, idrol) #== obtiene los formularios de un curso
+       calificacion = calificaciones_admin(curso, areajefe, idrol) #===== mostrar las calificaciones para grafica
+       calificacioncurso = ultimaAsistencia(curso, areajefe, idrol) #==== mostrar grafica de aceptacion
+       compromisosadmin = funcioncompromisos(curso, areajefe, idrol) #========= obtener datos para compromisos
        
        datos = {
           'usu': perfil_usuario,
@@ -559,6 +613,33 @@ def administracion(request):
           'compromisos': compromisosadmin
           }
        return render(request, 'admin/dashboard.html', datos)
+  #================= perfil para administrador total ==================
+  elif perfil_usuario.idrol.id == 5:
+       idempresa = perfil_usuario.idempresa.id
+       ultimo_dato = SesionAsistencia.objects.filter(Q(idusuario__idarea__idempresa=idempresa) | Q(idusuario__idepart__idarea__idempresa=idempresa)).order_by('-fecha_asistencia').first()
+       users = UserPerfil.objects.filter(Q(idarea__idempresa=idempresa) | Q(idepart__idarea__idempresa=idempresa)).exclude(idrol__in=[1, 4])
+       curso = ultimo_dato.idsesioncurso.idcurso
+       asisadmin = totalasistencias_admin(curso, idempresa, idrol) #=== 3 idrol del jefe
+       proximas_sesiones = sesionesproximas()
+       formularios = formulariosCompletos(curso, idempresa, idrol) #== obtiene los formularios de un curso
+       calificacion = calificaciones_admin(curso, idempresa, idrol) #===== mostrar las calificaciones para grafica
+       calificacioncurso = ultimaAsistencia(curso, idempresa, idrol) #==== mostrar grafica de aceptacion
+       compromisosadmin = funcioncompromisos(curso, idempresa, idrol) #========= obtener datos para compromisos
+       
+       datos = {
+          'usu': perfil_usuario,
+          'cargo': nombre_cargo,
+          'asisadmin': asisadmin,
+          'cursos': cursos,
+          'sesiones': proximas_sesiones,
+          'formularios': formularios,
+          'calificacion': calificacion,
+          'users': users,
+          'calificacioncurso': calificacioncurso,
+          'compromisos': compromisosadmin
+          }
+       return render(request, 'admin/dashboard.html', datos)
+  #==================== rol para administrar la empresa ==========================
 
  #================== funcion para filtrar cursos ==========
 @login_required #proteger la ruta
@@ -566,22 +647,27 @@ def filtrarcurso(request, idcurso):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     nombre_cargo = perfil_usuario.cargo
     cursos = Curso.objects.all()
+    idrol = perfil_usuario.idrol.id
     #==== validar el tipo de user 
     if perfil_usuario.idrol.id == 3:
        areajefe = perfil_usuario.idarea.id
        users = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4])
+    elif perfil_usuario.idrol.id == 5:
+       areajefe = perfil_usuario.idempresa.id
+       users = UserPerfil.objects.filter(Q(idarea__idempresa=areajefe) | Q(idepart__idarea__idempresa=areajefe)).exclude(idrol__in=[1, 4])
     else:
        areajefe = 0
        users = UserPerfil.objects.all()
 
-    if perfil_usuario.idrol.id == 1 | perfil_usuario.idrol.id == 3:
+    if perfil_usuario.idrol.id == 1 or perfil_usuario.idrol.id == 4 or perfil_usuario.idrol.id == 3 or perfil_usuario.idrol.id == 5:
         curso = Curso.objects.get(id=idcurso)
         proximas_sesiones = sesionesproximas()
-        asisadmin = totalasistencias_admin(curso, areajefe)
-        formularios = formulariosCompletos(curso, areajefe) #== obtiene los formularios de un curso
-        calificacion = calificaciones_admin(curso, areajefe) #===== mostrar las calificaciones para grafica
-        calificacioncurso = ultimaAsistencia(curso, areajefe) #==== mostrar grafica de aceptacion
-        compromisosadmin = funcioncompromisos(curso, areajefe) #========= obtener datos para compromisos
+        asisadmin = totalasistencias_admin(curso, areajefe, idrol)
+        formularios = formulariosCompletos(curso, areajefe, idrol) #== obtiene los formularios de un curso
+        calificacion = calificaciones_admin(curso, areajefe, idrol) #===== mostrar las calificaciones para grafica
+        calificacioncurso = ultimaAsistencia(curso, areajefe, idrol) #==== mostrar grafica de aceptacion
+        compromisosadmin = funcioncompromisos(curso, areajefe, idrol) #========= obtener datos para compromisos
+        #print('valores asistencias', asisadmin)
         datos = {
             'usu': perfil_usuario,
             'cargo': nombre_cargo,
@@ -600,7 +686,7 @@ def filtrarcurso(request, idcurso):
         compromisos_user = compromisosUser(perfil_usuario)
         #=== consultar las sesiones ===
         info_user = infoUser(perfil_usuario)
-        valorescurso = ultimaAsistencia(idcurso, 0)
+        valorescurso = ultimaAsistencia(idcurso, 0, idrol)
         curso_user = Curso.objects.get(id=idcurso)
         context = {
                 'usu':perfil_usuario,
