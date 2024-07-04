@@ -1321,24 +1321,25 @@ def eliminarasistente(request, idasis):
 #Fin codigo Jhon
 
 @login_required
-def listarcalificacion(request, idsesion):
+def listarcalificacion(request):
     #==== variables ===============
     totaplicabilidad, totalclaridad, totrelevancia, promaplicabilidad, promclaridad, promrlevancia  = 0, 0, 0, 0, 0, 0
     #==== variables ==
     totclaridad, totcapacidad, totdominio = 0, 0, 0
     formclaridad, formcapacidad,  formdominio = 0, 0, 0
     valoresformador = ''
+    idcurso = request.POST.get('idcurso') #=== recibe la variable de post
+    curso = Curso.objects.get(id=idcurso)
     #=========== informacion ===========
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    sesion = Sesioncurso.objects.get(id=idsesion) #==== listar el curso ===
     #==== validar si el usuario es jefe ==============
     if perfil_usuario.idrol.id == 3:
         areajefe = perfil_usuario.idarea.id
-        datos = CalificacionUsuarios.objects.filter(Q(idusuario__idarea=areajefe) | Q(idusuario__idepart__idarea=areajefe), id_sesiones_curso=idsesion)
-        formador = CalificacionFormador.objects.filter(Q(usuario__idarea=areajefe) | Q(usuario__idepart__idarea=areajefe), sesion_curso=idsesion)
+        datos = CalificacionUsuarios.objects.filter(Q(idusuario__idarea=areajefe) | Q(idusuario__idepart__idarea=areajefe), curso=curso)
+        formador = CalificacionFormador.objects.filter(Q(usuario__idarea=areajefe) | Q(usuario__idepart__idarea=areajefe), curso=curso)
     else:
-       datos = CalificacionUsuarios.objects.filter(id_sesiones_curso=idsesion)
-       formador = CalificacionFormador.objects.filter(sesion_curso=idsesion) #== calificacion de los formadores
+       datos = CalificacionUsuarios.objects.filter(curso=curso)
+       formador = CalificacionFormador.objects.filter(curso=curso) #== calificacion de los formadores
     
     if datos:
         for dat in datos:
@@ -1372,36 +1373,28 @@ def listarcalificacion(request, idsesion):
         valor2 = (formcapacidad/totsum)*100
         valor3 = (formdominio/totsum)*100
         valoresformador = {'valor1': valor1, 'valor2': valor2, 'valor3': valor3}
-    return render(request, 'admin/liscalificacionuser.html',{'usu':perfil_usuario, 'datos':datos, 'sesion':sesion, 'formador':formador, 'promaplicabilidad':promaplicabilidad, 'promclaridad':promclaridad, 'promrlevancia':promrlevancia, 'formclaridad':formclaridad, 'formcapacidad':formcapacidad, 'formdominio':formdominio, 'valores':valoresformador, 'valorescurso':valorescurso })
+    return render(request, 'admin/liscalificacionuser.html',{'usu':perfil_usuario, 'datos':datos, 'curso':curso, 'formador':formador, 'promaplicabilidad':promaplicabilidad, 'promclaridad':promclaridad, 'promrlevancia':promrlevancia, 'formclaridad':formclaridad, 'formcapacidad':formcapacidad, 'formdominio':formdominio, 'valores':valoresformador, 'valorescurso':valorescurso })
 
 #==================== aqui imprimir la información de graficas del total de curso =============
 @login_required
 def metricasCurso(request, idcurso):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    totalsesiones = Sesioncurso.objects.filter(idcurso=idcurso)
+    #totalsesiones = Sesioncurso.objects.filter(idcurso=idcurso)
     curso = Curso.objects.get(id=idcurso)#==consultar la informacion del curso
     sumaplicabilidad, sumclaridad, sumrelevancia = 0, 0, 0
     sumclaridadfor, sumcapacidad, sumdominio = 0, 0, 0
     valorescurso, barras, valoresformador, barraform = '', '', '', ''
-    datos, formador = [], []
-
     #=== obtener el total de calificaciones por sesion =========
-    for sesion in totalsesiones:
-        datos_sesion = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion.id)
-        if datos_sesion.exists():
-           datos.extend(list(datos_sesion))
+    datos_sesion = CalificacionUsuarios.objects.filter(curso=curso.id)
     #====== obtener  el total de calificacion de formador =======
-    for ses in totalsesiones:
-        formador_sesion = CalificacionFormador.objects.filter(sesion_curso=ses.id) 
-        if formador_sesion.exists():
-            formador.extend(list(formador_sesion))
+    formador_sesion = CalificacionFormador.objects.filter(curso=curso.id) 
     #========= calcular los datos de porcentaje ===============
-    if datos:
-        for dat in datos:  
+    if datos_sesion:
+        for dat in datos_sesion:  
             sumaplicabilidad += dat.aplicabilidad  # Sumar aplicabilidad
             sumclaridad += dat.claridad # sumar el total de claridad
             sumrelevancia += dat.relevancia # sumar relevancia
-        num_sesiones = (5*len(datos))
+        num_sesiones = (5*len(datos_sesion))
         promaplicabilidad = (sumaplicabilidad/num_sesiones)*100
         promclaridad = (sumclaridad/num_sesiones)*100
         promrlevancia = (sumrelevancia/num_sesiones)*100
@@ -1413,13 +1406,13 @@ def metricasCurso(request, idcurso):
         valorescurso = {'valorc1': valorc1, 'valorc2': valorc2, 'valorc3': valorc3}
         barras = {'relevancia':promrlevancia, 'claridad':promclaridad, 'aplicacion':promaplicabilidad}
     #============= calcular los datos para porcentaje de formador =======
-    if formador:
-        for cap in formador: 
+    if formador_sesion:
+        for cap in formador_sesion: 
             sumclaridadfor += cap.claridad
             sumcapacidad += cap.capacidad
             sumdominio += cap.dominio
         #======== completar los promedios ================= 
-        num_formadores = (5*len(formador))
+        num_formadores = (5*len(formador_sesion))
         formclaridad = (sumclaridadfor/num_formadores)*100
         formcapacidad = (sumcapacidad/num_formadores)*100
         formdominio = (sumcapacidad/num_formadores)*100

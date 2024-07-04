@@ -35,7 +35,7 @@
                 <div class="col-12 text-end"><a href="/administracion/curso/list/" class="btn btn-warning"><i class="bi bi-box-arrow-left"></i> | Volver</a></div>
                </div>
                <!--Barra de aceptacion-->
-               <h6>Aceptación del curso: {{sesion.idcurso.nombre}}, sesión del dia: {{sesion.fechainicio|date:"M. d, Y" }}</h6>
+               <h6>Aceptación del curso: {{curso.nombre}}</h6>
                <br>
               <!--================================ grafica ====================-->
               <div class="row">
@@ -64,7 +64,7 @@
               </div>
                <!--======================end grafico ===================================-->
                
-               <h6>Aceptación del formador: {{sesion.idcurso.idusu.nombre}} {{sesion.idcurso.idusu.apellido}}, sesión del dia: {{sesion.fechainicio|date:"M. d, Y" }}</h6>
+               <h6>Aceptación del formador: {{curso.idusu.nombre}} {{curso.idusu.apellido}}</h6>
                <hr> 
                <br>
                <div class="row">

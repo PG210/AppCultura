@@ -33,10 +33,10 @@ def listar_cursos_usuario(request):
         for grupo_usuario in grupouser:
             grupocurso = GruposCursos.objects.filter(idgrupo=grupo_usuario.idgrupo)
             for grupo_curso in grupocurso:
+                calificaciones = CalificacionUsuarios.objects.filter(curso=grupo_curso.idcurso)
                 sesiones = Sesioncurso.objects.filter(idcurso=grupo_curso.idcurso)
-                for sesion in sesiones:
-                    calificaciones=CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
-
+                #for sesion in sesiones:
+                    
     #========= verificar si existe una calificacion ========================
     vercalif = CalificacionUsuarios.objects.filter(idusuario=perfil_usuario)
     tematicas = TemasSesion.objects.all()
@@ -44,53 +44,55 @@ def listar_cursos_usuario(request):
 
 #================ guardar informacioncalificaciones al curso y formador =================
 @login_required
-def add_calificacion(request, idsesion):
+def add_calificacion(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
-    if request.method == 'POST':
-        #============== datos de la sesion del curso =================
-        relevancia_curso = request.POST.get('relevancia')
-        claridadpres_curso = request.POST.get('claridadpres')
-        aplicabilidad_curso = request.POST.get('aplicabilidad')
-        fortalezasesion_curso = request.POST.get('fortalezasesion')
-        mejorasesion_curso = request.POST.get('mejorasesion')
-        sesion_curso = Sesioncurso.objects.get(id=idsesion)
-        idcur = sesion_curso.idcurso.id
-        #=================== datos del formador =========================
-        claridad_formador = request.POST.get('claridad')
-        capacidad_formador = request.POST.get('capacidad')
-        dominio_formador = request.POST.get('dominio')
-        aspectos_formador = request.POST.get('aspectos')
-        #=========== guardar la info =====================================
-        if CalificacionUsuarios.objects.filter( idusuario=perfil_usuario, id_sesiones_curso=sesion_curso):
-            mensaje="Tu Calificacion ya se encuentra registrada"
+    id_curso = request.POST.get('idcurso')
+    curso = Curso.objects.get(id=id_curso) #=== esto lo recibe por post
+    #============== datos de la sesion del curso =================
+    relevancia_curso = request.POST.get('relevancia')
+    claridadpres_curso = request.POST.get('claridadpres')
+    aplicabilidad_curso = request.POST.get('aplicabilidad')
+    fortalezasesion_curso = request.POST.get('fortalezasesion')
+    mejorasesion_curso = request.POST.get('mejorasesion')
+        
+    #=================== datos del formador =========================
+    claridad_formador = request.POST.get('claridad')
+    capacidad_formador = request.POST.get('capacidad')
+    dominio_formador = request.POST.get('dominio')
+    aspectos_formador = request.POST.get('aspectos')
+    #=========== guardar la info =====================================
+    if relevancia_curso is not None: #=== validar y que controle los post
+        if CalificacionUsuarios.objects.filter( idusuario=perfil_usuario, curso=curso).exists():
+            return redirect('calificacionCurso', idcurso=curso.id) #== si ya esta lleno debe retornar a la vista de datos completos
         else:
-            dbcalificacion = CalificacionUsuarios(relevancia=relevancia_curso, claridad=claridadpres_curso, aplicabilidad=aplicabilidad_curso, fortalezas=fortalezasesion_curso, areasmejora=mejorasesion_curso,  idusuario=perfil_usuario, id_sesiones_curso=sesion_curso, estado=False)
+            dbcalificacion = CalificacionUsuarios(relevancia=relevancia_curso, claridad=claridadpres_curso, aplicabilidad=aplicabilidad_curso, fortalezas=fortalezasesion_curso, areasmejora=mejorasesion_curso,  idusuario=perfil_usuario, curso=curso, estado=False)
             dbcalificacion.save()
             #========= guardar la info del formador ==================
-            dbformador = CalificacionFormador(claridad=claridad_formador, capacidad=capacidad_formador, dominio=dominio_formador, aspectosrescatar=aspectos_formador, usuario=perfil_usuario, formador=sesion_curso.idcurso.idusu, sesion_curso=sesion_curso, estado=False)
+            dbformador = CalificacionFormador(claridad=claridad_formador, capacidad=capacidad_formador, dominio=dominio_formador, aspectosrescatar=aspectos_formador, usuario=perfil_usuario, formador=curso.idusu, curso=curso, estado=False)
             dbformador.save()
             mensaje = "Gracias por calificar nuestro servicio"
-        return redirect('calificacionCurso', idcurso=idcur)
+            return redirect('calificacionCurso', idcurso=curso.id)
     else:
-        return render(request, 'user/calificacion.html', {'usu':perfil_usuario, 'idsesion':idsesion})
+        if CalificacionUsuarios.objects.filter(idusuario=perfil_usuario, curso=curso).exists():
+           return redirect('calificacionCurso', idcurso=curso.id)
+        else:
+           return render(request, 'user/calificacion.html', {'usu':perfil_usuario, 'curso':curso})
 #===========================================
 #==============listar las respuestas de la calificacion ==========
 @login_required
 def calificacionCurso(request, idcurso):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     curso = Curso.objects.get(id=idcurso)
-    sesiones = Sesioncurso.objects.filter(idcurso=curso)
     #=== buscar todas las respuestas ==============
     rescurso = [] 
-    for sesion in sesiones:
-        recursos_sesion = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion.id, idusuario=perfil_usuario.id)
-        rescurso.extend(recursos_sesion)
+    recursos_sesion = CalificacionUsuarios.objects.filter(curso=curso, idusuario=perfil_usuario)
+    rescurso.extend(recursos_sesion)
     #=========== buscar las calificaciones del formador ===============
     resformador = []
-    for ses in sesiones:
-        resformador_sesion = CalificacionFormador.objects.filter(sesion_curso=ses, usuario=perfil_usuario)
-        resformador.extend(resformador_sesion)
-    return render(request, 'user/sesioncalif.html', {'usu':perfil_usuario, 'idcurso':idcurso, 'rescurso':rescurso, 'resformador':resformador, 'curso':curso})
+    resformador_sesion = CalificacionFormador.objects.filter(curso=curso, usuario=perfil_usuario)
+    resformador.extend(resformador_sesion)
+    #=======================
+    return render(request, 'user/sesioncalif.html', {'usu':perfil_usuario, 'curso':curso, 'rescurso':rescurso, 'resformador':resformador, 'curso':curso})
 #============== ver formularios de la sesion =====
 @login_required
 def verformusesion(request, idsesion):
@@ -419,16 +421,16 @@ def validarasistenciaform(request, idsesion):
     preguntas = Preguntas.objects.all()
     formulario_sesion = SesionFormulario.objects.filter(idsesion=idsesion)
     datoscurso = Sesioncurso.objects.get(id=idsesion)
+    estado = False #=== este estado es para controlar la ultima sesion
+    buscar = False
     #=====================================================
     if request.method == 'POST':
-            verificar = True
-
+            #verificar = True
             texto = request.POST.get("inputUser")
             if '@' in texto:
                 if User.objects.filter(username=texto).exists():
                     usuario = User.objects.get(username=texto)
                     user = UserPerfil.objects.get(user=usuario)
-   
                 else:
                     mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
                     return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':True})
@@ -442,28 +444,31 @@ def validarasistenciaform(request, idsesion):
             
             if Sesioncurso.objects.filter(id=idsesion).exists():
                 sesion = Sesioncurso.objects.get(id=idsesion)
-                #cursos = GruposCursos.objects.filter(idcurso=sesion.idcurso)
-                #grupos = GruposUser.objects.filter(iduser=user)
-                
-
+                #== contar la ultima sesion del curso sesion del curso ==========
+                curso = sesion.idcurso
+                sesiones = Sesioncurso.objects.filter(idcurso=sesion.idcurso).latest('fechafin')
+                if sesiones.id == sesion.id:
+                    estado = True
+                #================================================================================
                 if SesionAsistencia.objects.filter(idsesioncurso=sesion, idusuario=user).exists():
                     mensaje="El usuario ya se encuentra registrado a esta sesión"
                     #========================= buscar la empresa para obtener los usuarios========================================
                     usuarios = usuariosEmpresa(user)
-                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual})
-  
-                if verificar:
+                    #print('estado de la sesion', True)
+                    #=== si la asistencia ya esta verificada debe ver si tiene o no formularios =========
+                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar})
+                else:
                     asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=False)
                     asistencia.save()
                     mensaje="Asistencia verificada"
-                    #Aqui debe permitir redirigir y mostrar el formulario
                     #========== buscar a que empresa pertenece este usuario ========
                     usuarios = usuariosEmpresa(user)
-                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual})
+                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar})
             else:
                 mensaje = f'la sesion {idsesion} no existe'
                 return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False}) 
-    else:    
+    else: 
+        #print('hola')   
         return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'estado':False})
 
 #registrar al usuario si esta pendiente
@@ -506,7 +511,13 @@ def listformuqr(request, idsesion, idusuario):
     print("Hola")
 
 #============================ aqui guarda las respuestas del formulario sin logearse =======
-def saveRespuestasFormu(request, idsesion, idformu, idusu):
+def saveRespuestasFormu(request):
+    #============ obtener datos ================
+    idsesion = request.POST.get('idsesion', '')
+    idformu = request.POST.get('idformu', '')
+    idusu = request.POST.get('idusu', '')
+    valorform = request.POST.get('valorformu', '')
+    #===========================================
     perfil_usuario = UserPerfil.objects.get(id=idusu)
     usuarios = UserPerfil.objects.filter(idrol=2).exclude(id=idusu)
     formulario_sesion = SesionFormulario.objects.filter(idsesion=idsesion)
@@ -514,11 +525,19 @@ def saveRespuestasFormu(request, idsesion, idformu, idusu):
     datoscurso = Sesioncurso.objects.get(id=idsesion)
     formu_completos = []
     respuestasForm = []
+    mensajeInfo, puntaje_total = '', ''
+    buscar = False
+    estado = False
      # Obtén la fecha actual
     fecha_actual = date.today()
-    #===========================================================
+    #== contar la ultima sesion del curso sesion del curso ==========
+    lastsesiones = Sesioncurso.objects.filter(idcurso=datoscurso.idcurso).latest('fechafin')
+    if lastsesiones.id == datoscurso.id:
+        estado = True
+    #=============================Formulario ==============================
     if request.method == 'POST':
        if request.POST.items():
+          if valorform == '1':
             for key, value in request.POST.items():
                 if key.startswith('pregunta') and value:
                        pregunta_id = key.split('pregunta')[1] #Aqui obtiene el id de cada preguntas
@@ -614,22 +633,48 @@ def saveRespuestasFormu(request, idsesion, idformu, idusu):
                                             savePersonas.save()
             #====== mensaje de exito =============
             mensajeInfo = "La información se ha registrado éxitosamente"
-            #tot = RespuestaForm.objects.filter(idpreg__idform=idformu, iduser=perfil_usuario).aggregate(Sum('valores'))
             puntaje_total = RespuestaForm.objects.filter(idpreg__idform=idformu, iduser=perfil_usuario).aggregate(total_puntaje=Sum('valores'))['total_puntaje']
             puntaje_total = puntaje_total if puntaje_total is not None else 0
-            #========== validar si ya esta lleno el formulario ===============
-            for formulario in formulario_sesion:
-                existe_formu = RespuestaForm.objects.filter(idpreg__idform=formulario.idform, iduser=perfil_usuario).exists()
-                # Si ya está registrado, quítalo de la variable formulario_sesion
-                if existe_formu:
-                    formu_completos.append(formulario.idform) # aggrega al ultimo elememto un formulario
-                    formulario_sesion = formulario_sesion.exclude(pk=formulario.pk)
-             #============== buscar formularios terminados ===============
-           
-            #for formuterminados in formu_completos:
-            respuestasForm = RespuestaForm.objects.filter(iduser=perfil_usuario, idsesion=datoscurso)
-            #print(respuestasForm)
-            return render(request, 'user/listformuqr.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'puntaje':puntaje_total, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos, 'fecha_actual':fecha_actual, 'usuarios':usuarios})
+            #============== validar el formulario de encuesta ==============
+            buscar = CalificacionUsuarios.objects.filter(idusuario=perfil_usuario, curso=datoscurso.idcurso).exists()
+            if buscar:
+               buscar = True #=== debe cambiar a verdadero
+          #================= validar el else para agregar un formulario de evaluacion de cursos =========
+          elif valorform == '2':
+            #=== variables del formulario 2 ======
+            id_curso = request.POST.get('idcurso')
+            curso = Curso.objects.get(id=id_curso) #=== esto lo recibe por post
+            #============== datos de la sesion del curso =================
+            relevancia_curso = request.POST.get('relevancia')
+            claridadpres_curso = request.POST.get('claridadpres')
+            aplicabilidad_curso = request.POST.get('aplicabilidad')
+            fortalezasesion_curso = request.POST.get('fortalezasesion')
+            mejorasesion_curso = request.POST.get('mejorasesion')
+            #=================== datos del formador =========================
+            claridad_formador = request.POST.get('claridad')
+            capacidad_formador = request.POST.get('capacidad')
+            dominio_formador = request.POST.get('dominio')
+            aspectos_formador = request.POST.get('aspectos')
+            #============== calificación del curso =======================
+            buscar = CalificacionUsuarios.objects.filter( idusuario=perfil_usuario, curso=curso).exists()
+            if not buscar:
+               dbcalificacion = CalificacionUsuarios(relevancia=relevancia_curso, claridad=claridadpres_curso, aplicabilidad=aplicabilidad_curso, fortalezas=fortalezasesion_curso, areasmejora=mejorasesion_curso,  idusuario=perfil_usuario, curso=curso, estado=False)
+               dbcalificacion.save()
+               #========= guardar la info del formador ==================
+               dbformador = CalificacionFormador(claridad=claridad_formador, capacidad=capacidad_formador, dominio=dominio_formador, aspectosrescatar=aspectos_formador, usuario=perfil_usuario, formador=curso.idusu, curso=curso, estado=False)
+               dbformador.save()
+               buscar = True #=== debe cambiar a verdadero
+            pass
+          #========== validar si ya esta lleno el formulario ===============
+          for formulario in formulario_sesion:
+              existe_formu = RespuestaForm.objects.filter(idpreg__idform=formulario.idform, iduser=perfil_usuario).exists()
+              # Si ya está registrado, quítalo de la variable formulario_sesion
+              if existe_formu:
+                 formu_completos.append(formulario.idform) # aggrega al ultimo elememto un formulario
+                 formulario_sesion = formulario_sesion.exclude(pk=formulario.pk)
+            #============== buscar formularios terminados ===============
+          respuestasForm = RespuestaForm.objects.filter(iduser=perfil_usuario, idsesion=datoscurso)
+          return render(request, 'user/listformuqr.html', {'usu': perfil_usuario, 'formularios': formulario_sesion, 'preguntas': preguntasnew, 'datoscurso':datoscurso, 'mensajeInfo':mensajeInfo, 'puntaje':puntaje_total, 'respuestasForm':respuestasForm, 'formcompleto':formu_completos, 'fecha_actual':fecha_actual, 'usuarios':usuarios, 'curso':datoscurso.idcurso, 'buscar':buscar, 'estado':estado})
        
        mensajeInfo = "Por favor complete todos los campos"
        puntaje_total = puntaje_total if puntaje_total is not None else 0
