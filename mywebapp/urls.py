@@ -109,7 +109,7 @@ urlpatterns = [
     #================ valoracion del curso =========================================
     #path('administracion/curso/asistentelist/<int:idsesion>/', viewadmin.listarasistentes, name='listarasistentes'),
     path('administracion/curso/deleteasistente/<int:idasis>/', viewadmin.eliminarasistente, name='eliminarasistente'),
-    path('administracion/curso/list/valoracion/<int:idsesion>/', viewadmin.listarcalificacion, name="listarcalificacion"),
+    path('administracion/curso/list/valoracion/', viewadmin.listarcalificacion, name="listarcalificacion"),
     path('administracion/curso/list/deletevaloracion/<int:idcali>/', viewadmin.borrarcalificacion, name="borrarcalificacion"),
     path('administracion/curso/metricas/<int:idcurso>/', viewadmin.metricasCurso, name="metricasCurso"),
 
@@ -120,7 +120,7 @@ urlpatterns = [
     path('administracion/validarasistenciaform/<int:idsesion>/', viewuser.validarasistenciaform, name='validarasistenciaform'),
     path('usuarios/inscribiruserform/<int:idsesion>/', viewuser.inscribirasistenteform, name="inscribirasistenteform"),
     path('usuarios/inscribiruserform/form/<int:idsesion>/<int:idusuario>/', viewuser.listformuqr, name="listformuqr"),
-    path('usuarios/inscribiruserform/form/save/<int:idsesion>/<int:idformu>/<int:idusu>/', viewuser.saveRespuestasFormu, name="saveRespuestasFormu"),
+    path('usuarios/inscribiruserform/form/save/', viewuser.saveRespuestasFormu, name="saveRespuestasFormu"),
     
     #=========================================================
     path('administracion/validarasistencia/<int:idsesion>/', viewadmin.validarasistencia, name='validarasistencia'),
@@ -144,7 +144,7 @@ urlpatterns = [
     
     #================================= Rutas de Usuario =============================================================
     path('usuarios/curso/listar/', viewuser.listar_cursos_usuario, name="listarcursosusuario"),
-    path('usuarios/calificar-sesion/<int:idsesion>/', viewuser.add_calificacion, name="addcalificacion"),
+    path('usuarios/calificar-sesion/', viewuser.add_calificacion, name="addcalificacion"),
     path('usuarios/compromisos/', viewuser.agregar_compromiso, name="compromisos"),
     path('usuarios/compromisos/editar/<int:idcomp>/', viewuser.editarcompromiso, name="editarcompromiso"),
     path('usuarios/inscribiruser/<int:idsesion>/', viewadmin.inscribir_asistente, name="inscribirasistente"),

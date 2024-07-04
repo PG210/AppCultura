@@ -42,7 +42,7 @@
                   <tr>
                     <th>Curso</th>
                     <th>Grupo</th>
-                    <th>Sesiones</th>
+                    <th class="text-center">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -52,16 +52,26 @@
                     <td>{{ curso.idgrupo.nombre}}</td>
                     <td class="text-center">
                       <!--aqui modal-->
-                         <!-- Modal Dialog Scrollable -->
-                          <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar las sesiones del curso {{curso.idcurso.nombre}}">
-                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
-                              Ver
-                            </button></span>
-                            {% for cal in vercalif %}
-                               {% if cal.id_sesiones_curso.idcurso.id == curso.idcurso.id %}
-                              <a type="button" class="btn btn-outline-success" href="{% url 'calificacionCurso' idcurso=curso.idcurso.id %}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver calificaciones de formador y curso"><i class="bi bi-list-columns-reverse"></i></a>
-                              {% endif %}
-                            {% endfor %}
+                      <!-- Modal Dialog Scrollable -->
+                      <div class="btn-group" role="group" aria-label="Basic example">
+                      <span data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Listar las sesiones del curso {{curso.idcurso.nombre}}">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modallistarsesiones{{curso.id}}">
+                          Sesiones
+                        </button>
+                      </span>
+                        <!---======= calificacion para el curso de manera parcial ===========-->
+                        <form id="calificarForm" action="{% url 'addcalificacion' %}" method="post">
+                          {% csrf_token %}
+                          <input type="hidden" name="idcurso" value="{{ curso.idcurso.id }}">
+                          <button type="submit" class="btn btn-outline-success btn-sm" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion deL curso: {{curso.idcurso.nombre}} esta habilitada">Calificar</button>
+                        </form>
+                      </div>
+                        <!---============end calificacciones=====================-->
+                       {% for cal in vercalif %}
+                          {% if cal.id_sesiones_curso.idcurso.id == curso.idcurso.id %}
+                          <a type="button" class="btn btn-outline-success" href="{% url 'calificacionCurso' idcurso=curso.idcurso.id %}" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Ver calificaciones de formador y curso"><i class="bi bi-list-columns-reverse"></i></a>
+                          {% endif %}
+                        {% endfor %}
                         
                         <div class="modal fade" id="modallistarsesiones{{curso.id}}" tabindex="-1">
                           <div class="modal-dialog modal-dialog-scrollable modal-xl ">
@@ -78,7 +88,6 @@
                                         <th>Fecha</th>
                                         <th>Lugar</th>
                                         <th>Asistencia</th>
-                                        <th>Calificar</th>
                                         <th>Evaluar</th>
                                       </tr>
                                     </thead>
@@ -105,15 +114,6 @@
                                     {% endfor %}
                                     {% else %}
                                         <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>No asistió</small></p>
-                                    {% endif %}
-                                    </td>
-                                    <td class="text-center">
-                                    {% if usu.sesionasistencia_set.all and sesion.sesionasistencia_set.all %}
-                                      {% if usu.calificacionusuarios_set.all and sesion.calificacionusuarios_set.all %}
-                                        <p style="background-color: rgb(157, 157, 238); border-radius: 10px; padding: 3px 3px 3px 3px;"><small>Completado</small></p>
-                                      {% else %}
-                                        <a class="btn btn-outline-primary" href="{% url 'addcalificacion' idsesion=sesion.id %}" role="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="La calificacion de la sesion {{sesion.id}} esta habilitada">Calificar</a>
-                                      {% endif %}
                                     {% endif %}
                                     </td>
                                     <!--aqui boton de evaluar formulario-->

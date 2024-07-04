@@ -100,75 +100,83 @@ def reguser(request):
  #vista para iniciar el admin
 #================ funcion para retornar los valores de grafica de torta en la ultima asistencia registrada ===
 def ultimaAsistencia(idcurso, idarea, idrol):
+    # Inicialización de variables
     valorc1, valorc2, valorc3 = 0, 0, 0
     vfclaridad, vfcapacidad, vfdominio = 0, 0, 0
-    asistencia = ''
-    totalsesiones = Sesioncurso.objects.filter(idcurso=idcurso)
-    sumaplicabilidad, sumclaridad, sumrelevancia, fclaridad, fcapacidad, fdominio = 0, 0, 0, 0, 0, 0
-    valorescurso = ''
-    datos = []
+    sumaplicabilidad, sumclaridad, sumrelevancia = 0, 0, 0
+    fclaridad, fcapacidad, fdominio = 0, 0, 0
     calif_formador = []
-        #=== obtener el total de calificaciones por sesion =========
-    for sesion in totalsesiones:
-        if idrol == 3: #==== rol jefe y usuario
-           datos_sesion = CalificacionUsuarios.objects.filter(Q(idusuario__idarea=idarea) | Q(idusuario__idepart__idarea=idarea), id_sesiones_curso=sesion)
-           datos.extend(datos_sesion)
-            #========== datos para formador ==================
-           datos_formador = CalificacionFormador.objects.filter(Q(usuario__idarea=idarea) | Q(usuario__idepart__idarea=idarea), sesion_curso=sesion)
-           calif_formador.extend(datos_formador)
-        elif idrol == 4 or idrol == 1 or idrol == 2: #=== formador y admin total
-           datos_sesion = CalificacionUsuarios.objects.filter(id_sesiones_curso=sesion)
-           datos.extend(datos_sesion)
-            #========== datos para formador ==================
-           datos_formador = CalificacionFormador.objects.filter(sesion_curso=sesion)
-           calif_formador.extend(datos_formador)
-        elif idrol == 5: #=== administrador gerente
-           datos_sesion = CalificacionUsuarios.objects.filter(Q(idusuario__idarea__idempresa=idarea) | Q(idusuario__idepart__idarea__idempresa=idarea), id_sesiones_curso=sesion)
-           datos.extend(datos_sesion)
-            #========== datos para formador ==================
-           datos_formador = CalificacionFormador.objects.filter(Q(usuario__idarea__idempresa=idarea) | Q(usuario__idepart__idarea__idempresa=idarea), sesion_curso=sesion)
-           calif_formador.extend(datos_formador)
-        #====== obtener porcentajes ===================
-        if datos:
-            for dat in datos:  
-                sumaplicabilidad += dat.aplicabilidad  # Sumar aplicabilidad
-                sumclaridad += dat.claridad # sumar el total de claridad
-                sumrelevancia += dat.relevancia # sumar relevancia
-            num_sesiones = (5*len(datos))
-            promaplicabilidad = (sumaplicabilidad/num_sesiones)*100
-            promclaridad = (sumclaridad/num_sesiones)*100
-            promrlevancia = (sumrelevancia/num_sesiones)*100
-            #====== calcular valores de porcentaje =======
-            totcurso = promaplicabilidad + promclaridad + promrlevancia
-            valorc1 = round((promrlevancia/totcurso) * 100, 2)
-            valorc2 = round((promclaridad/totcurso) * 100, 2)
-            valorc3 = round((promaplicabilidad/totcurso) * 100, 2)
-        #=================== valores para usuario ===================
-        if calif_formador:
-            for info in calif_formador:
-                fclaridad += info.claridad  # Sumar claridad
-                fcapacidad += info.capacidad # sumar capacidad
-                fdominio += info.dominio # sumar relevancia
-            num_sesiones_formador = (5*len(calif_formador))
-            promfclarida = (fclaridad/num_sesiones_formador)*100
-            promfcapacidad = (fcapacidad/num_sesiones_formador)*100
-            promfdominio = (fdominio/num_sesiones_formador)*100
-            #====== calcular valores de porcentaje =======
-            totformador = promfclarida + promfcapacidad + promfdominio
-            vfclaridad = round((promfclarida/totformador) * 100, 2)
-            vfcapacidad = round((promfcapacidad/totformador) * 100, 2)
-            vfdominio = round((promfdominio/totformador) * 100, 2)
-        #=============================================================
+    datos = []
+    
+    # Filtrado de datos según el rol
+    if idrol == 3:  # Rol jefe y usuario
+        datos_sesion = CalificacionUsuarios.objects.filter(
+            Q(idusuario__idarea=idarea) | Q(idusuario__idepart__idarea=idarea), curso=idcurso
+        )
+        datos.extend(datos_sesion)
+        datos_formador = CalificacionFormador.objects.filter(
+            Q(usuario__idarea=idarea) | Q(usuario__idepart__idarea=idarea), curso=idcurso
+        )
+        calif_formador.extend(datos_formador)
+    elif idrol in [1, 2, 4]:  # Formador y admin total
+        datos_sesion = CalificacionUsuarios.objects.filter(curso=idcurso)
+        datos.extend(datos_sesion)
+        datos_formador = CalificacionFormador.objects.filter(curso=idcurso)
+        calif_formador.extend(datos_formador)
+    elif idrol == 5:  # Administrador gerente
+        datos_sesion = CalificacionUsuarios.objects.filter(
+            Q(idusuario__idarea__idempresa=idarea) | Q(idusuario__idepart__idarea__idempresa=idarea), curso=idcurso
+        )
+        datos.extend(datos_sesion)
+        datos_formador = CalificacionFormador.objects.filter(
+            Q(usuario__idarea__idempresa=idarea) | Q(usuario__idepart__idarea__idempresa=idarea), curso=idcurso
+        )
+        calif_formador.extend(datos_formador)
+
+    # Calcular promedios y porcentajes para datos de sesión
+    if datos:
+        for dat in datos:
+            sumaplicabilidad += dat.aplicabilidad
+            sumclaridad += dat.claridad
+            sumrelevancia += dat.relevancia
+        
+        num_sesiones = 5 * len(datos)
+        promaplicabilidad = (sumaplicabilidad / num_sesiones) * 100
+        promclaridad = (sumclaridad / num_sesiones) * 100
+        promrlevancia = (sumrelevancia / num_sesiones) * 100
+        
+        totcurso = promaplicabilidad + promclaridad + promrlevancia
+        valorc1 = round((promrlevancia / totcurso) * 100, 2)
+        valorc2 = round((promclaridad / totcurso) * 100, 2)
+        valorc3 = round((promaplicabilidad / totcurso) * 100, 2)
+    
+    # Calcular promedios y porcentajes para calificaciones del formador
+    if calif_formador:
+        for info in calif_formador:
+            fclaridad += info.claridad
+            fcapacidad += info.capacidad
+            fdominio += info.dominio
+        
+        num_sesiones_formador = 5 * len(calif_formador)
+        promfclarida = (fclaridad / num_sesiones_formador) * 100
+        promfcapacidad = (fcapacidad / num_sesiones_formador) * 100
+        promfdominio = (fdominio / num_sesiones_formador) * 100
+        
+        totformador = promfclarida + promfcapacidad + promfdominio
+        vfclaridad = round((promfclarida / totformador) * 100, 2)
+        vfcapacidad = round((promfcapacidad / totformador) * 100, 2)
+        vfdominio = round((promfdominio / totformador) * 100, 2)
+    
+    # Construir el diccionario de valores del curso
     valorescurso = {
-        'curso':asistencia,
-        'valorc1': valorc1, 
-        'valorc2': valorc2, 
+        'curso': '',  # 'asistencia' no se utiliza, así que lo dejo vacío
+        'valorc1': valorc1,
+        'valorc2': valorc2,
         'valorc3': valorc3,
-        'vfclaridad': vfclaridad, 
+        'vfclaridad': vfclaridad,
         'vfcapacidad': vfcapacidad,
         'vfdominio': vfdominio
-
-        }
+    }
     return valorescurso
 #======== funcion para no asistencias ==================
 def verificarasis(asistencias):

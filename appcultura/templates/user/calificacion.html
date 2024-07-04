@@ -31,7 +31,7 @@
               {% endif %}
               <!--end alertar-->
             <!-- Horizontal Form -->
-            <form action="{% url 'addcalificacion' idsesion=idsesion %}" method="post">
+            <form action="{% url 'addcalificacion' %}" method="post">
               {% csrf_token %}
               <div class="form-control">
                 <h5 class="text-center"><b>Calificar al formador</b></h5>
@@ -198,7 +198,8 @@
                   <textarea class="form-control" type="text" name="mejorasesion" rows="3" required></textarea>
                 </div>
             </div>
-             <!--=================-->
+              <!--=================-->
+              <input type="hidden" name="idcurso" value="{{ curso.id }}">
               </div>
               <!---=================================================-->
               <div class="text-end mt-3">
@@ -216,9 +217,5 @@
     </section>
   </main> 
   <!-- Aqui se encuentran las instrucciones para formularios -->
-  <!--<script type="text/javascript" src="{% static 'admin/assets/js/empresa.js' %}"></script>
-  <script src="{% static 'admin/assets/js/script.js' %} "></script>-->
 {% endblock content%}
-{% block js %}
-<!--<script src="{% static 'admin/assets/js/calificacionusuario.js' %} "></script>-->
-{% endblock js %}
+
