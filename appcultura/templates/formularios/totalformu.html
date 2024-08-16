@@ -22,7 +22,7 @@
                <div class="row mt-3">
                 <!----====================-->
                 <div class="row">
-                  <div class="col-lg-8 col-md-6">
+                  <div class="col-lg-2 col-md-2 col-sm-3">
                     <div class="btn-group" role="group" aria-label="Basic outlined example">
                       <!--------------------- boton -------------------->
                       <!-- Default dropend button  -->
@@ -32,7 +32,6 @@
                             <i class="bi bi-funnel-fill"></i> Filtrar
                           </button>
                           <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/administracion/formu/list/cursos/">Todos</a></li>
                             {% for curso in cursos %}
                             <li><a class="dropdown-item {% if curso_ac.id == curso.id %} active {% endif %}" href="{% url 'filtroCurso' idcurso=curso.id %}">{{ curso.nombre }}</a></li>
                             {% endfor %}
@@ -42,7 +41,12 @@
                       <!------------------------------------------------>
                     </div>
                   </div>
-                  <div class="col-lg-4 col-md-6 text-end">
+                  <div class="col-lg-8 col-md-8 col-sm-6">
+                    <div class="py-2 bg-warning text-center rounded-3">
+                       <span><b>Curso: {{nomcurso}}</b></span>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-md-2 col-sm-3 text-end text-xs-start">
                     <a href="/administracion/formu/list/cursos/" class="btn btn-warning btn-sm "><i class="bi bi-box-arrow-left"></i> | Volver</a>
                   </div>
               </div>
@@ -82,11 +86,8 @@
                     <td>{{ user.idarea.idempresa.nombre }} {{ user.idepart.idarea.idempresa.nombre }}</td>
                     <td class="text-center">
                         <!--=========== formularios asignados =======-->  
-                        {% for userperfil, cantidad in datos.formutotal.items %}
-                           {% if userperfil.id == user.id %}
-                            <span>{{ cantidad }} </span>
-                           {% endif %}
-                        {% endfor %}
+                        <!---los formularios que tiene asignado el curso-->
+                        {{datos.tformu}}
                        <!---=================================================-->
                     </td>
                     <td class="text-center">

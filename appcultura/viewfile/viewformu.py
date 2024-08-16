@@ -525,6 +525,7 @@ def usuariosFormulario(usuarios_en_sesion, idcurso):
     usuarios_sesiones = {}
     fecha_hoy = date.today()
     formu_ids = ''
+    tformu = 0
     #============= buscar las sesiones vinculadas al curso ========
     if idcurso != 0:
       idcursob = Curso.objects.get(id=idcurso)
@@ -583,7 +584,11 @@ def usuariosFormulario(usuarios_en_sesion, idcurso):
         for formulario_n in formularios_u:
             valor_f = Preguntas.objects.filter(idform=formulario_n.id).aggregate(total=Sum('valor'))['total'] #=== valor del formulario
             total_contador += valor_f
-            usuarios_tot_form[user_perfil] = total_contador
+            usuarios_tot_form[user_perfil] = total_contador 
+
+    #======== sumar los formularios asignados  ==============
+    if(idcurso != 0):
+       tformu = SesionFormulario.objects.filter(idsesion__idcurso=idcurso).count()
     #print("Datos", usuarios_tot_form) # == total de valor que debe tener cada usuario
     #print('datos', usuarios_total_forms) #== numero de formularios que debe tener cada usuario
     #=======================porcentaje de formularios completados====================
@@ -595,14 +600,18 @@ def usuariosFormulario(usuarios_en_sesion, idcurso):
         'nformu': nformu,
         'nvalor': nvalor,
         'valores': valores,
-        'formutotal': usuarios_total_forms
+        'formutotal': usuarios_total_forms,
+        'tformu':tformu
     }
+    #print('datos', info)
     return info
 #======================================================
 @login_required #proteger la ruta
 def usersFomularios(request):
     perfil_usuario = UserPerfil.objects.get(user=request.user)
     cursos = ''
+    nomcurso, datos = '', ''
+    idcurso = ''
     if perfil_usuario.idrol.id == 4: #=== datos para el formador
         formador = FormadorEmpresa.objects.get(idusu=perfil_usuario, estado=True)
         idemp = formador.idempresa #=== id de la empresa que esta ubicado el usuario
@@ -611,22 +620,42 @@ def usersFomularios(request):
         usuarios_grupo = GruposUser.objects.filter(idgrupo__in=grupos_cursos).values('iduser').distinct()
         #======= usuarios del formador ========
         usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea__idempresa=idemp) | Q(idepart__idarea__idempresa=idemp), id__in=usuarios_grupo).exclude(idrol__in=[1, 4, 5])
+        #=== filtrar datos por ultimo curso =======
+        ultimo_registro = RespuestaForm.objects.filter(idsesion__idcurso__idempresa__id=idemp.id).order_by('-id').first()
+        if ultimo_registro:
+         idcurso = ultimo_registro.idsesion.idcurso.id
     #==== datos para el admin =======================
     elif perfil_usuario.idrol.id == 1: 
           usuarios_en_sesion = UserPerfil.objects.all().exclude(idrol__in=[1, 4, 5])
           cursos = Curso.objects.all()
+          #=== filtra los datos por el ultimo curso ===========
+          ultimo_registro = RespuestaForm.objects.order_by('-id').first()
+          idcurso = ultimo_registro.idsesion.idcurso.id
     #=== si el usuario es jefe ============
     elif perfil_usuario.idrol.id == 3: 
           areajefe = perfil_usuario.idarea.id
           usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4, 5])
+          #========= el curso debe pertenecer a la misma empresa =====
+          idemp_id = perfil_usuario.idarea.idempresa.id
+          ultimo_registro = RespuestaForm.objects.filter(idsesion__idcurso__idempresa__id=idemp_id).order_by('-id').first()
+          if ultimo_registro:
+             idcurso = ultimo_registro.idsesion.idcurso.id
     #=========== informacion para el usuario administrador 
     elif perfil_usuario.idrol.id == 5: 
           idempresa = perfil_usuario.idempresa.id
           usuarios_en_sesion = UserPerfil.objects.filter(Q(idarea__idempresa=idempresa) | Q(idepart__idarea__idempresa=idempresa)).exclude(idrol__in=[1, 4, 5])
           cursos = Curso.objects.filter(idempresa=idempresa)
-    #=================================================      
-    datos = usuariosFormulario(usuarios_en_sesion, 0)
-    return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos })
+          #========= el curso debe pertenecer a la misma empresa =====
+          ultimo_registro = RespuestaForm.objects.filter(idsesion__idcurso__idempresa__id=idempresa).order_by('-id').first()
+          if ultimo_registro:
+             idcurso = ultimo_registro.idsesion.idcurso.id
+    #=================================================  
+    #=== obtener la informacion del ultino curso registrado ====
+    if ultimo_registro:
+       nomcurso = ultimo_registro.idsesion.idcurso.nombre
+    if idcurso:
+        datos = usuariosFormulario(usuarios_en_sesion, idcurso)
+    return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos, 'nomcurso':nomcurso})
 #======================filtrar curso================================
 #============================ funcion para filtrar datos por usuario ==============
 def usuariosPorCurso(idcurso):
@@ -732,7 +761,8 @@ def filtroCurso(request, idcurso):
             users_total = users_total.union(usu)
      #================= end datos usuarios ===========
      datos = usuariosFormulario(users_total, idcurso)
-     return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos, 'curso_ac':curso })
+     nomcurso = curso.nombre
+     return render(request, 'formularios/totalformu.html', {'usu':perfil_usuario, 'datos':datos, 'cursos':cursos, 'curso_ac':curso, 'nomcurso':nomcurso })
 
 @login_required #proteger la ruta
 def verFomrsesion(request, idsesion):

@@ -426,22 +426,16 @@ def validarasistenciaform(request, idsesion):
     #=====================================================
     if request.method == 'POST':
             #verificar = True
-            texto = request.POST.get("inputUser")
-            if '@' in texto:
-                if User.objects.filter(username=texto).exists():
-                    usuario = User.objects.get(username=texto)
-                    user = UserPerfil.objects.get(user=usuario)
-                else:
-                    mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
-                    return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':True})
+            mensaje="Tu asistencia ha sido verificada. Por favor, completa los formularios de evaluación si están disponibles"
+            texto = request.POST.get("inputUser").lower()
+           
+            if User.objects.filter(username=texto).exists():
+                usuario = User.objects.get(username=texto)
+                user = UserPerfil.objects.get(user=usuario)
             else:
-                if UserPerfil.objects.filter(cedula=texto).exists():
-                    user = UserPerfil.objects.get(cedula=texto)
-                    
-                else:
-                    mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
-                    return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje, 'estado':True})
-            
+                mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
+                return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':True})
+
             if Sesioncurso.objects.filter(id=idsesion).exists():
                 sesion = Sesioncurso.objects.get(id=idsesion)
                 #== contar la ultima sesion del curso sesion del curso ==========
@@ -451,24 +445,22 @@ def validarasistenciaform(request, idsesion):
                     estado = True
                 #================================================================================
                 if SesionAsistencia.objects.filter(idsesioncurso=sesion, idusuario=user).exists():
-                    mensaje="El usuario ya se encuentra registrado a esta sesión"
                     #========================= buscar la empresa para obtener los usuarios========================================
                     usuarios = usuariosEmpresa(user)
-                    #print('estado de la sesion', True)
+                    print('mensaje', mensaje)
                     #=== si la asistencia ya esta verificada debe ver si tiene o no formularios =========
-                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar})
+                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar, 'mensaje':mensaje})
                 else:
                     asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=False)
                     asistencia.save()
-                    mensaje="Asistencia verificada"
                     #========== buscar a que empresa pertenece este usuario ========
+                    print('mensaje', mensaje)
                     usuarios = usuariosEmpresa(user)
-                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar})
+                    return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar, 'mensaje':mensaje})
             else:
                 mensaje = f'la sesion {idsesion} no existe'
                 return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False}) 
-    else: 
-        #print('hola')   
+    else:  
         return render(request, 'user/formularioqr.html',{'idsesion':idsesion, 'estado':False})
 
 #registrar al usuario si esta pendiente
