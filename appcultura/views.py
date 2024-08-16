@@ -597,17 +597,20 @@ def administracion(request):
       return render(request, 'admin/dashboard.html', datos)
    #============== usuario jefe ================   
   elif perfil_usuario.idrol.id == 3:
+       asisadmin, formularios, calificacion, calificacioncurso, compromisosadmin = '', '', '', '', ''
        areajefe = perfil_usuario.idarea.id
        ultimo_dato = SesionAsistencia.objects.filter(Q(idusuario__idarea=areajefe) | Q(idusuario__idepart__idarea=areajefe)).order_by('-fecha_asistencia').first()
        users = UserPerfil.objects.filter(Q(idarea=areajefe) | Q(idepart__idarea=areajefe)).exclude(idrol__in=[1, 4])
-       curso = ultimo_dato.idsesioncurso.idcurso
-       asisadmin = totalasistencias_admin(curso, areajefe, idrol) #=== 3 idrol del jefe
-       proximas_sesiones = sesionesproximas()
-       formularios = formulariosCompletos(curso, areajefe, idrol) #== obtiene los formularios de un curso
-       calificacion = calificaciones_admin(curso, areajefe, idrol) #===== mostrar las calificaciones para grafica
-       calificacioncurso = ultimaAsistencia(curso, areajefe, idrol) #==== mostrar grafica de aceptacion
-       compromisosadmin = funcioncompromisos(curso, areajefe, idrol) #========= obtener datos para compromisos
+       #==== validar si no hay info genera error ==========
+       if ultimo_dato:
+          curso = ultimo_dato.idsesioncurso.idcurso
+          asisadmin = totalasistencias_admin(curso, areajefe, idrol) #=== 3 idrol del jefe
+          formularios = formulariosCompletos(curso, areajefe, idrol) #== obtiene los formularios de un curso
+          calificacion = calificaciones_admin(curso, areajefe, idrol) #===== mostrar las calificaciones para grafica
+          calificacioncurso = ultimaAsistencia(curso, areajefe, idrol) #==== mostrar grafica de aceptacion
+          compromisosadmin = funcioncompromisos(curso, areajefe, idrol) #========= obtener datos para compromisos
        
+       proximas_sesiones = sesionesproximas()
        datos = {
           'usu': perfil_usuario,
           'cargo': nombre_cargo,

@@ -293,15 +293,15 @@ def listarcursos(request):
        #============= aqui verificar el rol que tiene =====================
        if perfil_usuario.idrol.id == 4:
           empselect = FormadorEmpresa.objects.get(idusu=perfil_usuario.id, estado=True) 
-          cursos = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa) 
+          cursos = Curso.objects.filter(idusu=perfil_usuario, idempresa=empselect.idempresa).order_by('-id') 
        elif perfil_usuario.idrol.id == 5: #=== filtrar unicamente los cursos pertenecientes a la empresa
           idemp = perfil_usuario.idempresa.id
-          cursos = Curso.objects.filter(idempresa=idemp) 
+          cursos = Curso.objects.filter(idempresa=idemp).order_by('-id') 
        elif perfil_usuario.idrol.id == 3:
           idempresa = perfil_usuario.idarea.idempresa.id #=== empresa del usuario jefe
-          cursos = Curso.objects.filter(idempresa=idempresa) 
+          cursos = Curso.objects.filter(idempresa=idempresa).order_by('-id')
        else:  
-          cursos = Curso.objects.all()
+          cursos = Curso.objects.all().order_by('-id')
        #=============== fin validacion ===================================
        sesiones = Sesioncurso.objects.all()
        objetivos = ObjetivosCurso.objects.all()
@@ -1246,41 +1246,34 @@ def validarasistencia(request, idsesion):
     
     if request.method == 'POST':
             verificar = True
+            mensaje = ''
 
-            texto = request.POST.get("inputUser")
-            if '@' in texto:
-                if User.objects.filter(username=texto).exists():
-                    usuario = User.objects.get(username=texto)
-                    user = UserPerfil.objects.get(user=usuario)
+            texto = request.POST.get("inputUser").lower() #==convertir el texto siempre a minusculas
+            if User.objects.filter(username=texto).exists():
+                usuario = User.objects.get(username=texto)
+                user = UserPerfil.objects.get(user=usuario)
    
-                else:
-                    mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
-                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':True})
             else:
-                if UserPerfil.objects.filter(cedula=texto).exists():
-                    user = UserPerfil.objects.get(cedula=texto)
-                    
-                else:
-                    mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
-                    return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje, 'estado':True})
-            
+                mensaje = f"El usuario {texto} no se encuentra registrado en el sistema, lo invito a inscribirse"
+                return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':True})
+           
             if Sesioncurso.objects.filter(id=idsesion).exists():
                 sesion = Sesioncurso.objects.get(id=idsesion)
-                cursos = GruposCursos.objects.filter(idcurso=sesion.idcurso)
-                grupos = GruposUser.objects.filter(iduser=user)
+                totals = Sesioncurso.objects.filter(idcurso=sesion.idcurso).order_by('fechainicio')
+                numero_sesion = 1 #== inicializar var y obtener el numero de la sesion correspondiente
+                for idx, s in enumerate(totals, start=1):
+                    if s.id == idsesion:
+                        numero_sesion = idx
+                        break
                 
-
                 if SesionAsistencia.objects.filter(idsesioncurso=sesion, idusuario=user).exists():
-                    mensaje="El usuario ya se encuentra registrado a esta sesión"
+                    mensaje= f'El usuario: {texto}, ya se encuentra registrado a esta sesión: {numero_sesion} del curso: {sesion.idcurso.nombre}'
                     return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False})
                 
-  
                 if verificar:
                     asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=True)
                     asistencia.save()
-                    mensaje="Asistencia verificada"
-                
-                        #mensaje=f'El usuario {texto} no esta asignado al curso {sesion.idcurso.nombre}'
+                    mensaje = f'{texto}. Tu asistencia para la sesión número {numero_sesion} del curso "{sesion.idcurso.nombre}" ha sido registrada exitosamente.'
                 return render(request, 'admin/validarasistencia.html',{'idsesion':idsesion, 'mensaje':mensaje,'estado':False})
                 
             else:
