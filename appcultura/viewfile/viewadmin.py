@@ -5,6 +5,7 @@ import os
 import mimetypes
 from pdb import post_mortem
 import select
+from turtle import back
 from urllib import request, response
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage, default_storage
@@ -20,6 +21,7 @@ from django.db import transaction
 from django.utils import timezone
 from numpy import append
 import pandas as pd
+from appcultura.modelos import estado_compromisos
 from appcultura.modelos.calificacionformador import CalificacionFormador
 
 from appcultura.modelos.calificacionusuarios import CalificacionUsuarios
@@ -1968,3 +1970,56 @@ def excelasistentes(request, idsesion):
     response = HttpResponse(archivo_excel, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="asistencia_usuarios.xlsx"'
     return response
+
+#=========== funcion para duplicar curso ===
+@login_required
+def copyCursos(request, idcurso):
+    curso_original = get_object_or_404(Curso, id=idcurso)
+    with transaction.atomic():
+        # Duplicar el formulario
+        curso_nuevo = Curso.objects.create(
+            nombre=f"{curso_original.nombre} (Copia)",  # Agregar 'Copia' solo al nombre
+            descrip=f"{curso_original.descrip} (Copia)",  # Agregar 'Copia' solo a la descripción
+            precio=curso_original.precio,  # Copiar el precio tal cual (asumiendo que es numérico)
+            idempresa=curso_original.idempresa,  # Copiar la relación a empresa
+            idusu=curso_original.idusu,  # Copiar la relación al usuario
+          )
+        
+        #==== duplicar las competencias del curso
+        for competencias_original in CompetenciaCurso.objects.filter(idcurso=curso_original):
+            CompetenciaCurso.objects.create(
+                    idcompetencia=competencias_original.idcompetencia,
+                    idcurso=curso_nuevo,  # Relacionar la nueva sesión con el curso duplicado
+                )
+
+        # Duplicar las sesiones del curso
+        for sesiones_original in Sesioncurso.objects.filter(idcurso=curso_original):
+            sesion_nueva=Sesioncurso.objects.create(
+                fechainicio=sesiones_original.fechainicio,
+                fechafin=sesiones_original.fechafin,
+                lugar=sesiones_original.lugar,
+                estado=sesiones_original.estado,
+                idcurso=curso_nuevo,  # Relacionar la nueva sesión con el curso duplicado
+             )
+             
+            #duplicar temas
+            for temas_original in TemasSesion.objects.filter(idsesion=sesiones_original):
+                TemasSesion.objects.create(
+                    descrip=temas_original.descrip,
+                    competencias=temas_original.competencias,
+                    recursos=temas_original.recursos,  
+                    idsesion=sesion_nueva,
+                    ruta=temas_original.ruta,
+            )
+            
+        # Diplicar los objetivos del curso
+        for objetivos_original in ObjetivosCurso.objects.filter(idcurso=curso_original):
+            ObjetivosCurso.objects.create(
+                descrip=objetivos_original.descrip,
+                competencias=objetivos_original.competencias,
+                idcurso=curso_nuevo,  # Relacionar la nueva sesión con el curso duplicado
+            )
+            
+        #==== instanciar la parte de 
+    return HttpResponseRedirect(reverse('listarcursos'))
+   

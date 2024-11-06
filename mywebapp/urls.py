@@ -42,7 +42,8 @@ urlpatterns = [
     path('administracion/curso/editar/<int:idcurso>/', viewadmin.editarcurso, name='editarcurso'),  # editar curso
     path('administracion/curso/competencia/', viewadmin.crearCompetencia, name='crearCompetencia'),
     path('administracion/curso/competencia/delete/<int:idcom>/', viewadmin.eliminarCompetencia, name='eliminarCompetencia'),
-    
+    path('administracion/curso/copy/<int:idcurso>/', viewadmin.copyCursos, name='copyCursos'),  #registro curso
+
     #==============descargar archvios ===========
     path('administracion/curso/descarga/<path:ruta>/', viewadmin.download, name='download'), 
     #==============================

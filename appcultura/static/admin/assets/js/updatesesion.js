@@ -22,6 +22,10 @@ function editarsesion() {
       fechaInicio.name = 'fecha_inicio[]';
       fechaInicio.classList.add('col-sm-10');
       fechaInicio.setAttribute('required', 'required');
+      // Usar la función para obtener la fecha y hora actual
+      let fechaActual = getFormattedDateTime();
+      fechaInicio.value = fechaActual;
+      fechaInicio.min = fechaActual; //restringir fechas diferentes a la actual
       nuevoGrupo.appendChild(fechaInicio);
 
       // Etiqueta y campo para la fecha de finalizacion
@@ -35,6 +39,27 @@ function editarsesion() {
       fechaFinal.name = 'fecha_final[]';
       fechaFinal.classList.add('col-sm-10');
       fechaFinal.setAttribute('required', 'required');
+
+      //agregar fecha seleccionada en el input de fecini
+      let newFecha;
+       // Función para actualizar fechaFinal
+      const actualizarFechaFinal = (fecha) => {
+         fechaFinal.value = fecha; // Actualiza el valor de fechaFinal
+         fechaFinal.min = fecha;
+       };
+       // Agregar el evento de cambio al input de fechaInicio
+      agregarEventListenerFecha(fechaInicio).then((fecha) => {
+         newFecha = fecha; // Asignar el valor a la variable
+         actualizarFechaFinal(newFecha); // Actualiza fechaFinal
+       });
+        // Si deseas que se actualice cada vez que cambias la fecha en fechaInicio
+      fechaInicio.addEventListener('change', function () {
+         agregarEventListenerFecha(fechaInicio).then((fecha) => {
+           newFecha = fecha; // Asignar el valor a la variable
+           actualizarFechaFinal(newFecha); // Actualiza fechaFinal
+         });
+       });
+
       nuevoGrupo.appendChild(fechaFinal);
 
        // Etiqueta y campo para lugar
@@ -173,4 +198,42 @@ function agregarObjetivo() {
     objetivosContainer.appendChild(objetivosGrupo);
 
   contaobjetivos++;
+}
+
+//funcion para obtener la fecha actual
+function getFormattedDateTime() {
+  let now = new Date();
+  let year = now.getFullYear();
+  let month = ('0' + (now.getMonth() + 1)).slice(-2); // Mes en formato 2 dígitos
+  let day = ('0' + now.getDate()).slice(-2); // Día en formato 2 dígitos
+  let hours = '07'; // hora por defecto debe ser 7:00 Am
+  let minutes = '00';
+  // Formato 'YYYY-MM-DDTHH:MM' para el input 'datetime-local'
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+//funcion para obtener la fecha seleccionada en fechaInicio
+function agregarEventListenerFecha(inputElement) {
+  return new Promise((resolve) => {
+    inputElement.addEventListener('change', function () {
+      let fechaSeleccionada = inputElement.value; // Captura el valor del input
+      let fecha = new Date(fechaSeleccionada); // Crea un objeto Date
+
+      // Cambiar la hora a 6:00 PM (18:00)
+      fecha.setHours(18, 0, 0, 0); // Establecer 18:00 horas
+
+      // Formatear la nueva fecha a 'YYYY-MM-DDTHH:MM'
+      let year = fecha.getFullYear();
+      let month = (fecha.getMonth() + 1).toString().padStart(2, '0');
+      let day = fecha.getDate().toString().padStart(2, '0');
+      let hours = fecha.getHours().toString().padStart(2, '0');
+      let minutes = fecha.getMinutes().toString().padStart(2, '0');
+
+      // Nueva fecha con hora cambiada
+      let nuevaFecha = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+      // Retornar la nueva fecha usando resolve
+      resolve(nuevaFecha);
+    });
+  });
 }
