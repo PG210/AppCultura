@@ -1743,7 +1743,7 @@ def registroUser(request):
                 else:
                     idep = None
                 #================
-                userper = UserPerfil(nombre=row['Nombre'], apellido=row['Apellido'], cedula=row['Cedula'], telefono=row['Telefono'], idrol=roles[row['Idrol']], cargo=row['Cargo'], idarea=idarea, idepart=idep, user=user )
+                userper = UserPerfil(nombre=row['Nombre'], apellido=row['Apellido'], cedula=row['Cedula'], telefono=row['Telefono'], vpass=row['Password'], idrol=roles[row['Idrol']], cargo=row['Cargo'], idarea=idarea, idepart=idep, user=user )
                 userper.save()
                 #============= guardar el grupo con los usuarios ===========
                 if row['Idgrupo']:
@@ -1799,14 +1799,14 @@ def addNewUser(request):
                 else: 
                     id_depar = Departamento.objects.get(id=idepar)
                     id_area = None
-                userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], idrol=rol_user, cargo=cargo_user, idepart=id_depar, idarea=id_area, user=user )
+                userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], vpass=request.POST['pass'], idrol=rol_user, cargo=cargo_user, idepart=id_depar, idarea=id_area, user=user )
                 userper.save()
               else: 
                 if rol_user.id == 5:
-                   userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], idrol=rol_user, cargo=cargo_user, idepart=None, idarea=None, user=user, idempresa=id_empresa)
+                   userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], vpass=request.POST['pass'], idrol=rol_user, cargo=cargo_user, idepart=None, idarea=None, user=user, idempresa=id_empresa)
                    userper.save()
                 else:
-                   userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], idrol=rol_user, cargo=cargo_user, idepart=None, idarea=None, user=user )
+                   userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], cedula=request.POST['ced'], telefono=request.POST['tel'], vpass=request.POST['pass'], idrol=rol_user, cargo=cargo_user, idepart=None, idarea=None, user=user )
                    userper.save()
                 #============ guardar la relacion de empresa y formador
                 formador = FormadorEmpresa(idempresa=id_empresa, idusu=userper)

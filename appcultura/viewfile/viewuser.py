@@ -19,6 +19,12 @@ from appcultura.modelos.sesioncurso import Sesioncurso # proteger las rutas de a
 from ..models import UserPerfil, SesionFormulario, RolUser, Preguntas, RespuestaForm, RespuestaOpciones, PersonasCompromisos, Formulario, CalificacionFormador, TemasSesion
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+#=== instanciar el servicio para enviar correos por medio de correo corporativo mediante auth 2.0 y haciendo uso de la Api de azure=========
+from appcultura.services.services import MicrosoftOAuthService
+from appcultura.utils.email_utils import send_email
+from appcultura.modelos.accesstoken import AccessToken 
+from django.template.loader import render_to_string
+
 
 @login_required
 def listar_cursos_usuario(request):
@@ -443,19 +449,52 @@ def validarasistenciaform(request, idsesion):
                 sesiones = Sesioncurso.objects.filter(idcurso=sesion.idcurso).latest('fechafin')
                 if sesiones.id == sesion.id:
                     estado = True
-                #================================================================================
+                #=================================verificacion de asistencia===============================================
                 if SesionAsistencia.objects.filter(idsesioncurso=sesion, idusuario=user).exists():
                     #========================= buscar la empresa para obtener los usuarios========================================
                     usuarios = usuariosEmpresa(user)
-                    print('mensaje', mensaje)
                     #=== si la asistencia ya esta verificada debe ver si tiene o no formularios =========
                     return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar, 'mensaje':mensaje})
                 else:
                     asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=user, asistencia_pendiente=False)
                     asistencia.save()
                     #========== buscar a que empresa pertenece este usuario ========
-                    print('mensaje', mensaje)
                     usuarios = usuariosEmpresa(user)
+                    #========= enviar correo al usuario con información que pueda ingresar a la plataforma ======00
+                    oauth_service = MicrosoftOAuthService()
+                    if oauth_service.is_token_expired():
+                        try:
+                            oauth_service.refresh_access_token()  # Llama a la función para refrescar el token
+                            token_info = AccessToken.objects.filter().first()
+                            access_token = token_info.access_token # obtener el token refrescado
+                            destino = usuario.username
+                            asunto = "Revisa tus métricas."
+                            content = render_to_string('emails/notificacion.html', {
+                                            'nombre': user.nombre,
+                                            'apellido': user.apellido,
+                                            'pass': user.vpass,
+                                            'user': usuario.username
+                                        })
+                            send_email(access_token, destino, asunto, content)
+                        except ValueError as e:
+                            return render(request, '404.html', status=404)
+                    else:
+                        #=== envia correo si el token no esta vencido ===========
+                        try:
+                            token_info = AccessToken.objects.filter().first()
+                            access_token = token_info.access_token # obtener el token refrescado
+                            destino = usuario.username
+                            asunto = "Revisa tus métricas."
+                            content = render_to_string('emails/notificacion.html', {
+                                            'nombre': user.nombre,
+                                            'apellido': user.apellido,
+                                            'pass': user.vpass,
+                                            'user': usuario.username
+                                        })
+                            send_email(access_token, destino, asunto, content)
+                        except ValueError as e:
+                            return render(request, '404.html', status=404)
+
                     return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':user, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual, 'estado':estado, 'curso':curso, 'buscar':buscar, 'mensaje':mensaje})
             else:
                 mensaje = f'la sesion {idsesion} no existe'
@@ -473,14 +512,13 @@ def inscribirasistenteform(request, idsesion):
     #=====================================================
     if request.method == 'POST':
         try: 
-            user = User.objects.create_user(username=request.POST['correo'], 
-            password=request.POST['cedula'])
+            user = User.objects.create_user(username=request.POST['correo'], password=request.POST['cedula'])
             user.save()
             rol_user = RolUser.objects.get(id=2)
             #id_cargo = request.POST['cargo']
             #id_empresa =  request.POST['empresa']
             #empresa_user = EmpresaAreas.objects.get(id=1)
-            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], idrol=rol_user, user=user, pendiente=True )
+            userper = UserPerfil(nombre=request.POST['nombre'], apellido=request.POST['apellido'], telefono=request.POST['telefono'], cedula=request.POST['cedula'], vpass=request.POST['cedula'], idrol=rol_user, user=user, pendiente=True )
             userper.save()
             sesion = Sesioncurso.objects.get(id=idsesion)
             grupo = GruposCursos.objects.filter(idcurso=sesion.idcurso).first()
@@ -490,6 +528,24 @@ def inscribirasistenteform(request, idsesion):
             asistencia = SesionAsistencia(idsesioncurso=sesion, idusuario=userper, asistencia_pendiente=True)
             asistencia.save()
             usuarios = UserPerfil.objects.filter(idrol=2).exclude(id=user.id)
+            #========== agregar el envio de correos =====
+            oauth_service = MicrosoftOAuthService()
+            try:
+                oauth_service.refresh_access_token()  # Llama a la función para refrescar el token
+                token_info = AccessToken.objects.filter().first()
+                access_token = token_info.access_token # obtener el token refrescado
+                destino = user.username
+                asunto = "Revisa tus métricas."
+                content = render_to_string('emails/notificacion.html', {
+                                'nombre': userper.nombre,
+                                'apellido': userper.apellido,
+                                'pass': userper.vpass,
+                                'user': user.username
+                            })
+                send_email(access_token, destino, asunto, content)
+            except ValueError as e:
+                return render(request, '404.html', status=404)
+            #=============== finaliza el envio de correos =============
             return render(request, 'user/listformuqr.html', {'idsesion':sesion, 'usu':userper, 'usuarios': usuarios, 'formularios': formulario_sesion, 'preguntas': preguntas, 'datoscurso':datoscurso, 'fecha_actual':fecha_actual})
         except IntegrityError:
             messages.error(request, "Error al guardar el usuario")
