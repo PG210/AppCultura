@@ -1,3 +1,4 @@
+from wsgiref.util import request_uri
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 
@@ -21,7 +22,8 @@ from django.utils import timezone
 from django.db.models import Q, Sum
 from collections import defaultdict
 from django.conf import settings
-
+#=== instanciar el servicio =========
+from appcultura.services.services import MicrosoftOAuthService
 
 # Create your views here.
 #vista para home
@@ -709,5 +711,39 @@ def filtrarcurso(request, idcurso):
                 'curso':curso_user
             }
         return render(request, 'user/dashboard.html', context)
+    
+#======= autenticar correo =============
+def login_microsoft(request):
+        oauth_service = MicrosoftOAuthService()
+        authorization_url = oauth_service.get_authorization_url()
+        return redirect(authorization_url)
 
-  
+def oauth_callback(request):
+    oauth_service = MicrosoftOAuthService()
+    
+    # Obtener el código de autorización de la URL
+    authorization_code = request.GET.get('code')
+    
+    if not authorization_code:
+        return HttpResponse("Error: No se recibió el código de autorización.", status=400)
+    
+    try:
+        # Usar el código para obtener el token
+        oauth_service.get_token(authorization_code)
+        return HttpResponse("Autenticación exitosa. Token guardado.")
+    except Exception as e:
+        return HttpResponse(f"Error al obtener el token: {str(e)}", status=500)
+    
+#============= renovar el estado del token de microsoft
+def estado(request):
+    oauth_service = MicrosoftOAuthService()
+    if oauth_service.is_token_expired():
+       try:
+         # Llama a la función para refrescar el token
+         oauth_service.refresh_access_token()
+         return HttpResponse("Token de acceso renovado exitosamente.")
+       except ValueError as e:
+         # Caso en que no se encuentra un refresh_token
+         return HttpResponse(f"Error: {str(e)}", status=400)
+    else:
+         return HttpResponse(f"token activo:")

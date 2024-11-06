@@ -22,7 +22,8 @@ from django.urls import path
 from appcultura import views
 from appcultura.viewfile import viewadmin #utilizar una nueva vista 
 from appcultura.viewfile import viewformu #crear formularios
-from appcultura.viewfile import viewuser, viewformador #Utilizar la vista de usuario
+from appcultura.viewfile import viewuser, viewformador, viewemail #Utilizar la vista de usuario
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -184,6 +185,15 @@ urlpatterns = [
 
     #===================== generar archivos excel de informacion ================================
     path('administracion/file/sesion/<int:idsesion>/', viewadmin.excelasistentes, name="excelasistentes"),
+
+    #=========== rutas para servicio de auth2.0 ============
+    path('oauth/login/', views.login_microsoft, name='login_microsoft'),
+    path('oauth/callback/', views.oauth_callback, name='oauth_callback'),
+    path('token/estado/', views.estado), #revisar el estado del token 
+    path('email/prueba/', viewemail.emailprueba),
+
+    #========== pagina 404 ===========
+    path('pagina/404/', viewemail.pagnotfind),
+    
   
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-   

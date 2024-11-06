@@ -40,3 +40,6 @@ from .modelos.calificacionformador import CalificacionFormador
 #=========== avances de compromiso ====
 from .modelos.avancecompromisos import AvanceCompromisos
 from .modelos.fechascompromiso import FechasCompromisos
+
+#=== intancia de la tabla accesstoken ======
+from .modelos.accesstoken import AccessToken
