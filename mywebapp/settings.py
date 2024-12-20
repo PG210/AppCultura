@@ -158,7 +158,7 @@ EMAIL_HOST_PASSWORD = 'Evo.1982*'  # Contraseña del correo de salida
 DEFAULT_FROM_EMAIL = 'notificaciones@evolucion.co'  # Dirección que aparecerá como remitente
 
 #===variables to service of microsoft 
-#MICROSOFT_CLIENT_ID = '3efbbfc3-6cff-4cb0-8580-6bf7990b6d67'
-#MICROSOFT_CLIENT_SECRET = 'P8V8Q~tmwh3azq3MSNnSVuHXVSrX697sSrMX1dpp'
-#MICROSOFT_TENANT_ID = '6a44d83e-4990-45c8-b708-a5613d9e1acc'
-#MICROSOFT_REDIRECT_URI = 'http://localhost:8000/oauth/callback'
+MICROSOFT_CLIENT_ID = '3efbbfc3-6cff-4cb0-8580-6bf7990b6d67'
+MICROSOFT_CLIENT_SECRET = 'P8V8Q~tmwh3azq3MSNnSVuHXVSrX697sSrMX1dpp'
+MICROSOFT_TENANT_ID = '6a44d83e-4990-45c8-b708-a5613d9e1acc'
+MICROSOFT_REDIRECT_URI = 'http://localhost:8000/oauth/callback'
